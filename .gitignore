@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Node / React
+node_modules/
+dist/
+
+# Environment (never commit secrets)
+.env
+.env.local
+
+# Local data / logs
+*.log
+*.sqlite-journal
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
