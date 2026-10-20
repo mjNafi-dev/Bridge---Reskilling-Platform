@@ -1,0 +1,75 @@
+/* Bridge base styles: fonts, reset and default text styles.
+   Uses only variables from tokens.css. Import order: tokens.css, then base.css. */
+
+/* Fonts (free): Bricolage Grotesque + JetBrains Mono from Google Fonts, Switzer from Fontshare */
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://api.fontshare.com/v2/css?f[]=switzer@400,500,600&display=swap");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font: var(--text-body-medium); /* never below 16px for reading text */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Headings: Bricolage Grotesque at semibold, mixed case (no all-caps for readability) */
+h1 { font: var(--text-display-large); letter-spacing: -0.02em; }
+h2 { font: var(--text-display-small); letter-spacing: -0.01em; }
+h3 { font: var(--text-headline); }
+h4 { font: var(--text-title-large); }
+
+p { max-width: 68ch; } /* comfortable line length */
+
+small,
+.text-small { font: var(--text-body-small); color: var(--d3); }
+
+/* Small uppercase labels, e.g. "02 · YOUR OVERLAP" */
+.label-mono {
+  font: var(--text-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mid);
+}
+
+/* Numbers (overlap %, hours) keep equal-width digits so they don't jump while animating */
+.num { font-variant-numeric: tabular-nums; }
+
+a { color: inherit; text-underline-offset: 3px; }
+
+img,
+svg { display: block; max-width: 100%; }
+
+button,
+input,
+select,
+textarea { font: inherit; color: inherit; }
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Respect users who turn off animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

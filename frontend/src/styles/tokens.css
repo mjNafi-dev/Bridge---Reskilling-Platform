@@ -1,0 +1,97 @@
+/* Bridge design tokens.
+   Mirrors the project design system. Change values there first, then update here.
+   See docs/style-guide.md for how each token is meant to be used. */
+
+:root {
+  /* Fonts */
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body: 'Switzer', -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  /* Neutrals */
+  --ink: #111111;
+  --d1: #1C1C1E;
+  --d2: #3A3A3C;
+  --d3: #6B6B70;
+  --mid: #9A9AA0;
+  --l2: #D4D4D8;
+  --l1: #E8E8EB;
+  --l05: #F4F4F5;
+  --paper: #FFFFFF;
+
+  /* Accents (light) */
+  --familiar-subtle: #FDF3DC;
+  --familiar-muted: #F2D28B;
+  --familiar-default: #D99A0B;
+  --familiar-strong: #A87405;
+  --familiar-fg: #3A2802;
+  --done-subtle: #EAF1E1;
+  --done-muted: #B7CC9A;
+  --done-default: #5E7F2E;
+  --done-strong: #466222;
+  --done-fg: #1C2810;
+  --highlight-subtle: #FFEDE3;
+  --highlight-muted: #FBBE9A;
+  --highlight-default: #F26B21;
+  --highlight-strong: #C24F10;
+  --highlight-fg: #3D1604;
+  --sky-subtle: #EEF5FC;
+  --sky-muted: #C9DFF4;
+  --sky-default: #8DB8E3;
+  --sky-strong: #5B93CC;
+  --sky-fg: #0F2235;
+
+  /* Semantic */
+  --success: #5E7F2E;
+  --success-subtle: #EAF1E1;
+  --warning: #A87405;
+  --warning-subtle: #FDF3DC;
+  --danger: #B3382C;
+  --danger-subtle: #F9E4E1;
+  --info: #3F78B5;
+  --info-subtle: #EEF5FC;
+
+  /* Type scale */
+  --text-display-large: 600 56px/1.05 var(--font-display);
+  --text-display-small: 600 32px/1.15 var(--font-display);
+  --text-headline: 600 22px/1.3 var(--font-display);
+  --text-title-large: 600 18px/1.4 var(--font-body);
+  --text-title-small: 600 14px/1.4 var(--font-body);
+  --text-body-large: 400 18px/1.6 var(--font-body);
+  --text-body-medium: 400 16px/1.6 var(--font-body);
+  --text-body-small: 400 14px/1.5 var(--font-body);
+  --text-label: 500 15px/1.3 var(--font-body);
+  --text-mono: 500 12px/1.4 var(--font-mono);
+
+  /* Spacing */
+  --space-4: 4px; /* micro gaps */
+  --space-8: 8px; /* inner padding, icon gaps */
+  --space-12: 12px; /* compact rows */
+  --space-16: 16px; /* card padding, mobile gutter */
+  --space-24: 24px; /* between groups */
+  --space-32: 32px; /* between blocks */
+  --space-64: 64px; /* between sections */
+  --space-120: 120px; /* desktop section breathing room */
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+
+  /* Elevation */
+  --shadow-0: none; /* flat on paper */
+  --shadow-1: 0 1px 2px rgba(17,17,17,0.06), 0 0 0 1px rgba(17,17,17,0.05); /* cards */
+  --shadow-2: 0 8px 24px rgba(17,17,17,0.08); /* floating product cards over sky */
+  --shadow-3: 0 20px 48px rgba(17,17,17,0.14); /* modals, pinned skill card */
+
+  /* Opacity */
+  --opacity-disabled: 0.38;
+  --opacity-muted: 0.6;
+  --opacity-hover: 0.06;
+  --opacity-press: 0.12;
+  --opacity-overlay: 0.45;
+}
+
+/* Dark mode is not designed yet (light first). Accent dark values live in the token file for later. */
