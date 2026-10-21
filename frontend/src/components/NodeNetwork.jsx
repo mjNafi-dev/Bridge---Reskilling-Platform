@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./NodeNetwork.css";
+import { buildShape } from "./nodeShapes.js";
 
 /*
   Decorative "skills connecting" animation for the sign-up panel.
@@ -9,6 +10,8 @@ import "./NodeNetwork.css";
   It loops between two shapes:
     1. a loose network (dots linked to their nearest neighbours)
     2. a burst (every dot linked to one centre = the skill you're heading to)
+  When a `shape` is passed ("email" or "lock"), the dots fly into that icon's
+  outline and the icon sways in 3D (so it stays readable) until the shape is cleared.
   Positions are written straight onto the SVG elements every frame (no React
   re-render). With "reduce motion" on, it shows a still burst.
 */
@@ -17,7 +20,8 @@ const SIZE = 600; // SVG coordinate space (scales to fit the panel)
 const CENTER = SIZE / 2;
 const COUNT = 64;
 const PERSPECTIVE = 900; // bigger = flatter 3D
-const SPIN_SECONDS = 36; // one full revolution
+const SPIN_SECONDS = 26; // one full revolution
+const MORPH_SPIN_BOOST = 1.4; // extra spin while changing shape, so the turning stays visible
 const TILT = 0.32; // radians, how much we look down onto the cloud
 
 // Example skill pairs shown on hover. Illustrative only, not real recommendations.
@@ -109,22 +113,32 @@ function mixAt(time) {
   return 1 - ease((t - HOLD_NET - MORPH - HOLD_BURST) / MORPH);
 }
 
+// Icon outlines, one target point per dot
+const ICONS = { email: buildShape("email", COUNT), lock: buildShape("lock", COUNT) };
+const MAX_ICON_LINKS = Math.max(ICONS.email.links.length, ICONS.lock.links.length);
+const ICON_DOT_R = 4.5;
+
 // Rotate a 3D point and project it to 2D with perspective
-function project(p, spin) {
+function project(p, spin, tilt = TILT) {
   const cosY = Math.cos(spin), sinY = Math.sin(spin);
   const x1 = p.x * cosY - p.z * sinY;
   const z1 = p.x * sinY + p.z * cosY;
-  const cosX = Math.cos(TILT), sinX = Math.sin(TILT);
+  const cosX = Math.cos(tilt), sinX = Math.sin(tilt);
   const y2 = p.y * cosX - z1 * sinX;
   const z2 = p.y * sinX + z1 * cosX;
   const scale = PERSPECTIVE / (PERSPECTIVE + z2);
   return { x: CENTER + x1 * scale, y: CENTER + y2 * scale, scale, depth: z2 };
 }
 
-export default function NodeNetwork() {
+export default function NodeNetwork({ shape = null }) {
   const dotRefs = useRef([]);
   const netLineRefs = useRef([]);
   const spokeRefs = useRef([]);
+  const iconLineRefs = useRef([]);
+  const shapeRef = useRef(shape);
+  useEffect(() => {
+    shapeRef.current = ICONS[shape] ? shape : null;
+  }, [shape]);
   const tipRef = useRef(null);
   const posRef = useRef(NODES.map(() => ({ x: CENTER, y: CENTER, scale: 1, depth: 0 })));
   const hoverRef = useRef(null);
@@ -138,20 +152,55 @@ export default function NodeNetwork() {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let frame;
     const start = performance.now();
+    let last = start;
+    let spin = 0.6;
+    let iconMix = 0; // 0 = network/burst loop, 1 = icon
+    let activeIcon = "email";
+    const iconPos = NODES.map(() => ({ x: 0, y: 0, z: 0 })); // eased icon targets (smooth email <-> lock)
 
     const draw = (now) => {
       const time = now - start;
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
       const m = reduce ? 1 : mixAt(time);
-      const spin = reduce ? 0.6 : (time / 1000 / SPIN_SECONDS) * Math.PI * 2;
+
+      // Ease towards the requested icon (or back to the loop)
+      const wanted = shapeRef.current;
+      if (wanted) activeIcon = wanted;
+      const target = wanted ? 1 : 0;
+      const prevMix = iconMix;
+      iconMix += (target - iconMix) * Math.min(1, dt * 4.5);
+      const icon = ICONS[activeIcon];
+      icon.points.forEach((pt, i) => {
+        iconPos[i].x += (pt.x - iconPos[i].x) * Math.min(1, dt * 6);
+        iconPos[i].y += (pt.y - iconPos[i].y) * Math.min(1, dt * 6);
+        iconPos[i].z += (pt.z - iconPos[i].z) * Math.min(1, dt * 6);
+      });
+
+      // Spin never stops; it speeds up while the shape is changing so the turn stays visible
+      const changing = 4 * m * (1 - m) + Math.min(1, Math.abs(iconMix - prevMix) / Math.max(dt, 1e-3) / 4);
+      if (!reduce) spin += ((Math.PI * 2) / SPIN_SECONDS) * (1 + MORPH_SPIN_BOOST * changing) * dt;
+      // Icons sway (±32°) instead of turning edge-on; they're counter-rotated against the spin
+      const sway = Math.sin(time / 1500) * 0.55;
+      const a = spin - sway;
+      const cosA = Math.cos(a), sinA = Math.sin(a);
+      const tilt = TILT * (1 - 0.75 * iconMix);
 
       NODES.forEach((n, i) => {
-        const float = reduce ? 0 : Math.sin(time / 1300 + n.phase) * 6;
-        const p3 = {
+        const float = reduce ? 0 : Math.sin(time / 1300 + n.phase) * 6 * (1 - iconMix * 0.7);
+        const loop = {
           x: n.net.x + (n.burst.x - n.net.x) * m,
           y: n.net.y + (n.burst.y - n.net.y) * m + float,
           z: n.net.z + (n.burst.z - n.net.z) * m,
         };
-        const p = project(p3, spin);
+        const ip = iconPos[i];
+        const iconWorld = { x: ip.x * cosA + ip.z * sinA, y: ip.y + float, z: -ip.x * sinA + ip.z * cosA };
+        const p3 = {
+          x: loop.x + (iconWorld.x - loop.x) * iconMix,
+          y: loop.y + (iconWorld.y - loop.y) * iconMix,
+          z: loop.z + (iconWorld.z - loop.z) * iconMix,
+        };
+        const p = project(p3, spin, tilt);
         posRef.current[i] = p;
         // Nearer dots (negative depth) are bigger and more solid
         const near = Math.min(1, Math.max(0, 0.5 - p.depth / 400));
@@ -159,14 +208,14 @@ export default function NodeNetwork() {
         if (dot) {
           dot.setAttribute("cx", p.x);
           dot.setAttribute("cy", p.y);
-          dot.setAttribute("r", n.r * p.scale);
-          dot.style.opacity = 0.45 + near * 0.55;
+          dot.setAttribute("r", (n.r + (ICON_DOT_R - n.r) * iconMix) * p.scale);
+          dot.style.opacity = 0.45 + near * 0.55 + iconMix * 0.2;
         }
         const spoke = spokeRefs.current[i];
         if (spoke) {
           spoke.setAttribute("x2", p.x);
           spoke.setAttribute("y2", p.y);
-          spoke.style.opacity = m * (0.15 + near * 0.35);
+          spoke.style.opacity = m * (1 - iconMix) * (0.15 + near * 0.35);
         }
       });
 
@@ -179,8 +228,26 @@ export default function NodeNetwork() {
         line.setAttribute("y1", pa.y);
         line.setAttribute("x2", pb.x);
         line.setAttribute("y2", pb.y);
-        line.style.opacity = (1 - m) * 0.4;
+        line.style.opacity = (1 - m) * (1 - iconMix) * 0.4;
       });
+
+      // Icon outline lines
+      for (let k = 0; k < MAX_ICON_LINKS; k++) {
+        const line = iconLineRefs.current[k];
+        if (!line) continue;
+        const link = icon.links[k];
+        if (!link) {
+          line.style.opacity = 0;
+          continue;
+        }
+        const pa = posRef.current[link[0]];
+        const pb = posRef.current[link[1]];
+        line.setAttribute("x1", pa.x);
+        line.setAttribute("y1", pa.y);
+        line.setAttribute("x2", pb.x);
+        line.setAttribute("y2", pb.y);
+        line.style.opacity = iconMix * 0.55;
+      }
 
       // Keep the hover label attached to its moving dot, flipped left near the right edge
       const h = hoverRef.current;
@@ -193,7 +260,7 @@ export default function NodeNetwork() {
         tip.style.transform = flip ? "translate(calc(-100% - 14px), -50%)" : "translate(14px, -50%)";
       }
 
-      if (!reduce) frame = requestAnimationFrame(draw);
+      frame = requestAnimationFrame(draw); // keeps running so focus shapes still appear with reduce-motion on
     };
 
     frame = requestAnimationFrame(draw);
@@ -209,6 +276,9 @@ export default function NodeNetwork() {
           ))}
           {NODES.map((_, i) => (
             <line key={`s${i}`} x1={CENTER} y1={CENTER} ref={(el) => (spokeRefs.current[i] = el)} />
+          ))}
+          {Array.from({ length: MAX_ICON_LINKS }, (_, k) => (
+            <line key={`i${k}`} className="node-network__icon-line" ref={(el) => (iconLineRefs.current[k] = el)} style={{ opacity: 0 }} />
           ))}
         </g>
         {NODES.map((n, i) => (

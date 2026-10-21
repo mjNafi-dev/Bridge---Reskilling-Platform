@@ -30,3 +30,24 @@ export const SAMPLE_CV = {
 
 // Which onboarding fields the CV step fills (used for the "From your CV" badges)
 export const CV_FIELDS = Object.keys(SAMPLE_CV);
+
+// Full SYNTHETIC demo profile for "Try with a demo profile": every required answer
+// filled, so judges land on the Review step and can run matching straight away.
+export const DEMO_PROFILE = {
+  name: "Aina (demo)",
+  ageRange: "25–34",
+  country: "Malaysia",
+  situation: "Employed",
+  ...SAMPLE_CV,
+  cvFileName: "sample-cv-graphic-designer.pdf",
+  cvFilled: CV_FIELDS,
+  workTypes: ["Creative", "Analytical"],
+  goal: "Switch to a new field",
+  eyeing: "Video editor",
+  causes: ["Education"],
+  hoursPerWeek: 8,
+  budget: "Free only",
+  learnStyle: ["Videos", "Hands-on practice"],
+  genres: ["Mystery", "Sci-fi"],
+  hobbies: ["Photography walks"],
+};

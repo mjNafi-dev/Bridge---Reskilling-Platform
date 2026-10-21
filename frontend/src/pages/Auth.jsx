@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import BrandMark from "../components/BrandMark.jsx";
 import NodeNetwork from "../components/NodeNetwork.jsx";
+import CyclingTagline from "../components/CyclingTagline.jsx";
+import { DEMO_PROFILE } from "../data/sampleCv.js";
+import { STEPS } from "./onboarding/steps.js";
 import "./Auth.css";
 
 /*
@@ -36,6 +39,7 @@ export default function Auth({ mode }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [focused, setFocused] = useState(null); // "email" | "lock" | null: shapes the dot animation
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -50,8 +54,11 @@ export default function Auth({ mode }) {
   }
 
   function startDemo() {
+    // Load a complete made-up profile and jump to the Review step
     try {
       localStorage.setItem("bridge.account", JSON.stringify({ email: "demo@bridge.app", demo: true }));
+      localStorage.setItem("bridge.profile", JSON.stringify(DEMO_PROFILE));
+      localStorage.setItem("bridge.onboardingStep", JSON.stringify(STEPS.length - 1));
     } catch {
       /* ignore */
     }
@@ -64,9 +71,9 @@ export default function Auth({ mode }) {
       <section className="auth__panel">
         <BrandMark />
         <div className="auth__visual">
-          <NodeNetwork />
+          <NodeNetwork shape={focused} />
         </div>
-        <p className="auth__tagline">Every skill starts from one you have</p>
+        <CyclingTagline className="auth__tagline" />
       </section>
 
       <section className="auth__form-side">
@@ -81,6 +88,8 @@ export default function Auth({ mode }) {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => setFocused("email")}
+              onBlur={() => setFocused(null)}
               required
             />
           </label>
@@ -94,11 +103,14 @@ export default function Auth({ mode }) {
                 placeholder={mode === "signup" ? "At least 8 characters" : "Your password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setFocused("lock")}
+                onBlur={() => setFocused(null)}
                 required
               />
               <button
                 type="button"
                 className="field__eye"
+                onMouseDown={(e) => e.preventDefault()} // keep focus in the field (and the lock shape)
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >

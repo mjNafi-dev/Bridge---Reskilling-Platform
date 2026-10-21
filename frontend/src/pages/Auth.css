@@ -62,7 +62,7 @@
 }
 
 .auth__tagline {
-  max-width: 13ch;
+  max-width: 15ch;
   font: 600 clamp(36px, 3.6vw, 56px) / 1.06 var(--font-display);
   letter-spacing: -0.025em;
 }

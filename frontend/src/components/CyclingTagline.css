@@ -1,0 +1,62 @@
+.tagline-cycle {
+  display: grid;
+}
+
+/* Every line sits in the same cell; only the active one is visible */
+.tagline-cycle__line {
+  grid-area: 1 / 1;
+  align-self: end;      /* shorter lines sit on the bottom edge, no gap underneath */
+  text-wrap: balance;   /* even line lengths, no single word left alone on the last line */
+}
+
+.tagline-cycle__line.is-idle {
+  visibility: hidden;
+}
+
+/* Clipping box per word, so words appear to roll in and out of a slot */
+.tagline-cycle__mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.12em; /* room for descenders (g, y, p) */
+  margin-bottom: -0.12em;
+  margin-right: 0.24em;
+}
+
+.tagline-cycle__word {
+  display: inline-block;
+  transform: translateY(110%);
+  opacity: 0;
+}
+
+/* Arriving: rise up from below, word by word */
+.is-in .tagline-cycle__word {
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease;
+}
+
+/* Leaving: drop down out of view, word by word */
+.is-out .tagline-cycle__word {
+  transform: translateY(110%);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.5, 0, 0.75, 0), opacity 0.35s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tagline-cycle__word,
+  .is-in .tagline-cycle__word,
+  .is-out .tagline-cycle__word {
+    transform: none;
+    transition: opacity 0.3s ease;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
