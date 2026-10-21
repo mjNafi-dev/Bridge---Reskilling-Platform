@@ -6,11 +6,11 @@
   Custom steps (CV upload, Review) are drawn by their own components.
 */
 
-const MY_STATES = [
-  "Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Perak", "Perlis",
-  "Pulau Pinang", "Sabah", "Sarawak", "Selangor", "Terengganu",
-  "W.P. Kuala Lumpur", "W.P. Labuan", "W.P. Putrajaya", "Outside Malaysia",
-];
+// Country list built from ISO 3166 codes; names come from the browser in English
+const COUNTRY_CODES = "AF AL DZ AD AO AG AR AM AU AT AZ BS BH BD BB BY BE BZ BJ BT BO BA BW BR BN BG BF BI CV KH CM CA CF TD CL CN CO KM CG CD CR CI HR CU CY CZ DK DJ DM DO EC EG SV GQ ER EE SZ ET FJ FI FR GA GM GE DE GH GR GD GT GN GW GY HT HN HK HU IS IN ID IR IQ IE IL IT JM JP JO KZ KE KI KW KG LA LV LB LS LR LY LI LT LU MO MG MW MY MV ML MT MH MR MU MX FM MD MC MN ME MA MZ MM NA NR NP NL NZ NI NE NG KP MK NO OM PK PW PS PA PG PY PE PH PL PT PR QA RO RU RW KN LC VC WS SM ST SA SN RS SC SL SG SK SI SB SO ZA KR SS ES LK SD SR SE CH SY TW TJ TZ TH TL TG TO TT TN TR TM TV UG UA AE GB US UY UZ VU VA VE VN YE ZM ZW".split(" ");
+const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+const COUNTRIES = COUNTRY_CODES.map((c) => regionNames.of(c)).sort((a, b) => a.localeCompare(b));
+
 
 const INDUSTRIES = [
   "Creative & media", "Education", "Finance & banking", "Government & public sector",
@@ -26,11 +26,11 @@ export const STEPS = [
     title: "About you",
     nav: "Basics",
     required: true,
-    intro: "A few basics so we can tailor sources and courses to where you are.",
+    intro: "A few basics so we can tailor data sources and courses to where you are.",
     fields: [
       { key: "name", label: "What should we call you?", type: "text", required: true, placeholder: "Your name or a nickname" },
       { key: "ageRange", label: "Age range", type: "select", required: true, options: ["18–24", "25–34", "35–44", "45–54", "55+"] },
-      { key: "state", label: "Where are you based?", type: "select", required: true, options: MY_STATES },
+      { key: "country", label: "Which country are you based in?", type: "select", required: true, options: COUNTRIES },
       {
         key: "situation", label: "What best describes you right now?", type: "cards", required: true, max: 1,
         options: ["Student", "Employed", "Between jobs", "On a career break", "Freelancer"],
