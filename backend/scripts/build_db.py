@@ -96,7 +96,9 @@ def fetch_occupations(seeds):
             "seed": term,
             "title": occ.get("title", ""),
             "description": occ.get("description", {}).get("en", {}).get("literal", ""),
-            "isco_code": isco.get("code", ""),
+            # Some ESCO jobs sit under another ESCO job instead of an ISCO group;
+            # their own ESCO code ("2654.4") still starts with the ISCO code.
+            "isco_code": isco.get("code") or str(occ.get("code", "")).split(".")[0],
             "isco_title": isco.get("title", ""),
             "alt_labels": occ.get("alternativeLabel", {}).get("en", []),
             "skills": [

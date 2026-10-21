@@ -70,12 +70,20 @@ def load_catalogue(db_path=DB_PATH):
     return {"occupations": occupations, "demand": demand, "sources": sources}
 
 
+def as_int(value, default, lo, hi):
+    """Read a number from user input without crashing on blanks or text."""
+    try:
+        return min(max(int(float(value)), lo), hi)
+    except (TypeError, ValueError):
+        return default
+
+
 def user_evidence(profile):
     """Everything the user told us, as (text, weight, where-it-came-from)."""
     ev = []
     for s in profile.get("skills") or []:
-        lvl = LEVEL_WEIGHT[min(max(int(s.get("level", 1)), 0), 3)]
-        ev.append((s["name"], lvl * RECENCY_WEIGHT.get(s.get("lastUsed"), 0.8), "skill"))
+        lvl = LEVEL_WEIGHT[as_int(s.get("level"), 1, 0, 3)]
+        ev.append((s.get("name") or "", lvl * RECENCY_WEIGHT.get(s.get("lastUsed"), 0.8), "skill"))
     for role in profile.get("roles") or []:
         for t in role.get("tasks") or []:
             ev.append((t, 0.75, "task"))
@@ -93,7 +101,7 @@ def user_evidence(profile):
             ev.append((c["name"], 0.5, "course"))
     if profile.get("eduField"):
         ev.append((profile["eduField"], 0.45, "education"))
-    return [e for e in ev if e[0] and e[0].strip()]
+    return [(str(t).strip(), w, k) for t, w, k in ev if t and str(t).strip()]
 
 
 def similarity_matrix(evidence, occ, user_vecs, emb):
@@ -165,7 +173,8 @@ def weights(comfort, has_demand, has_interest):
 def match(profile, comfort=0.5, catalogue=None):
     cat = catalogue or load_catalogue()
     evidence = user_evidence(profile)
-    hours_per_week = max(1, int(profile.get("hoursPerWeek") or 5))
+    hours_per_week = as_int(profile.get("hoursPerWeek"), 5, 1, 167)
+    comfort = min(max(float(comfort or 0.5), 0.0), 1.0)
     emb = get_embeddings()
     role_titles = [r["title"] for r in profile.get("roles") or [] if r.get("title")]
     user_vecs = emb.encode([t for t, _, _ in evidence]) if emb else None
@@ -203,8 +212,13 @@ def match(profile, comfort=0.5, catalogue=None):
                 "moderate": round(d["moderate"] * 100),
                 "fast": round(d["fast"] * 100),
                 "balanced": round(D * 100),
-                "source_id": d.get("source_id"),
+                "growth_flags": json.loads(d.get("growth_flags") or "[]"),  # O*NET Bright Outlook
+                "postings_today": d.get("postings"),  # live postings matched in today's snapshot
+                "ai_exposure": None if d.get("exposure") is None else round(d["exposure"], 2),  # ILO 2025, 0..1
+                "ai_exposure_category": d.get("exposure_category"),
+                "sources": (d.get("source_id") or "").split(","),
                 "as_of": d.get("as_of"),
+                "is_estimate": True,
             },
             "interest_fit": None if I is None else round(I * 100),
             "breakdown": {k: {"weight": round(w[k], 2), "value": round(parts[k] * 100)} for k in w},
