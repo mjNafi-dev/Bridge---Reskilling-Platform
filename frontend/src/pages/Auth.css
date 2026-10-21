@@ -3,10 +3,19 @@
 .auth {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--space-24);
-  padding: var(--space-24);
+  place-items: center;
+  padding: var(--space-48, 48px) var(--space-64);
   background: var(--paper);
+}
+
+/* Caps the layout so it doesn't stretch edge to edge on big screens */
+.auth__inner {
+  width: 100%;
+  max-width: 1280px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(48px, 7vw, 120px);
 }
 
 /* ---------- Left panel ---------- */
@@ -16,7 +25,9 @@
   flex-direction: column;
   justify-content: space-between;
   gap: var(--space-24);
-  padding: var(--space-32) var(--space-32) var(--space-32) var(--space-32);
+  height: min(820px, calc(100vh - 96px));
+  min-height: 560px;
+  padding: var(--space-32);
   border-radius: var(--radius-xl);
   background: var(--l1);
   overflow: hidden;
@@ -51,21 +62,20 @@
 }
 
 .auth__tagline {
-  max-width: 12ch;
-  font: 600 clamp(40px, 5.2vw, 76px) / 1.04 var(--font-display);
+  max-width: 13ch;
+  font: 600 clamp(36px, 3.6vw, 56px) / 1.06 var(--font-display);
   letter-spacing: -0.025em;
 }
 
 /* ---------- Right side: form ---------- */
 .auth__form-side {
-  display: grid;
-  place-items: center;
-  padding: var(--space-32) var(--space-16);
+  display: flex;
+  justify-content: center;
 }
 
 .auth__form {
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
   gap: var(--space-16);
@@ -266,12 +276,18 @@
 /* ---------- Smaller screens ---------- */
 @media (max-width: 900px) {
   .auth {
-    grid-template-columns: 1fr;
     padding: var(--space-16);
+    place-items: start center;
+  }
+
+  .auth__inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-32);
   }
 
   .auth__panel {
-    min-height: auto;
+    height: auto;
+    min-height: 0;
     padding: var(--space-24);
   }
 

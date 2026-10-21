@@ -60,6 +60,7 @@ export default function Auth({ mode }) {
 
   return (
     <main className="auth">
+      <div className="auth__inner">
       <section className="auth__panel">
         <BrandMark />
         <div className="auth__visual">
@@ -132,6 +133,7 @@ export default function Auth({ mode }) {
           </p>
         </form>
       </section>
+      </div>
     </main>
   );
 }
