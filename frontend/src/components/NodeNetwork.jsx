@@ -3,17 +3,22 @@ import "./NodeNetwork.css";
 
 /*
   Decorative "skills connecting" animation for the sign-up panel.
+  Every dot has a 3D position. The whole cloud slowly revolves (rotation around
+  the vertical axis + a gentle tilt) and is projected onto the 2D SVG with
+  perspective, so near dots look bigger and brighter.
   It loops between two shapes:
     1. a loose network (dots linked to their nearest neighbours)
-    2. a radial burst (every dot linked to one centre = the skill you're heading to)
-  Colours follow the design tokens: ink, amber (familiar), olive (done), orange (new).
-  Positions are updated directly on the SVG elements every frame (no React re-render)
-  so it stays smooth. With "reduce motion" on, it just shows the burst, still.
+    2. a burst (every dot linked to one centre = the skill you're heading to)
+  Positions are written straight onto the SVG elements every frame (no React
+  re-render). With "reduce motion" on, it shows a still burst.
 */
 
 const SIZE = 600; // SVG coordinate space (scales to fit the panel)
 const CENTER = SIZE / 2;
 const COUNT = 64;
+const PERSPECTIVE = 900; // bigger = flatter 3D
+const SPIN_SECONDS = 36; // one full revolution
+const TILT = 0.32; // radians, how much we look down onto the cloud
 
 // Example skill pairs shown on hover. Illustrative only, not real recommendations.
 const PAIRS = [
@@ -28,7 +33,7 @@ const PAIRS = [
 ];
 
 const COLORS = ["var(--ink)", "var(--familiar-default)", "var(--done-default)", "var(--highlight-default)"];
-const COLOR_ODDS = [0.45, 0.25, 0.15, 0.15];
+const COLOR_ODDS = [0.4, 0.25, 0.17, 0.18];
 
 // Small seeded random so the layout is the same on every load
 function seeded(seed) {
@@ -51,27 +56,31 @@ function pickColor(r) {
 function buildNodes() {
   const rand = seeded(42);
   const clusters = [
-    [210, 230], [380, 200], [300, 360], [420, 420], [190, 420],
+    [-90, -70, -60], [80, -100, 40], [0, 60, 90], [110, 110, -50], [-110, 110, 20],
   ];
+  const golden = Math.PI * (3 - Math.sqrt(5));
   const nodes = [];
   for (let i = 0; i < COUNT; i++) {
-    const [cx, cy] = clusters[i % clusters.length];
-    const big = rand() < 0.12;
-    const angle = (i / COUNT) * Math.PI * 2 + (rand() - 0.5) * 0.25;
-    const dist = 90 + rand() * 180;
+    const [cx, cy, cz] = clusters[i % clusters.length];
+    const big = rand() < 0.14;
+    // Burst: points spread evenly over a sphere (Fibonacci sphere), random radius
+    const y = 1 - (i / (COUNT - 1)) * 2;
+    const ring = Math.sqrt(1 - y * y);
+    const theta = golden * i;
+    const dist = 120 + rand() * 120;
     nodes.push({
-      net: { x: cx + (rand() - 0.5) * 170, y: cy + (rand() - 0.5) * 150 },
-      burst: { x: CENTER + Math.cos(angle) * dist, y: CENTER + Math.sin(angle) * dist },
-      r: big ? 9 + rand() * 7 : 3 + rand() * 5,
+      net: { x: cx + (rand() - 0.5) * 160, y: cy + (rand() - 0.5) * 140, z: cz + (rand() - 0.5) * 160 },
+      burst: { x: Math.cos(theta) * ring * dist, y: y * dist, z: Math.sin(theta) * ring * dist },
+      r: big ? 9 + rand() * 6 : 2.5 + rand() * 4.5,
       color: pickColor(rand()),
-      phase: rand() * Math.PI * 2, // for the gentle floating motion
+      phase: rand() * Math.PI * 2, // gentle individual floating
       label: PAIRS[i % PAIRS.length],
     });
   }
-  // Network links: each dot connects to its 2 nearest neighbours
+  // Network links: each dot connects to its 2 nearest neighbours (in 3D)
   nodes.forEach((n, i) => {
     n.links = nodes
-      .map((m, j) => ({ j, d: Math.hypot(m.net.x - n.net.x, m.net.y - n.net.y) }))
+      .map((m, j) => ({ j, d: Math.hypot(m.net.x - n.net.x, m.net.y - n.net.y, m.net.z - n.net.z) }))
       .filter((o) => o.j !== i)
       .sort((a, b) => a.d - b.d)
       .slice(0, 2)
@@ -84,9 +93,9 @@ const NODES = buildNodes();
 const NET_LINKS = NODES.flatMap((n, i) => n.links.map((j) => [i, j]));
 
 // Timeline in ms: hold network → morph → hold burst → morph back
-const HOLD_NET = 3500;
-const MORPH = 1800;
-const HOLD_BURST = 4500;
+const HOLD_NET = 2600;
+const MORPH = 2200;
+const HOLD_BURST = 3400;
 const CYCLE = HOLD_NET + MORPH + HOLD_BURST + MORPH;
 
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -100,12 +109,30 @@ function mixAt(time) {
   return 1 - ease((t - HOLD_NET - MORPH - HOLD_BURST) / MORPH);
 }
 
+// Rotate a 3D point and project it to 2D with perspective
+function project(p, spin) {
+  const cosY = Math.cos(spin), sinY = Math.sin(spin);
+  const x1 = p.x * cosY - p.z * sinY;
+  const z1 = p.x * sinY + p.z * cosY;
+  const cosX = Math.cos(TILT), sinX = Math.sin(TILT);
+  const y2 = p.y * cosX - z1 * sinX;
+  const z2 = p.y * sinX + z1 * cosX;
+  const scale = PERSPECTIVE / (PERSPECTIVE + z2);
+  return { x: CENTER + x1 * scale, y: CENTER + y2 * scale, scale, depth: z2 };
+}
+
 export default function NodeNetwork() {
   const dotRefs = useRef([]);
   const netLineRefs = useRef([]);
   const spokeRefs = useRef([]);
-  const posRef = useRef(NODES.map((n) => ({ ...n.burst })));
+  const tipRef = useRef(null);
+  const posRef = useRef(NODES.map(() => ({ x: CENTER, y: CENTER, scale: 1, depth: 0 })));
+  const hoverRef = useRef(null);
   const [hover, setHover] = useState(null);
+
+  useEffect(() => {
+    hoverRef.current = hover;
+  }, [hover]);
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -115,22 +142,31 @@ export default function NodeNetwork() {
     const draw = (now) => {
       const time = now - start;
       const m = reduce ? 1 : mixAt(time);
+      const spin = reduce ? 0.6 : (time / 1000 / SPIN_SECONDS) * Math.PI * 2;
 
       NODES.forEach((n, i) => {
-        const float = reduce ? 0 : Math.sin(time / 1400 + n.phase) * 3;
-        const x = n.net.x + (n.burst.x - n.net.x) * m + float;
-        const y = n.net.y + (n.burst.y - n.net.y) * m + float * 0.6;
-        posRef.current[i] = { x, y };
+        const float = reduce ? 0 : Math.sin(time / 1300 + n.phase) * 6;
+        const p3 = {
+          x: n.net.x + (n.burst.x - n.net.x) * m,
+          y: n.net.y + (n.burst.y - n.net.y) * m + float,
+          z: n.net.z + (n.burst.z - n.net.z) * m,
+        };
+        const p = project(p3, spin);
+        posRef.current[i] = p;
+        // Nearer dots (negative depth) are bigger and more solid
+        const near = Math.min(1, Math.max(0, 0.5 - p.depth / 400));
         const dot = dotRefs.current[i];
         if (dot) {
-          dot.setAttribute("cx", x);
-          dot.setAttribute("cy", y);
+          dot.setAttribute("cx", p.x);
+          dot.setAttribute("cy", p.y);
+          dot.setAttribute("r", n.r * p.scale);
+          dot.style.opacity = 0.45 + near * 0.55;
         }
         const spoke = spokeRefs.current[i];
         if (spoke) {
-          spoke.setAttribute("x2", x);
-          spoke.setAttribute("y2", y);
-          spoke.style.opacity = m * 0.45;
+          spoke.setAttribute("x2", p.x);
+          spoke.setAttribute("y2", p.y);
+          spoke.style.opacity = m * (0.15 + near * 0.35);
         }
       });
 
@@ -143,8 +179,19 @@ export default function NodeNetwork() {
         line.setAttribute("y1", pa.y);
         line.setAttribute("x2", pb.x);
         line.setAttribute("y2", pb.y);
-        line.style.opacity = (1 - m) * 0.35;
+        line.style.opacity = (1 - m) * 0.4;
       });
+
+      // Keep the hover label attached to its moving dot, flipped left near the right edge
+      const h = hoverRef.current;
+      const tip = tipRef.current;
+      if (tip && h !== null) {
+        const p = posRef.current[h];
+        const flip = p.x > SIZE * 0.55;
+        tip.style.left = `${(p.x / SIZE) * 100}%`;
+        tip.style.top = `${(p.y / SIZE) * 100}%`;
+        tip.style.transform = flip ? "translate(calc(-100% - 14px), -50%)" : "translate(14px, -50%)";
+      }
 
       if (!reduce) frame = requestAnimationFrame(draw);
     };
@@ -152,8 +199,6 @@ export default function NodeNetwork() {
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
   }, []);
-
-  const hovered = hover !== null ? posRef.current[hover] : null;
 
   return (
     <div className="node-network" aria-hidden="true">
@@ -178,11 +223,8 @@ export default function NodeNetwork() {
           />
         ))}
       </svg>
-      {hovered && (
-        <div
-          className="node-network__tip"
-          style={{ left: `${(hovered.x / SIZE) * 100}%`, top: `${(hovered.y / SIZE) * 100}%` }}
-        >
+      {hover !== null && (
+        <div className="node-network__tip" ref={tipRef}>
           <span className="node-network__tip-dot" style={{ background: NODES[hover].color }} />
           {NODES[hover].label}
         </div>

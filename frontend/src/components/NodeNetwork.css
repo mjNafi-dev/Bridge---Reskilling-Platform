@@ -6,6 +6,8 @@
 }
 
 .node-network svg {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   overflow: visible;
@@ -18,13 +20,12 @@
 
 .node-network__dot {
   cursor: default;
-  transition: r 0.2s ease;
 }
 
-/* Small label that appears next to a hovered dot, Antimetal-style */
+/* Small label next to a hovered dot, Antimetal-style. Position set every frame in JS. */
 .node-network__tip {
   position: absolute;
-  transform: translate(14px, -50%);
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: var(--space-8);
