@@ -48,7 +48,7 @@ export default function Onboarding() {
   useEffect(() => {
     save(STEP_KEY, stepIndex);
     setVisited((v) => new Set(v).add(STEPS[stepIndex].id));
-    contentRef.current?.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0 }); // the page scrolls (the step panel is sticky)
   }, [stepIndex]);
 
   const setField = (key, value) => {

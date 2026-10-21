@@ -43,6 +43,7 @@ export const DEMO_PROFILE = {
   cvFilled: CV_FIELDS,
   workTypes: ["Creative", "Analytical"],
   goal: "Switch to a new field",
+  comfort: 50,
   eyeing: "Video editor",
   causes: ["Education"],
   hoursPerWeek: 8,

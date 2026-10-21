@@ -1,5 +1,5 @@
 import { SKILL_LEVELS } from "./steps.js";
-import { validateFields } from "./fields.jsx";
+import { comfortStop, validateFields } from "./fields.jsx";
 
 /*
   Review: every answer, grouped by step, with an Edit link back to that step.
@@ -57,7 +57,7 @@ export default function ReviewStep({ profile, steps, onEdit }) {
                       </div>
                     );
                   }
-                  const text = show(v);
+                  const text = f.type === "comfort" ? comfortStop(v ?? f.default).title : show(v);
                   if (!text && !f.required) return null;
                   return (
                     <div className="review__row" key={f.key}>

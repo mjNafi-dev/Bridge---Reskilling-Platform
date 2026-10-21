@@ -61,6 +61,14 @@ def load_catalogue(db_path=DB_PATH):
         occupations[r["occupation_uri"]]["skills"].append(
             {"uri": r["uri"], "title": r["title"], "type": r["skill_type"], "relation": r["relation"]}
         )
+    # Breadth: how many jobs need a skill (drives bubble size on the results page)
+    breadth = {}
+    for occ in occupations.values():
+        for sk in occ["skills"]:
+            breadth[sk["uri"]] = breadth.get(sk["uri"], 0) + 1
+    for occ in occupations.values():
+        for sk in occ["skills"]:
+            sk["breadth"] = breadth[sk["uri"]]
     demand = {}
     if db.execute("SELECT name FROM sqlite_master WHERE name='demand'").fetchone():
         for r in db.execute("SELECT * FROM demand"):
@@ -117,7 +125,7 @@ def familiarity(occ, evidence, user_vecs=None, emb=None):
     ev_w = np.array([w for _, w, _ in evidence], dtype=np.float32).reshape(-1, 1)
     strength = np.where(sims >= COVER_THRESHOLD, sims, 0.0) * ev_w if len(evidence) else np.zeros((0, len(occ["skills"])))
     total = covered = 0.0
-    overlaps, gaps = [], []
+    overlaps, gaps, topics = [], [], []
     for j, sk in enumerate(occ["skills"]):
         w = ESSENTIAL_W if sk["relation"] == "essential" else OPTIONAL_W
         if len(evidence):
@@ -127,13 +135,22 @@ def familiarity(occ, evidence, user_vecs=None, emb=None):
             best, best_ev = 0.0, None
         total += w
         covered += w * min(1.0, best)
+        if sk["relation"] == "essential":
+            # One entry per essential skill: what the results bubbles are drawn from
+            topics.append({
+                "title": sk["title"],
+                "type": sk["type"],
+                "coverage": round(min(1.0, best), 2),
+                "from": best_ev[0] if best_ev and best >= COVER_THRESHOLD else None,
+                "breadth": sk.get("breadth", 1),
+            })
         if best_ev and best >= 0.35:
             overlaps.append({"from": best_ev[0], "source": best_ev[2], "to": sk["title"], "strength": round(best, 2), "relation": sk["relation"]})
         elif sk["relation"] == "essential":
             gaps.append({"title": sk["title"], "type": sk["type"], "coverage": round(best, 2)})
     score = covered / total if total else 0.0
     overlaps.sort(key=lambda o: (o["relation"] != "essential", -o["strength"]))
-    return score, overlaps, gaps
+    return score, overlaps, gaps, topics
 
 
 def gap_hours(gaps):
@@ -174,7 +191,7 @@ def match(profile, comfort=0.5, catalogue=None):
     cat = catalogue or load_catalogue()
     evidence = user_evidence(profile)
     hours_per_week = as_int(profile.get("hoursPerWeek"), 5, 1, 167)
-    comfort = min(max(float(comfort or 0.5), 0.0), 1.0)
+    comfort = min(max(float(0.5 if comfort is None else comfort), 0.0), 1.0)  # 0 is a real answer
     emb = get_embeddings()
     role_titles = [r["title"] for r in profile.get("roles") or [] if r.get("title")]
     user_vecs = emb.encode([t for t, _, _ in evidence]) if emb else None
@@ -184,7 +201,7 @@ def match(profile, comfort=0.5, catalogue=None):
     for occ in cat["occupations"].values():
         if not occ["skills"] or is_current_role(occ, role_vecs, role_titles, emb):
             continue
-        F, overlaps, gaps = familiarity(occ, evidence, user_vecs, emb)
+        F, overlaps, gaps, topics = familiarity(occ, evidence, user_vecs, emb)
         hours = gap_hours(gaps)
         weeks = hours / hours_per_week
         E = 1 / (1 + weeks / 12)  # ~12 weeks of learning = 0.5
@@ -208,6 +225,8 @@ def match(profile, comfort=0.5, catalogue=None):
             "weeks": round(weeks, 1),
             "overlaps": overlaps[:6],
             "gaps": sorted(gaps, key=lambda g: g["coverage"])[:8],
+            "topics": topics,
+            "topics_known": sum(t["coverage"] >= COVER_THRESHOLD for t in topics),
             "demand": None if not d else {
                 "moderate": round(d["moderate"] * 100),
                 "fast": round(d["fast"] * 100),

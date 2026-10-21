@@ -9,6 +9,7 @@ import { SKILL_LEVELS } from "./steps.js";
 
 export function isEmpty(field, value) {
   if (field.type === "checkbox") return !value;
+  if (field.default != null && value == null) return false; // shows a sensible default, so it's answered
   if (Array.isArray(value)) return value.length === 0;
   return value === undefined || value === null || String(value).trim() === "";
 }
@@ -105,6 +106,13 @@ export function Field({ field, value, onChange, errors = {}, errorKey, fromCv })
       return (
         <FieldShell {...shell}>
           <HoursSlider field={field} value={value} onChange={onChange} />
+        </FieldShell>
+      );
+
+    case "comfort":
+      return (
+        <FieldShell {...shell}>
+          <ComfortSlider value={value ?? field.default} onChange={onChange} />
         </FieldShell>
       );
 
@@ -376,6 +384,41 @@ function HoursSlider({ field, value, onChange }) {
       />
       <span className="slider__ends"><span>{field.min}h</span><span>{field.max}h+</span></span>
       {note && <p className={`slider__note slider__note--${note.tone}`} role="status">{note.text}</p>}
+    </div>
+  );
+}
+
+/* ---------- Comfort slider: stay close to what I know ↔ go for brand-new ---------- */
+// 0..100 in five stops. The matcher turns it into weights (familiarity/ease vs demand).
+export const COMFORT_STOPS = [
+  { value: 0, title: "Stay close to what I know", text: "Roles you're already near come first, even if demand for them is lower." },
+  { value: 25, title: "Mostly familiar", text: "Mostly roles close to your skills, with a nod to where demand is heading." },
+  { value: 50, title: "A balance", text: "What you already know and where demand is growing count about equally." },
+  { value: 75, title: "Open to a stretch", text: "Growing roles come first, as long as you have something to build on." },
+  { value: 100, title: "Brand-new is fine", text: "High-demand roles come first, even if they're a bigger leap." },
+];
+
+export const comfortStop = (v) =>
+  COMFORT_STOPS.reduce((best, s) => (Math.abs(s.value - v) < Math.abs(best.value - v) ? s : best));
+
+function ComfortSlider({ value, onChange }) {
+  const stop = comfortStop(value);
+  return (
+    <div className="slider">
+      <p className="slider__value comfort__title" aria-live="polite">{stop.title}</p>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        step={25}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        style={{ "--fill": `${value}%` }}
+        aria-label="How far you're willing to stretch"
+        aria-valuetext={stop.title}
+      />
+      <span className="slider__ends"><span>Stay close</span><span>Go bold</span></span>
+      <p className="slider__note slider__note--info">{stop.text}</p>
     </div>
   );
 }

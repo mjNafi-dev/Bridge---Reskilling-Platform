@@ -145,6 +145,10 @@ export const STEPS = [
         key: "goal", label: "What's your main goal?", type: "cards", required: true, max: 1,
         options: ["Get a new job", "Get promoted", "Switch to a new field", "Future-proof my current job"],
       },
+      {
+        // No hint: the note under the slider already says what each stop does to the ranking
+        key: "comfort", label: "How far are you willing to stretch?", type: "comfort", required: true, default: 50,
+      },
       { key: "industries", label: "Industries you're curious about", type: "chips", options: INDUSTRIES.filter((i) => i !== "Other") },
       { key: "eyeing", label: "A role you're already eyeing", type: "text", placeholder: "e.g. Video editor" },
       {

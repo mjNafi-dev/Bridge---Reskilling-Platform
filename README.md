@@ -8,6 +8,16 @@ Bridge shows people which skill is worth learning next for the AI era, and how m
 
 ## Run locally
 
+Two parts: the Python API (matching + trend data) and the React app. Vite forwards `/api` to the API.
+
+```bash
+cd backend
+pip install -r requirements.txt
+python -m uvicorn app.main:app --port 8000
+```
+
+In a second terminal:
+
 ```bash
 cd frontend
 npm install

@@ -1,16 +1,23 @@
 /* Onboarding: narrow grey step panel on the left (the sign-up panel, shrunk), form on the right */
 
+/* Same frame as sign-up: capped at 1280px and centred with 64px gutters, panel height capped */
 .ob {
-  height: 100vh;
+  min-height: 100vh;
+  max-width: calc(1280px + 2 * var(--space-64));
+  margin: 0 auto;
   display: grid;
   grid-template-columns: 300px minmax(0, 1fr);
-  gap: var(--space-24);
-  padding: var(--space-24);
+  align-items: start;
+  gap: clamp(48px, 6vw, 96px);
+  padding: 0 var(--space-64);
   background: var(--paper);
 }
 
 /* ---------- Left panel ---------- */
 .ob__panel {
+  position: sticky; /* stays in view (vertically centred) while the page scrolls */
+  top: max(48px, calc((100vh - 820px) / 2));
+  height: min(820px, calc(100vh - 96px));
   display: flex;
   flex-direction: column;
   gap: var(--space-24);
@@ -166,14 +173,15 @@
 
 /* ---------- Right side ---------- */
 .ob__main {
-  overflow-y: auto;
+  min-height: 100vh;
   scroll-behavior: smooth;
 }
 
 .ob__content {
   max-width: 640px;
   margin: 0 auto;
-  padding: var(--space-64) var(--space-16) var(--space-64);
+  /* Starts level with the logo in the panel: panel top + its 32px padding */
+  padding: calc(max(48px, (100vh - 820px) / 2) + var(--space-32)) var(--space-16) var(--space-64);
   animation: ob-step-in 0.35s ease;
 }
 
@@ -203,7 +211,7 @@
 .ob__fields {
   display: flex;
   flex-direction: column;
-  gap: var(--space-32);
+  gap: calc(var(--space-24) + var(--space-32)); /* 56px: clearly more than the gaps inside a question */
 }
 
 .ob__nav {
@@ -580,6 +588,8 @@
 
 .slider__note--warn { background: var(--familiar-subtle); color: var(--familiar-fg); }
 .slider__note--info { background: var(--l05); color: var(--d2); }
+
+.comfort__title { font: var(--text-headline); }
 
 .slider__value small {
   font: var(--text-body-small);
@@ -1103,29 +1113,14 @@
   }
 
   .ob__panel {
+    position: static;
+    height: auto;
     padding: var(--space-16);
     gap: var(--space-12);
   }
 
   .ob__panel-head,
-  /* Skipped optional step: same colours as done, dash instead of a tick */
-.ob-step--skipped { color: var(--ink); }
-
-.ob-step--skipped .ob-step__mark {
-  border-color: var(--done-default);
-  background: var(--done-default);
-  color: var(--paper);
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.skill-row__used-label {
-  font: var(--text-body-small);
-  font-size: 13px;
-  color: var(--d3);
-}
-
-.ob__legend { display: none; }
+  .ob__legend { display: none; }
 
   .ob__steps {
     flex-direction: row;
@@ -1136,7 +1131,7 @@
 
   .ob-step { white-space: nowrap; }
 
-  .ob__main { overflow: visible; }
+  .ob__main { min-height: 0; }
 
   .ob__content { padding: var(--space-24) 0 var(--space-48, 48px); }
 

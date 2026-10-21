@@ -1,0 +1,453 @@
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import BrandMark from "../../components/BrandMark.jsx";
+import { fetchMatch } from "../../api.js";
+import TopicField, { TIERS } from "./TopicField.jsx";
+import JobDetails from "./JobDetails.jsx";
+import "./Results.css";
+
+/*
+  Results: the matcher runs, the job's topics pop up as chips (coloured = you know
+  something of it), the chips turn into bubbles and pour into one circle.
+  Then the top match is shown with the other options on both sides; picking one
+  slides it into the middle and the current one moves to the other side.
+*/
+
+const STEPS = ["Reading your profile", "Matching familiarities", "Checking future demand", "Mapping what you know"];
+const MIN_LOADING_MS = 900;
+const HOLD_CHIPS_MS = 1000;
+const MORPH_MS = 650;
+const TRAVEL_MS = 1300;
+
+const sentence = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "");
+
+function readProfile() {
+  try {
+    return JSON.parse(localStorage.getItem("bridge.profile") || "null");
+  } catch {
+    return null;
+  }
+}
+
+const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+export default function Results() {
+  const navigate = useNavigate();
+  const [profile] = useState(readProfile);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [attempt, setAttempt] = useState(0);
+  const [phase, setPhase] = useState("loading"); // loading | chips | blobs | settled
+  const [uiIn, setUiIn] = useState(false);
+  const [picked, setPicked] = useState(null); // position in the line; null = the best match (middle)
+  const [details, setDetails] = useState(false);
+  const [reduced] = useState(prefersReducedMotion);
+
+  const stageRef = useRef(null);
+  const slotRef = useRef(null);
+  const toastRef = useRef(null);
+  const brandRef = useRef(null);
+  const [geo, setGeo] = useState({ stage: { w: 0, h: 0, vh: 0 }, slot: { cx: 0, cy: 0, size: 0 }, avoid: [], area: null });
+
+  // 1. Ask the matcher
+  useEffect(() => {
+    if (!profile) return;
+    let cancelled = false;
+    const started = performance.now();
+    setError(null);
+    // Comfort comes from onboarding (0..100); the matcher wants 0..1
+    fetchMatch(profile, (profile.comfort ?? 50) / 100)
+      .then((res) => {
+        const wait = Math.max(0, MIN_LOADING_MS - (performance.now() - started));
+        setTimeout(() => !cancelled && setData(res), reduced ? 0 : wait);
+      })
+      .catch(() => !cancelled && setError("We couldn't reach Bridge's matcher. Check that the backend is running, then try again."));
+    return () => {
+      cancelled = true;
+    };
+  }, [profile, attempt, reduced]);
+
+  const results = data?.results || [];
+  // The options sit in one line, best match in the middle, the rest alternating
+  // outwards (2nd best right of it, 3rd left, 4th right...). Not circular: the ends stop.
+  const line = useMemo(() => {
+    const out = [];
+    results.forEach((_, rank) => (rank % 2 ? out.push(rank) : out.unshift(rank)));
+    return out;
+  }, [results]);
+  const center = line.indexOf(0);
+  const active = picked ?? center;
+  const job = results[line[active]];
+  const firstTopics = results[0]?.topics || [];
+  const chipCount = firstTopics.length;
+  // Chips populate over ~2.4 s whatever their number
+  const chipStagger = Math.max(30, Math.min(140, Math.round(2400 / Math.max(1, chipCount))));
+
+  // 2. Run the animation once the results are in
+  useEffect(() => {
+    if (!data) return;
+    if (!results.length || reduced) {
+      setPhase("settled");
+      setUiIn(true);
+      return;
+    }
+    const chipsDone = chipCount * chipStagger + 500;
+    const t = [];
+    setPhase("chips");
+    t.push(setTimeout(() => setPhase("blobs"), chipsDone + HOLD_CHIPS_MS));
+    t.push(setTimeout(() => setPhase("settled"), chipsDone + HOLD_CHIPS_MS + MORPH_MS));
+    t.push(setTimeout(() => setUiIn(true), chipsDone + HOLD_CHIPS_MS + MORPH_MS + TRAVEL_MS - 300));
+    return () => t.forEach(clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
+  // Measure where the circle goes and what the chips must avoid (relative to the stage)
+  const measure = useCallback(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const s = stage.getBoundingClientRect();
+    const rel = (el) => {
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return { x: r.left - s.left, y: r.top - s.top, w: r.width, h: r.height };
+    };
+    const slot = rel(slotRef.current);
+    setGeo({
+      stage: { w: s.width, h: s.height, vh: Math.min(s.height, window.innerHeight) },
+      slot: slot ? { cx: slot.x + slot.w / 2, cy: slot.y + slot.h / 2, size: Math.min(slot.w, slot.h) } : { cx: 0, cy: 0, size: 0 },
+      avoid: [rel(toastRef.current), rel(brandRef.current)].filter(Boolean),
+      // Chips may use the whole window, not just the content frame (in stage coordinates)
+      area: { x: 24 - s.left, y: 24 - s.top, w: window.innerWidth - 48, h: window.innerHeight - 48 },
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (stageRef.current) ro.observe(stageRef.current);
+    return () => ro.disconnect();
+  }, [measure, data]);
+
+  // 3. Switching jobs: slide cards between the middle and the sides (FLIP)
+  const flipFrom = useRef(null);
+  const select = useCallback((i) => {
+    const rects = new Map();
+    document.querySelectorAll("[data-flip]").forEach((el) => rects.set(el.dataset.flip, el.getBoundingClientRect()));
+    flipFrom.current = rects;
+    setPicked(i);
+  }, []);
+
+  useLayoutEffect(() => {
+    const before = flipFrom.current;
+    flipFrom.current = null;
+    if (!before || reduced) return;
+    document.querySelectorAll("[data-flip]").forEach((el) => {
+      const b = before.get(el.dataset.flip);
+      if (!b) return;
+      const a = el.getBoundingClientRect();
+      const dx = b.left + b.width / 2 - (a.left + a.width / 2);
+      const dy = b.top + b.height / 2 - (a.top + a.height / 2);
+      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+      el.animate(
+        [
+          { transform: `translate(${dx}px, ${dy}px) scale(${b.width / a.width})`, opacity: 0.4 },
+          { transform: "none", opacity: 1 },
+        ],
+        { duration: 560, easing: "cubic-bezier(.2,.8,.2,1)" }
+      );
+    });
+  }, [active, reduced]);
+
+  // Arrow keys move between options
+  const n = results.length;
+  useEffect(() => {
+    if (!uiIn || n < 2) return;
+    const onKey = (e) => {
+      if (details || e.target.closest?.("input, textarea, select")) return;
+      if (e.key === "ArrowRight" && active < n - 1) select(active + 1);
+      if (e.key === "ArrowLeft" && active > 0) select(active - 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [uiIn, n, active, details, select]);
+
+  if (!profile) {
+    return (
+      <main className="results results--empty">
+        <h2>No profile yet</h2>
+        <p>Answer a few questions first, then Bridge can find your matches.</p>
+        <Link className="results__btn results__btn--primary" to="/onboarding">Go to onboarding</Link>
+      </main>
+    );
+  }
+
+  // Everything before the selected one in the line sits on the left, everything after on the right
+  const left = line.slice(0, active).map((rank, k) => ({ rank, pos: k }));
+  const right = line.slice(active + 1).map((rank, k) => ({ rank, pos: active + 1 + k }));
+
+  function choosePathway() {
+    try {
+      localStorage.setItem("bridge.selectedJob", JSON.stringify(job));
+    } catch {
+      /* storage blocked */
+    }
+    navigate("/pathway");
+  }
+
+  const stepIndex = phase === "loading" ? 0 : phase === "chips" ? 1 : phase === "blobs" ? 2 : 3;
+  const progress = error ? 0 : [0.16, 0.7, 0.9, 1][stepIndex];
+
+  return (
+    <main className={`results${uiIn ? " results--in" : ""}`} ref={stageRef}>
+      <div className="results__brand" ref={brandRef}>
+        <BrandMark />
+      </div>
+
+      {/* Loading toast */}
+      <div
+        className={`loader${phase === "settled" && !error ? " loader--out" : ""}${error ? " loader--error" : ""}`}
+        ref={toastRef}
+        role="status"
+        aria-live="polite"
+      >
+        {error ? (
+          <>
+            <p className="loader__title">Something went wrong</p>
+            <p className="loader__step loader__step--wrap">{error}</p>
+            <button type="button" className="loader__retry" onClick={() => setAttempt((a) => a + 1)}>
+              Try again
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="loader__title">Analysing your profile</p>
+            <span className="loader__bar">
+              <span
+                className="loader__fill"
+                style={{
+                  transform: `scaleX(${progress})`,
+                  transitionDuration: phase === "chips" ? `${chipCount * chipStagger + 500 + HOLD_CHIPS_MS}ms` : "600ms",
+                }}
+              />
+            </span>
+            <p className="loader__step" key={stepIndex}>{STEPS[stepIndex]}</p>
+          </>
+        )}
+      </div>
+
+      {job && (
+        <TopicField
+          key={job.uri}
+          topics={job.topics}
+          seed={job.uri}
+          phase={job === results[0] ? phase : "settled"}
+          stage={geo.stage}
+          slot={geo.slot}
+          avoid={geo.avoid}
+          area={geo.area}
+          chipStagger={chipStagger}
+          reduced={reduced}
+        />
+      )}
+
+      {data && !results.length && (
+        <section className="results__none">
+          <h2>No matches yet</h2>
+          <p>Add a few more skills or roles and Bridge will have more to work with.</p>
+          <Link className="results__btn results__btn--primary" to="/onboarding">Edit my answers</Link>
+        </section>
+      )}
+
+      {job && (
+        <>
+          <section className="results__hero" aria-label="How much you already know">
+            <div className="results__diagram" ref={slotRef} />
+            <Stat job={job} run={uiIn} />
+          </section>
+
+          <section className="results__main">
+            <JobCard job={job} />
+            <div className="results__actions">
+              <button type="button" className="results__btn results__btn--ghost" onClick={() => setDetails(true)}>
+                View more details
+              </button>
+              <button type="button" className="results__btn results__btn--primary" onClick={choosePathway}>
+                Select pathway
+              </button>
+            </div>
+            <span className="hint" tabIndex={0}>
+              <button type="button" className="results__reanalyse" disabled>
+                <RefreshIcon /> Re-analyse
+              </button>
+              <span className="hint__bubble" role="tooltip">
+                Re-analysing is off in the demo. The full version re-checks your answers against fresh job data.
+              </span>
+            </span>
+          </section>
+
+          {n > 1 && (
+            <>
+              <button type="button" className="results__arrow results__arrow--left" onClick={() => select(active - 1)} disabled={active === 0} aria-label="Previous option">
+                <Chevron dir="left" />
+              </button>
+              <button type="button" className="results__arrow results__arrow--right" onClick={() => select(active + 1)} disabled={active === n - 1} aria-label="Next option">
+                <Chevron dir="right" />
+              </button>
+              <OptionList side="left" items={left} results={results} onPick={select} />
+              <OptionList side="right" items={right} results={results} onPick={select} />
+            </>
+          )}
+
+          <JobDetails job={job} open={details} onClose={() => setDetails(false)} onPathway={choosePathway} />
+        </>
+      )}
+    </main>
+  );
+}
+
+/* "You're already familiar with 38% of what this role needs" */
+function Stat({ job, run }) {
+  const value = useCountUp(job.familiarity, run);
+  const known = job.topics.filter((t) => t.coverage >= 0.2);
+  return (
+    <div className="stat">
+      <p className="stat__lead">You’re already familiar with</p>
+      <p className="stat__value num">{value}%</p>
+      <p className="stat__lead">of what this role needs</p>
+      <p className="stat__hint">Coloured bubbles are what you already know, grey ones are new. Hover one to see its topic.</p>
+      <ul className="stat__legend">
+        {TIERS.map((t) => (
+          <li key={t.key}>
+            <span className={`stat__dot topic--${t.key}`} />
+            {t.label}
+          </li>
+        ))}
+      </ul>
+      {/* Screen readers get the bubble contents as a list */}
+      <ul className="visually-hidden">
+        {known.map((t) => (
+          <li key={t.title}>{`${sentence(t.title)}: overlap from ${t.from}`}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function useCountUp(target, run) {
+  const [value, setValue] = useState(0);
+  const from = useRef(0);
+  useEffect(() => {
+    if (!run) return;
+    const start = performance.now();
+    const a = from.current;
+    let raf;
+    const tick = (t) => {
+      const k = Math.min(1, (t - start) / 700);
+      const v = Math.round(a + (target - a) * (1 - Math.pow(1 - k, 3)));
+      setValue(v);
+      from.current = v;
+      if (k < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, run]);
+  return value;
+}
+
+export function demandLabel(job) {
+  const b = job.demand?.balanced;
+  if (b == null) return "No data";
+  return b >= 70 ? "High" : b >= 45 ? "Medium" : "Low";
+}
+
+export function scoreTone(score) {
+  return score >= 70 ? "good" : score >= 45 ? "mid" : "low";
+}
+
+const PART_LABEL = { F: "Familiarity", E: "Ease", D: "Demand", I: "Interest fit" };
+
+function JobCard({ job }) {
+  const known = job.topics_known ?? job.topics.filter((t) => t.coverage >= 0.2).length;
+  return (
+    <article className="job-card" data-flip={job.uri}>
+      <div className="job-card__top">
+        <h1 className="job-card__title" title={sentence(job.title)}>{sentence(job.title)}</h1>
+        <div className="job-card__score">
+          <span className="job-card__score-row">
+            <span className="hint hint--below" tabIndex={0} aria-label="How the Bridge score is built">
+              <InfoIcon />
+              <span className="hint__bubble hint__bubble--wide" role="tooltip">
+                <strong>How the Bridge score is built</strong>
+                {Object.entries(job.breakdown).map(([k, part]) => (
+                  <span className="breakdown-row" key={k}>
+                    <span>{PART_LABEL[k]}</span>
+                    <span className="num">{part.value} × {Math.round(part.weight * 100)}%</span>
+                  </span>
+                ))}
+              </span>
+            </span>
+            <span className={`job-card__score-value num tone--${scoreTone(job.score)}`}>{job.score}%</span>
+          </span>
+          <span className="job-card__score-label">Bridge score</span>
+        </div>
+      </div>
+      <ul className="job-card__meta">
+        <li className="hint" tabIndex={0}>
+          <ClockIcon />
+          <span className="num">{job.hours}h</span>
+          <span className="hint__bubble" role="tooltip">
+            About {job.hours} hours to learn what’s missing ({job.weeks} weeks at your pace). An estimate.
+          </span>
+        </li>
+        <li className="hint" tabIndex={0}>
+          <CapIcon />
+          <span className="num">{known}/{job.topics.length}</span>
+          <span className="hint__bubble" role="tooltip">
+            You have some overlap with {known} of the {job.topics.length} core topics.
+          </span>
+        </li>
+        <li className="hint" tabIndex={0}>
+          <TrendIcon />
+          <span>{demandLabel(job)}</span>
+          <span className="hint__bubble" role="tooltip">
+            {job.demand
+              ? `Future demand: ${job.demand.moderate}/100 if AI change is moderate, ${job.demand.fast}/100 if it's fast. Estimate from job postings, O*NET and ILO data.`
+              : "No demand data for this job yet."}
+          </span>
+        </li>
+      </ul>
+    </article>
+  );
+}
+
+function OptionList({ side, items, results, onPick }) {
+  if (!items.length) return <div className={`options options--${side}`} />;
+  return (
+    <nav className={`options options--${side}`} aria-label={`Other options (${side})`}>
+      <p className="options__heading">Other options</p>
+      <ul>
+        {items.map(({ rank, pos }) => (
+          <li key={results[rank].uri}>
+            <button type="button" className="option" data-flip={results[rank].uri} onClick={() => onPick(pos)} title={sentence(results[rank].title)}>
+              <span className="option__title">{sentence(results[rank].title)}</span>
+              <span className="option__score num">{results[rank].score}%</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+/* Icons (stroke, 18px) */
+const svg = (children, size = 18) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {children}
+  </svg>
+);
+const ClockIcon = () => svg(<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>);
+const CapIcon = () => svg(<><path d="M2 9l10-5 10 5-10 5z" /><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" /></>);
+const TrendIcon = () => svg(<><path d="M3 17l6-6 4 4 8-8" /><path d="M15 7h6v6" /></>);
+const InfoIcon = () => svg(<><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></>, 16);
+const RefreshIcon = () => svg(<><path d="M20 12a8 8 0 1 1-2.3-5.7" /><path d="M20 4v5h-5" /></>, 16);
+const Chevron = ({ dir }) => svg(dir === "left" ? <path d="M15 5l-7 7 7 7" /> : <path d="M9 5l7 7-7 7" />, 28);
