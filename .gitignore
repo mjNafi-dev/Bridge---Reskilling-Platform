@@ -22,3 +22,9 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
+
+# Downloaded embedding model (re-downloads automatically)
+backend/data/models/
+
+# Raw API downloads (build_db.py re-downloads them; bridge.db is committed)
+backend/data/raw/
