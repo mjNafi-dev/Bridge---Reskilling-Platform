@@ -1,0 +1,138 @@
+# Roles to pull from ESCO (one search term per line; the top ESCO match is used).
+# Mix of AI-era target roles across all categories and common "starting point" jobs,
+# so users' current roles can be matched too. Edit freely, then re-run build_db.py.
+
+# --- Technical / data / digital ---
+data analyst
+data scientist
+machine learning engineer
+artificial intelligence engineer
+software developer
+web developer
+mobile app developer
+database administrator
+cloud engineer
+cybersecurity analyst
+ICT security engineer
+network administrator
+ICT system administrator
+ICT help desk agent
+devops engineer
+data engineer
+business intelligence manager
+ICT business analyst
+user experience designer
+user interface designer
+ICT test analyst
+blockchain developer
+robotics engineer
+automation engineer
+digital marketing specialist
+search engine optimisation expert
+e-commerce manager
+ICT project manager
+computer vision engineer
+game developer
+
+# --- Creative / media ---
+graphic designer
+video and motion picture editor
+animator
+3D modeller
+photographer
+copywriter
+content writer
+social media manager
+illustrator
+multimedia artist
+sound designer
+art director
+interior designer
+fashion designer
+journalist
+translator
+technical writer
+web content manager
+creative director
+product designer
+
+# --- People & care ---
+teacher
+early childhood educator
+vocational teacher
+instructional designer
+training and development officer
+career guidance advisor
+nurse
+healthcare assistant
+physiotherapist
+social worker
+counsellor
+psychologist
+community health worker
+elderly home manager
+personal trainer
+customer service representative
+call centre agent
+human resources officer
+recruiter
+pharmacist
+
+# --- Business & organising ---
+accountant
+bookkeeper
+financial analyst
+auditor
+bank teller
+insurance claims handler
+administrative assistant
+office clerk
+data entry clerk
+receptionist
+secretary
+procurement officer
+supply chain manager
+logistics planner
+project manager
+operations manager
+sales representative
+marketing manager
+real estate agent
+retail store manager
+business development manager
+compliance officer
+payroll clerk
+event planner
+entrepreneur
+
+# --- Hands-on / technical trades ---
+electrician
+solar energy technician
+wind turbine technician
+electric vehicle technician
+automotive mechanic
+industrial machinery mechanic
+welder
+CNC machine operator
+manufacturing production technician
+quality control inspector
+drone pilot
+3D printing technician
+building construction worker
+plumber
+HVAC technician
+chef
+cook
+barista
+delivery driver
+warehouse worker
+forklift operator
+cashier
+agricultural technician
+precision agriculture technician
+laboratory technician
+medical laboratory technician
+energy auditor
+environmental technician
+waste management officer
+security guard
