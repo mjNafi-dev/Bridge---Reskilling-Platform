@@ -24,8 +24,8 @@ Built for SDC Hackathon 2026, Domain 1: Aiversecity Future-Ready Workforce.
 | Resource | Link |
 | --- | --- |
 | GitHub repository | https://github.com/mjNafi-dev/Bridge---Reskilling-Platform |
-| Replit project | ⚠️ add after deploying |
-| Live demo | ⚠️ add after deploying |
+| Replit project | ⚠️ add the Replit project link (Share → copy link) |
+| Live demo | https://bridge-reskill.replit.app |
 | RunPod | GPU pod `bridge-skill-embeddings` (ID `f2w43seqazno9r`, 1× NVIDIA A40). Proof: [`submission/RunPod Proof of Use.pdf`](submission/RunPod%20Proof%20of%20Use.pdf) |
 | Slide deck | ⚠️ to add |
 | Pitch video | ⚠️ to add (YouTube) |
