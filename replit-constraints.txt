@@ -1,0 +1,3 @@
+# Pillow 12.3.0 is blocked by the Replit package registry.
+# fastembed 0.9 requires Pillow <13; 12.2.0 installs successfully.
+pillow==12.2.0

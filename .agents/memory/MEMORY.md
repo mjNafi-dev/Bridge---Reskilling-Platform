@@ -1,0 +1,1 @@
+- [Imported-project scope](imported-project-scope.md) — preserve the original stack and single-server startup; environment-only setup was requested.
