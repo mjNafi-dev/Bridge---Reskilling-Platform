@@ -53,3 +53,82 @@ export const DEMO_PROFILE = {
   sports: ["Football"],
   hobbies: ["Photography walks"],
 };
+
+// More SYNTHETIC demo people (made up, not real): different starting points, so judges
+// can see how the matches change. Every required answer is filled.
+const base = { cvFilled: [], comfort: 50, budget: "Free only", learnStyle: ["Videos", "Hands-on practice"] };
+
+export const DEMO_PROFILES = [
+  { id: "designer", label: "Graphic designer", who: "Aina, 29, wants to move into video", profile: DEMO_PROFILE },
+  {
+    id: "developer",
+    label: "Junior developer",
+    who: "Daniel, 26, eyeing data work",
+    profile: {
+      ...base,
+      name: "Daniel (demo)", ageRange: "25–34", country: "Singapore", situation: "Employed",
+      eduLevel: "Bachelor's degree", eduField: "Computer science", eduType: "University", eduYear: "2021",
+      roles: [{
+        title: "Software developer", industry: "IT & software", years: "3",
+        tasks: ["Built REST APIs for a logistics dashboard", "Wrote SQL reports", "Fixed bugs and wrote unit tests"],
+        tools: ["Python", "Django", "PostgreSQL", "Git"],
+      }],
+      skills: [
+        { name: "Python", level: 2, lastUsed: "This year" },
+        { name: "SQL", level: 2, lastUsed: "This year" },
+        { name: "Software testing", level: 1, lastUsed: "This year" },
+        { name: "Statistics", level: 1, lastUsed: "3+ years ago" },
+      ],
+      languages: ["English", "Mandarin"],
+      workTypes: ["Analytical", "Hands-on"], goal: "Get promoted", comfort: 75, eyeing: "Data scientist",
+      causes: ["Fair opportunities"], hoursPerWeek: 6, budget: "Low-cost", learnStyle: ["Reading", "Hands-on practice"],
+      genres: ["Sci-fi"], sports: ["Badminton"], hobbies: ["Chess"],
+    },
+  },
+  {
+    id: "student",
+    label: "Accounting student",
+    who: "Siti, 22, first job hunt",
+    profile: {
+      ...base,
+      name: "Siti (demo)", ageRange: "18–24", country: "Malaysia", situation: "Student",
+      eduLevel: "Bachelor's degree", eduField: "Accounting", eduType: "University", eduYear: "2026",
+      noExperience: true,
+      skills: [
+        { name: "Bookkeeping", level: 2, lastUsed: "This year" },
+        { name: "Excel", level: 2, lastUsed: "This year" },
+        { name: "Financial reporting", level: 1, lastUsed: "This year" },
+      ],
+      projects: [{ what: "Treasurer of the accounting society", role: "Managed the budget and wrote monthly reports", skills: ["Budgeting"] }],
+      languages: ["Bahasa Melayu", "English"],
+      workTypes: ["Organising", "Analytical"], goal: "Get a new job", comfort: 25,
+      causes: ["Local businesses & jobs"], hoursPerWeek: 10, orgCode: "DEMO-UNI-2026", department: "Accounting & Finance", orgConsent: true,
+      genres: ["Mystery"], hobbies: ["Baking"],
+    },
+  },
+  {
+    id: "technician",
+    label: "Factory technician",
+    who: "Ravi, 41, worried about automation",
+    profile: {
+      ...base,
+      name: "Ravi (demo)", ageRange: "35–44", country: "India", situation: "Employed",
+      eduLevel: "Certificate (TVET / SKM)", eduField: "Electrical maintenance", eduType: "TVET / polytechnic", eduYear: "2004",
+      roles: [{
+        title: "Maintenance technician", industry: "Manufacturing", years: "15",
+        tasks: ["Repaired production line machines", "Did preventive maintenance checks", "Wired control panels", "Trained new staff on safety"],
+        tools: ["Multimeter", "AutoCAD"],
+      }],
+      skills: [
+        { name: "Machine maintenance", level: 3, lastUsed: "This year" },
+        { name: "Electrical wiring", level: 3, lastUsed: "This year" },
+        { name: "Troubleshooting", level: 2, lastUsed: "This year" },
+        { name: "Health and safety", level: 2, lastUsed: "This year" },
+      ],
+      languages: ["Tamil", "English", "Hindi"],
+      workTypes: ["Hands-on"], goal: "Future-proof my current job", comfort: 50,
+      causes: ["The environment"], hoursPerWeek: 4,
+      sports: ["Cricket"], hobbies: ["Gardening"],
+    },
+  },
+];

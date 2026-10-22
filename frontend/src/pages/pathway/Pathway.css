@@ -147,7 +147,7 @@
   animation: bar-in 1s var(--ease-out) 0.3s both;
 }
 
-.night .pw-progress__bar span { background: var(--done-muted); }
+.night .pw-progress__bar span { background: var(--night-done); }
 
 @keyframes bar-in {
   from { width: 0; }
@@ -688,3 +688,135 @@
 .pw-more:hover { color: var(--ink); }
 .pw-more svg { transition: transform var(--dur-base) var(--ease-out); }
 .pw-more[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+.pw-share { display: flex; align-items: center; gap: var(--space-16); }
+
+/* ---------- Path complete ---------- */
+.pw-done {
+  position: relative;
+  border-color: var(--done-muted);
+  background: linear-gradient(180deg, var(--done-subtle), var(--paper) 75%);
+}
+
+.pw-done__badge {
+  position: absolute;
+  top: var(--space-24);
+  right: var(--space-24);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--done-default);
+  color: var(--paper);
+  animation: pop 0.5s var(--ease-out) 0.2s both;
+}
+
+.pw-done__badge svg { width: 20px; height: 20px; }
+.pw-done .pw-next__title { padding-right: 56px; }
+.pw-done__lead { margin-top: var(--space-12); color: var(--d2); }
+
+.pw-done__label {
+  margin-top: var(--space-24);
+  font: var(--text-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mid);
+}
+
+.pw-done__next { display: flex; flex-direction: column; gap: var(--space-8); margin-top: var(--space-8); list-style: none; }
+
+.pw-done__next li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  padding: var(--space-8) var(--space-8) var(--space-8) var(--space-16);
+  border: 1px solid var(--l1);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  font: var(--text-body-medium);
+}
+
+.pw-done .pw-next__actions { flex-wrap: wrap; align-items: center; }
+
+.pw-path__label {
+  margin-top: var(--space-24);
+  font: var(--text-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mid);
+}
+
+.pw-path--extra .pw-step__num { font-weight: 600; }
+
+/* Confetti */
+.confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confetti__piece {
+  position: absolute;
+  top: -20px;
+  border-radius: 2px;
+  opacity: 0;
+  animation-name: confetti-fall;
+  animation-timing-function: cubic-bezier(0.25, 0.6, 0.45, 1);
+  animation-fill-mode: both;
+}
+
+.confetti__piece--round { border-radius: 50%; }
+
+@keyframes confetti-fall {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--drift), 105vh) rotate(var(--spin)); }
+}
+
+/* Long skill lists scroll inside a fixed height instead of stretching the card */
+.pw-skills__cols .pw-tags {
+  max-height: 264px;
+  overflow-y: auto;
+  align-content: flex-start;
+  padding-right: 4px;
+  scrollbar-width: thin;
+}
+
+/* ---------- Brush up what you know (collapsed unless there's nothing new) ---------- */
+.pw-revise {
+  margin-top: var(--space-24);
+  border: 1px solid var(--l1);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.pw-revise__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  width: 100%;
+  padding: var(--space-12) var(--space-16);
+  border: 0;
+  background: var(--l05);
+  color: var(--ink);
+  font: var(--text-title-small);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) ease;
+}
+
+.pw-revise__toggle:hover { background: var(--l1); }
+.pw-revise__name { flex: 1; }
+.pw-revise__count { color: var(--d3); font: 500 13px/1 var(--font-mono); }
+.pw-revise__toggle svg { transition: transform var(--dur-base) var(--ease-out); }
+.pw-revise.is-open .pw-revise__toggle svg { transform: rotate(180deg); }
+
+.pw-revise__note { padding: var(--space-12) var(--space-16) 0; font: var(--text-body-small); color: var(--d3); }
+.pw-path--revise { padding: 0 var(--space-16) var(--space-8); }
+.pw-path--revise .pw-step__num { font-size: 10px; }
+
+.pw-done__revise { margin-top: var(--space-12); }

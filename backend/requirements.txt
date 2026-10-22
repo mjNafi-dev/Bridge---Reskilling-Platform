@@ -2,3 +2,7 @@ fastapi>=0.115
 uvicorn>=0.32
 numpy>=2.0
 fastembed>=0.9  # CPU embeddings for user phrases (same model as the RunPod job)
+pypdf>=5.0  # CV reading: text out of PDFs
+python-docx>=1.1  # CV reading: Word files
+python-multipart>=0.0.9  # file uploads in FastAPI
+anthropic>=0.60  # optional AI mode for CV reading (only used when BRIDGE_CV_AI=1)

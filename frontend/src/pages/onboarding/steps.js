@@ -35,7 +35,7 @@ export const STEPS = [
         key: "situation", label: "What best describes you right now?", type: "cards", required: true, max: 1,
         options: ["Student", "Employed", "Between jobs", "On a career break", "Freelancer"],
       },
-      { key: "orgCode", label: "Organisation join code", type: "text", placeholder: "e.g. XMUM-CS-2026", hint: "Got a code from your HR team or university? Add it to join their group." },
+      { key: "orgCode", label: "Organisation join code", type: "text", placeholder: "e.g. DEMO-UNI-2026", hint: "Got a code from your HR team or university? Add it to join their group." },
       { key: "department", label: "Department or programme", type: "text", when: (p) => !!p.orgCode, placeholder: "e.g. Marketing" },
       {
         key: "orgConsent", type: "checkbox", required: true, when: (p) => !!p.orgCode,

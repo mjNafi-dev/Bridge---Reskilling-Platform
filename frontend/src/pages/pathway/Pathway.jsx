@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { fetchMatch } from "../../api.js";
 import { useGo } from "../../lib/go.js";
+import { journeyLink } from "../../lib/journey.js";
 import BrandMark from "../../components/BrandMark.jsx";
 import ConnectAI, { AI_PROVIDERS, readAI, saveAI } from "../../components/ConnectAI.jsx";
 import ProfileSheet from "../../components/ProfileSheet.jsx";
@@ -13,19 +14,23 @@ import {
   alreadyHave,
   buildSteps,
   currentFamiliarity,
+  effectiveCoverage,
+  extraSteps,
   learnedTopics,
+  nextExtras,
   readProgress,
   resourcesFor,
+  reviseSteps,
   saveProgress,
-  topicsWithProgress,
   worthLookingInto,
 } from "./pathwayData.js";
 import "./Pathway.css";
 
 /*
-  My pathway: the home page once a job is picked. Rough first version for review.
-  Up next (the one thing to do now), the full path, your AI, this week's time,
-  and a read-only share link for employers.
+  My pathway: the home page once a job is picked.
+  Up next (the one thing to do now), the path of new topics, optional brush-ups for
+  topics you partly know, your AI, this week's time, your skills and a read-only share
+  link for employers. Finishing the new topics, then everything, each gets a celebration.
   Coming back from editing the profile (?updated=1) re-runs the matcher for this job
   automatically and says what changed; the pathway only changes if you pick another.
 */
@@ -58,6 +63,32 @@ export default function Pathway() {
   const [showAll, setShowAll] = useState(false); // the path shows the next few topics until expanded
 
   const steps = useMemo(() => (job ? buildSteps(job) : []), [job]);
+  const revise = useMemo(() => (job ? reviseSteps(job) : []), [job]); // optional brush-ups
+  const isDone = (s) => progress[s.id] === "done";
+  const coreDone = steps.length > 0 && steps.every(isDone); // every new topic learned
+  const allDone = steps.length + revise.length > 0 && steps.every(isDone) && revise.every(isDone); // 100%
+  const nothingToDo = !!job && steps.length + revise.length === 0; // already know every core topic well
+  const milestone = !job ? null : allDone ? "all" : coreDone ? "core" : null;
+  const [burst, setBurst] = useState(0); // bumps to launch confetti
+  const [reviseOpen, setReviseOpen] = useState(null); // null = open only when there's nothing new to learn
+  const reviseRef = useRef(null);
+
+  // Celebrate each milestone once (new topics all learned, then everything at 100%)
+  useEffect(() => {
+    if (!job) return;
+    const key = milestone && `${job.uri}|${milestone}`;
+    const seen = readJSON("bridge.celebrated", null);
+    try {
+      if (key && seen !== key) {
+        localStorage.setItem("bridge.celebrated", JSON.stringify(key));
+        setBurst((b) => b + 1);
+      } else if (!key && seen?.startsWith(job.uri)) {
+        localStorage.removeItem("bridge.celebrated");
+      }
+    } catch {
+      /* storage blocked */
+    }
+  }, [milestone, job]);
 
   // Recalibrate automatically after the profile was edited
   useEffect(() => {
@@ -95,8 +126,15 @@ export default function Pathway() {
   }
 
   const familiarity = currentFamiliarity(job, progress);
-  const upNext = steps.find((s) => progress[s.id] !== "done");
-  const doneCount = steps.filter((s) => progress[s.id] === "done").length;
+  // Next thing to do: a new topic; or, when the role has nothing new, a brush-up
+  const upNext = steps.find((s) => !isDone(s)) || (steps.length === 0 ? revise.find((s) => !isDone(s)) : undefined);
+  const doneCount = steps.filter(isDone).length;
+  const reviseDone = revise.filter(isDone).length;
+  const showRevise = reviseOpen ?? steps.length === 0;
+  const openRevise = () => {
+    setReviseOpen(true);
+    setTimeout(() => reviseRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+  };
   // Path list: always show a few past the topic you're on
   const shownSteps = Math.max(6, steps.indexOf(upNext) + 3);
   const hoursLeft = steps.filter((s) => progress[s.id] !== "done").reduce((h, s) => h + s.hours, 0);
@@ -150,16 +188,34 @@ export default function Pathway() {
   ];
 
   // Everything you came in with: skills (with level) and the tools from your roles
+  const skillNames = new Set((profile.skills || []).map((sk) => (sk.name || "").toLowerCase()));
   const brought = [
     ...(profile.skills || []).filter((sk) => sk.name).map((sk) => `${sk.name} · ${SKILL_LEVELS[sk.level]?.toLowerCase() || "basics"}`),
-    ...new Set((profile.roles || []).flatMap((r) => r.tools || [])),
+    // tools from roles, unless already listed as a skill
+    ...new Set((profile.roles || []).flatMap((r) => r.tools || []).filter((t) => !skillNames.has(t.toLowerCase()))),
   ];
   const learned = learnedTopics(progress);
-  const extras = worthLookingInto(job);
+  const extras = worthLookingInto(job, 8, progress);
+  const extraPath = extraSteps(job, progress);
+  const suggestions = nextExtras(job, progress);
+
+  // Read-only snapshot for an employer: role, topics and skills. No scores or rankings.
+  function shareLink() {
+    const brought = [...(profile.skills || []).map((s) => s.name).filter(Boolean), ...alreadyHave(job)];
+    return journeyLink({
+      name: (profile.name || "").replace(/\(.*?\)/g, "").trim().split(/\s+/)[0] || "",
+      role: sentence(job.title),
+      done: [...steps, ...revise].filter(isDone).map((s) => s.title),
+      learning: [...steps, ...revise].filter((s) => progress[s.id] === "learning").map((s) => s.title),
+      total: steps.length + revise.length,
+      brought: [...new Set(brought)].slice(0, 16),
+      hours: Number(profile.hoursPerWeek) || null,
+      date: new Date().toISOString().slice(0, 10),
+    });
+  }
 
   function share() {
-    const link = `${window.location.origin}/journey/demo`;
-    navigator.clipboard?.writeText(link).catch(() => {});
+    navigator.clipboard?.writeText(shareLink()).catch(() => {});
     setShared(true);
   }
 
@@ -183,12 +239,19 @@ export default function Pathway() {
       {/* ---------- Header ---------- */}
       <section className="pw-head night rise">
         <MoreMenu items={menu} />
-        <MiniBubbles job={job} progress={progress} />
+        <MiniBubbles job={job} progress={progress} complete={allDone || nothingToDo} />
         <div className="pw-head__text">
           <p className="label-mono">My pathway</p>
           <h1 className="pw-head__title">{sentence(job.title)}</h1>
           <p className="pw-head__meta">
-            Bridge score <strong className="num">{job.score}%</strong> · {steps.length} topics to learn · about {weeksLeft} weeks at {perWeek}h a week
+            Bridge score <strong className="num">{job.score}%</strong> ·{" "}
+            {allDone
+              ? `${steps.length + revise.length} topics covered · path complete`
+              : coreDone
+                ? `${steps.length} new topics learned · ${revise.length - reviseDone} to brush up (optional)`
+                : steps.length === 0
+                  ? `Nothing brand-new to learn · ${revise.length - reviseDone} topics to brush up`
+                  : `${steps.length} topics to learn · about ${weeksLeft} weeks at ${perWeek}h a week`}
           </p>
           <div className="pw-progress">
             <div className="pw-progress__row">
@@ -197,7 +260,8 @@ export default function Pathway() {
             </div>
             <span className="pw-progress__bar"><span style={{ width: `${familiarity}%` }} /></span>
             <span className="pw-progress__note">
-              Started at {job.familiarity}% · {doneCount} of {steps.length} topics done
+              Started at {job.familiarity}% ·{" "}
+              {steps.length ? `${doneCount} of ${steps.length} new topics done` : `${reviseDone} of ${revise.length} brushed up`}
             </span>
           </div>
           <button type="button" className="pw__link" onClick={() => go("/results")}>← Back to my options</button>
@@ -209,10 +273,14 @@ export default function Pathway() {
         <div className="pw-main">
           {upNext ? (
             <section className="pw-card pw-next rise" style={{ "--i": 1 }} aria-label="Up next">
-              <p className="label-mono">Up next</p>
+              <p className="label-mono">{upNext.revise ? "Brush up" : "Up next"}</p>
               <h2 className="pw-next__title">{upNext.title}</h2>
               <p className="pw-next__bridge">
-                {upNext.buildsOn ? (
+                {upNext.revise ? (
+                  <span className="pw-next__new">
+                    You already know about {Math.round(upNext.coverage * 100)}% of this. A short revision makes it solid.
+                  </span>
+                ) : upNext.buildsOn ? (
                   <>
                     <span className="pw-chip pw-chip--known">{upNext.buildsOn}</span>
                     <span className="pw-next__link" aria-hidden="true" />
@@ -264,9 +332,44 @@ export default function Pathway() {
               )}
             </section>
           ) : (
-            <section className="pw-card pw-next">
-              <p className="label-mono">All done</p>
-              <h2 className="pw-next__title">You've covered every topic on this path.</h2>
+            <section className="pw-card pw-next pw-done rise" aria-label="Path complete">
+              <span className="pw-done__badge" aria-hidden="true"><TickIcon /></span>
+              <p className="label-mono">{allDone || nothingToDo ? "Path complete" : "New topics done"}</p>
+              <h2 className="pw-next__title">
+                {allDone || nothingToDo ? `You know every core topic for ${job.title.toLowerCase()}.` : `You've learned every new topic for ${job.title.toLowerCase()}.`}
+              </h2>
+              <p className="pw-done__lead">
+                {nothingToDo
+                  ? `You came in already ${familiarity}% familiar, with nothing left to learn or brush up. Pick something below to keep growing.`
+                  : allDone
+                  ? `From ${job.familiarity}% to ${familiarity}% familiar. That's real progress, well done.`
+                  : `You're at ${familiarity}% now. Brushing up the ${revise.length - reviseDone} topics you partly know takes you to 100%. That part's optional.`}
+              </p>
+              {!allDone && revise.length > reviseDone && (
+                <button type="button" className="btn btn--ghost btn--sm pw-done__revise" onClick={openRevise}>
+                  Show topics to brush up
+                </button>
+              )}
+              {suggestions.length > 0 && (
+                <>
+                  <p className="pw-done__label">Make your stack stronger next</p>
+                  <ul className="pw-done__next">
+                    {suggestions.map((t) => (
+                      <li key={t.id}>
+                        <span>{t.title}</span>
+                        <button type="button" className="btn btn--ghost btn--sm" onClick={() => setStatus(t.id, "learning")}>
+                          Start learning
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              <div className="pw-next__actions">
+                <button type="button" className="btn btn--primary" onClick={() => go("/results")}>See roles you can reach now</button>
+                <button type="button" className="btn btn--ghost" onClick={share}>{shared ? "Link copied" : "Share my journey"}</button>
+                <button type="button" className="pw__link" onClick={() => setBurst((b) => b + 1)}>Celebrate again</button>
+              </div>
             </section>
           )}
 
@@ -305,6 +408,64 @@ export default function Pathway() {
                   <path d="M4 6l4 4 4-4" />
                 </svg>
               </button>
+            )}
+            {extraPath.length > 0 && (
+              <>
+                <p className="pw-path__label">Extras you added</p>
+                <ol className="pw-path pw-path--extra">
+                  {extraPath.map((s) => {
+                    const status = progress[s.id] || "todo";
+                    return (
+                      <li key={s.id} className={`pw-step pw-step--${status}`}>
+                        <span className="pw-step__num num">{status === "done" ? <TickIcon /> : "+"}</span>
+                        <div className="pw-step__text">
+                          <span className="pw-step__title">{s.title}</span>
+                          <span className="pw-step__sub">Extra · {s.hours}h</span>
+                        </div>
+                        <button type="button" className={`pw-status pw-status--${status}`} onClick={() => cycle(s.id)} aria-label={`${s.title}: ${STATUS_LABEL[status]}. Change status`}>
+                          <StatusDot status={status} /> {STATUS_LABEL[status]}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </>
+            )}
+            {steps.length === 0 && (
+              <p className="pw-empty">Nothing brand-new on this path: you already know part of every core topic. Brush up below to go deeper.</p>
+            )}
+            {revise.length > 0 && (
+              <div className={`pw-revise${showRevise ? " is-open" : ""}`} ref={reviseRef}>
+                <button type="button" className="pw-revise__toggle" onClick={() => setReviseOpen(!showRevise)} aria-expanded={showRevise}>
+                  <span className="pw-revise__name">Brush up what you know</span>
+                  <span className="pw-revise__count num">{reviseDone}/{revise.length}</span>
+                  <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                    <path d="M4 6l4 4 4-4" />
+                  </svg>
+                </button>
+                {showRevise && (
+                  <>
+                    <p className="pw-revise__note">Optional. Topics you partly know, weakest first. Revising them is what takes you to 100%.</p>
+                    <ol className="pw-path pw-path--revise">
+                      {revise.map((s) => {
+                        const status = progress[s.id] || "todo";
+                        return (
+                          <li key={s.id} className={`pw-step pw-step--${status}${s === upNext ? " is-next" : ""}`}>
+                            <span className="pw-step__num num">{status === "done" ? <TickIcon /> : `${Math.round(s.coverage * 100)}`}</span>
+                            <div className="pw-step__text">
+                              <span className="pw-step__title">{s.title}</span>
+                              <span className="pw-step__sub">You know about {Math.round(s.coverage * 100)}% · {s.hours}h to revise</span>
+                            </div>
+                            <button type="button" className={`pw-status pw-status--${status}`} onClick={() => cycle(s.id)} aria-label={`${s.title}: ${STATUS_LABEL[status]}. Change status`}>
+                              <StatusDot status={status} /> {STATUS_LABEL[status]}
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </>
+                )}
+              </div>
             )}
             {alreadyHave(job).length > 0 && (
               <p className="pw-have">
@@ -404,11 +565,14 @@ export default function Pathway() {
           <section className="pw-card rise" style={{ "--i": 5 }} aria-label="Share my journey">
             <h3>Share my journey</h3>
             <p className="pw-card__text">
-              A read-only link for an employer or HR: your chosen path and progress. Only you decide who gets it.
+              A read-only link for an employer or HR: your first name, chosen path, topics and skills. No scores. Only you decide who gets it.
             </p>
-            <button type="button" className="btn btn--ghost btn--sm" onClick={share}>
-              {shared ? "Link copied (demo)" : "Copy share link"}
-            </button>
+            <div className="pw-share">
+              <button type="button" className="btn btn--ghost btn--sm" onClick={share}>
+                {shared ? "Link copied" : "Copy share link"}
+              </button>
+              <a className="pw__link" href={shareLink()} target="_blank" rel="noreferrer">Preview</a>
+            </div>
           </section>
         </aside>
       </div>
@@ -473,7 +637,10 @@ export default function Pathway() {
             {m.label}
           </button>
         ))}
+        <Link className="pw__link" to="/data">Data sources</Link>
       </footer>
+
+      {burst > 0 && <Confetti key={burst} />}
 
       <ProfileSheet
         open={profileOpen}
@@ -606,13 +773,22 @@ function CountUp({ value }) {
 }
 
 /* The same bubble circle as the results page, static, with progress coloured in */
-function MiniBubbles({ job, progress }) {
+function MiniBubbles({ job, progress, complete }) {
   const shape = useMemo(() => {
-    const topics = topicsWithProgress(job, progress);
-    const bubbles = pickBubbles(topics, currentFamiliarity(job, progress));
+    // Starts as the exact picture on the results page; topics you start or finish turn green.
+    // Once the path is complete, optional topics you never started go plain grey.
+    const topics = job.topics.map((t) => {
+      const status = progress[t.title] || "todo";
+      return status === "todo" ? t : { ...t, coverage: effectiveCoverage(t, status) };
+    });
+    const bubbles = pickBubbles(job.topics, job.familiarity).map((b) => {
+      const t = topics[b.topic];
+      if ((progress[t.title] || "todo") !== "todo") return { ...b, filled: true };
+      return complete && t.relation === "optional" ? { ...b, filled: false } : b;
+    });
     const { radii, points, outer } = packTopics(bubbles, job.uri);
     return { topics, bubbles, radii, points, outer };
-  }, [job, progress]);
+  }, [job, progress, complete]);
   const size = 220;
   const k = size / 2 / shape.outer;
   return (
@@ -630,5 +806,51 @@ function MiniBubbles({ job, progress }) {
         </circle>
       ))}
     </svg>
+  );
+}
+
+/* Confetti: ~70 small shapes fall across the screen for a few seconds, then it removes itself */
+const CONFETTI_COLOURS = ["var(--done-default)", "var(--familiar-default)", "var(--sky-default)", "var(--highlight-default)", "var(--ink)"];
+
+function Confetti() {
+  const [on, setOn] = useState(true);
+  const pieces = useMemo(
+    () =>
+      Array.from({ length: 70 }, (_, i) => ({
+        left: Math.random() * 100,
+        delay: Math.random() * 0.6,
+        duration: 2.2 + Math.random() * 1.6,
+        drift: (Math.random() - 0.5) * 240,
+        spin: (Math.random() - 0.5) * 1440,
+        size: 6 + Math.random() * 8,
+        round: i % 3 === 0,
+        colour: CONFETTI_COLOURS[i % CONFETTI_COLOURS.length],
+      })),
+    []
+  );
+  useEffect(() => {
+    const t = setTimeout(() => setOn(false), 4500);
+    return () => clearTimeout(t);
+  }, []);
+  if (!on || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return null;
+  return (
+    <div className="confetti" aria-hidden="true">
+      {pieces.map((c, i) => (
+        <span
+          key={i}
+          className={`confetti__piece${c.round ? " confetti__piece--round" : ""}`}
+          style={{
+            left: `${c.left}%`,
+            width: c.size,
+            height: c.round ? c.size : c.size * 0.45,
+            background: c.colour,
+            animationDelay: `${c.delay}s`,
+            animationDuration: `${c.duration}s`,
+            "--drift": `${c.drift}px`,
+            "--spin": `${c.spin}deg`,
+          }}
+        />
+      ))}
+    </div>
   );
 }

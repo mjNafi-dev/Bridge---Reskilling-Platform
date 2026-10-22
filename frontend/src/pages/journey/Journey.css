@@ -1,0 +1,55 @@
+/* Shared learning journey. Page frame comes from ../data/DataSources.css */
+
+.jr-track {
+  display: flex;
+  gap: 4px;
+  margin-top: var(--space-16);
+}
+
+.jr-track__seg {
+  flex: 1;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--night-line);
+  animation: pop var(--dur-base) var(--ease-out) both;
+  animation-delay: calc(var(--i) * 30ms);
+}
+
+.jr-track__seg.is-learning { background: var(--familiar-default); }
+.jr-track__seg.is-done { background: var(--done-muted); }
+
+.jr-cols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-16);
+}
+
+.jr-count { margin-left: 6px; color: var(--mid); font: 500 14px/1 var(--font-mono); }
+
+.jr-list { display: flex; flex-wrap: wrap; gap: var(--space-8); list-style: none; }
+
+.jr-list li {
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font: var(--text-body-small);
+  animation: pop var(--dur-base) var(--ease-out) both;
+  animation-delay: calc(var(--i) * 40ms + 150ms);
+}
+
+.jr-list--done li { background: var(--done-subtle); color: var(--done-strong); }
+.jr-list--learning li { background: var(--familiar-subtle); color: var(--familiar-strong); }
+.jr-list--brought li { background: var(--l05); color: var(--d2); }
+
+.jr-foot {
+  margin-top: var(--space-32);
+  padding-top: var(--space-16);
+  border-top: 1px solid var(--l1);
+  font: var(--text-body-small);
+  color: var(--d3);
+}
+
+.jr-foot a { color: var(--ink); font-weight: 600; text-underline-offset: 3px; }
+
+@media (max-width: 1000px) {
+  .jr-cols { grid-template-columns: 1fr; }
+}

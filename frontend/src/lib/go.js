@@ -12,11 +12,25 @@ export function useGo() {
   return useCallback(
     (to, options) => {
       const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-      if (!document.startViewTransition || reduce) {
+      // A hidden tab never paints, so a transition would hold the navigation until it's shown
+      if (!document.startViewTransition || reduce || document.visibilityState !== "visible") {
         navigate(to, options);
         return;
       }
-      document.startViewTransition(() => flushSync(() => navigate(to, options)));
+      let done = false;
+      const update = () => {
+        if (done) return;
+        done = true;
+        flushSync(() => navigate(to, options));
+      };
+      const transition = document.startViewTransition(update);
+      // Safety net: if the browser hasn't started the transition soon (no frame drawn), just go
+      setTimeout(() => {
+        if (!done) {
+          transition.skipTransition?.();
+          update();
+        }
+      }, 400);
     },
     [navigate]
   );

@@ -91,6 +91,8 @@
   --night-raised: #1C1C1E;
   --night-line: rgba(255, 255, 255, 0.12);
   --night-text: rgba(255, 255, 255, 0.64);
+  --night-done: #A3C76B; /* "done" green that reads on night surfaces (dark ink on top) */
+  --night-muted: rgba(255, 255, 255, 0.24); /* empty dots and rings on night */
   --dot-grid: #E4E4E8; /* page background dots */
 
   /* Motion */

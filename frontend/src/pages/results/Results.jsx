@@ -4,7 +4,7 @@ import BrandMark from "../../components/BrandMark.jsx";
 import { fetchMatch } from "../../api.js";
 import TopicField, { TIERS } from "./TopicField.jsx";
 import { pickBubbles } from "./layout.js";
-import JobDetails from "./JobDetails.jsx";
+import JobDetails, { causeList } from "./JobDetails.jsx";
 import ConnectAI from "../../components/ConnectAI.jsx";
 import { useGo } from "../../lib/go.js";
 import "./Results.css";
@@ -24,9 +24,14 @@ const TRAVEL_MS = 1300;
 
 const sentence = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "");
 
+// A profile with nothing to match on (e.g. onboarding opened but not answered) counts as none
+const hasEvidence = (p) =>
+  !!p && ["skills", "roles", "projects", "courses"].some((k) => p[k]?.length) || !!p?.eduField;
+
 function readProfile() {
   try {
-    return JSON.parse(localStorage.getItem("bridge.profile") || "null");
+    const p = JSON.parse(localStorage.getItem("bridge.profile") || "null");
+    return hasEvidence(p) ? p : null;
   } catch {
     return null;
   }
@@ -189,6 +194,9 @@ export default function Results() {
   // Everything before the selected one in the line sits on the left, everything after on the right
   const left = line.slice(0, active).map((rank, k) => ({ rank, pos: k }));
   const right = line.slice(active + 1).map((rank, k) => ({ rank, pos: active + 1 + k }));
+  // Phones stack everything, so the other options become one list in rank order
+  const narrow = useNarrow();
+  const others = [...left, ...right].sort((a, b) => a.rank - b.rank);
 
   function choosePathway() {
     try {
@@ -301,8 +309,14 @@ export default function Results() {
               <button type="button" className="results__arrow results__arrow--right" onClick={() => select(active + 1)} disabled={active === n - 1} aria-label="Next option">
                 <Chevron dir="right" />
               </button>
-              <OptionList side="left" items={left} results={results} onPick={select} />
-              <OptionList side="right" items={right} results={results} onPick={select} />
+              {narrow ? (
+                <OptionList side="all" items={others} results={results} onPick={select} />
+              ) : (
+                <>
+                  <OptionList side="left" items={left} results={results} onPick={select} />
+                  <OptionList side="right" items={right} results={results} onPick={select} />
+                </>
+              )}
             </>
           )}
 
@@ -403,6 +417,12 @@ function JobCard({ job, rank, total }) {
                     <span className="num">{part.value} × {Math.round(part.weight * 100)}%</span>
                   </span>
                 ))}
+                {job.cause_boost > 0 && (
+                  <span className="breakdown-row">
+                    <span>Your cause</span>
+                    <span className="num">+{job.cause_boost}</span>
+                  </span>
+                )}
               </span>
             </span>
           </p>
@@ -434,6 +454,16 @@ function JobCard({ job, rank, total }) {
               : "No demand data for this job yet."}
           </span>
         </li>
+        {job.sdgs?.length > 0 && (
+          <li className="hint" tabIndex={0}>
+            <GlobeIcon />
+            <span>SDG {job.sdgs.map((g) => g.goal).join(" · ")}</span>
+            <span className="hint__bubble" role="tooltip">
+              {job.sdgs.map((g) => `SDG ${g.goal}, ${g.name}: ${g.reason}`).join(" ")}
+              {job.cause_boost > 0 && ` +${job.cause_boost} points because you care about ${causeList(job.causes_matched)}.`}
+            </span>
+          </li>
+        )}
       </ul>
     </article>
   );
@@ -462,10 +492,24 @@ function ScoreRing({ value }) {
   );
 }
 
+const NARROW = "(max-width: 760px)";
+
+function useNarrow() {
+  const [narrow, setNarrow] = useState(() => window.matchMedia?.(NARROW).matches ?? false);
+  useEffect(() => {
+    const mq = window.matchMedia?.(NARROW);
+    if (!mq) return;
+    const update = () => setNarrow(mq.matches);
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return narrow;
+}
+
 function OptionList({ side, items, results, onPick }) {
   if (!items.length) return <div className={`options options--${side}`} />;
   return (
-    <nav className={`options options--${side}`} aria-label={`Other options (${side})`}>
+    <nav className={`options options--${side}`} aria-label={side === "all" ? "Other options" : `Other options (${side})`}>
       <p className="options__heading">Other options</p>
       <ul>
         {items.map(({ rank, pos }) => (
@@ -490,6 +534,7 @@ const svg = (children, size = 18) => (
 );
 const ClockIcon = () => svg(<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>);
 const CapIcon = () => svg(<><path d="M2 9l10-5 10 5-10 5z" /><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" /></>);
+const GlobeIcon = () => svg(<><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z" /></>);
 const TrendIcon = () => svg(<><path d="M3 17l6-6 4 4 8-8" /><path d="M15 7h6v6" /></>);
 const InfoIcon = () => svg(<><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></>, 16);
 const RefreshIcon = () => svg(<><path d="M20 12a8 8 0 1 1-2.3-5.7" /><path d="M20 4v5h-5" /></>, 16);

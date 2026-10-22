@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useGo } from "../lib/go.js";
 import BrandMark from "../components/BrandMark.jsx";
 import NodeNetwork from "../components/NodeNetwork.jsx";
 import CyclingTagline from "../components/CyclingTagline.jsx";
-import { DEMO_PROFILE } from "../data/sampleCv.js";
+import { DEMO_PROFILES } from "../data/sampleCv.js";
 import { STEPS } from "./onboarding/steps.js";
 import "./Auth.css";
 
 /*
   Sign-up and log-in share this one page; `mode` switches the wording.
   Demo version: there is no server account yet. We only remember the email in the
-  browser (never the password) and move on. Social sign-in buttons are disabled
+  browser (never the password) and move on. Creating an account always starts fresh;
+  logging in keeps what's in this browser only if it belongs to the same email. Social sign-in buttons are disabled
   with a hover note, like the re-analyse button.
 */
 
@@ -41,24 +42,50 @@ export default function Auth({ mode }) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [focused, setFocused] = useState(null); // "email" | "lock" | null: shapes the dot animation
+  const [pickDemo, setPickDemo] = useState(false); // the demo-people popover is open
+  const demoRef = useRef(null);
+
+  // The popover closes on Escape or a click anywhere else
+  useEffect(() => {
+    if (!pickDemo) return;
+    const onDown = (e) => !demoRef.current?.contains(e.target) && setPickDemo(false);
+    const onKey = (e) => e.key === "Escape" && setPickDemo(false);
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [pickDemo]);
 
   function handleSubmit(e) {
     e.preventDefault();
     // Demo: no checks, anything typed goes through.
     // Demo only: keep the email so onboarding can greet the user. Passwords are never stored.
+    const typed = email.trim().toLowerCase() || "guest";
+    let to = "/onboarding";
     try {
-      localStorage.setItem("bridge.account", JSON.stringify({ email: email || "guest" }));
+      const prev = JSON.parse(localStorage.getItem("bridge.account") || "null");
+      const same = mode === "login" && prev && !prev.demo && prev.email === typed;
+      if (same) {
+        if (localStorage.getItem("bridge.selectedJob")) to = "/pathway"; // straight back to the dashboard
+      } else {
+        clearBridgeData(); // someone else's (or a demo person's) answers never carry over
+      }
+      localStorage.setItem("bridge.account", JSON.stringify({ email: typed }));
     } catch {
       /* storage blocked: carry on without it */
     }
-    go("/onboarding");
+    go(to);
   }
 
-  function startDemo() {
-    // Load a complete made-up profile and jump to the Review step
+  function startDemo(demo) {
+    // Load a complete made-up profile and jump to the Review step. Anything from an
+    // earlier person (pathway, progress) is cleared so the two don't mix.
     try {
+      clearBridgeData();
       localStorage.setItem("bridge.account", JSON.stringify({ email: "demo@bridge.app", demo: true }));
-      localStorage.setItem("bridge.profile", JSON.stringify(DEMO_PROFILE));
+      localStorage.setItem("bridge.profile", JSON.stringify(demo.profile));
       localStorage.setItem("bridge.onboardingStep", JSON.stringify(STEPS.length - 1));
     } catch {
       /* ignore */
@@ -76,7 +103,7 @@ export default function Auth({ mode }) {
         </div>
         <div className="auth__panel-foot">
           <CyclingTagline className="auth__tagline" />
-          <p className="auth__facts">117 roles · 2,981 skills · ESCO, O*NET and ILO data</p>
+          <p className="auth__facts">117 roles · 2,981 skills · <Link to="/data">ESCO, O*NET and ILO data</Link></p>
         </div>
       </section>
 
@@ -141,18 +168,47 @@ export default function Auth({ mode }) {
             ))}
           </div>
 
-          <button type="button" className="btn btn--ghost auth__demo rise" style={{ "--i": 7 }} onClick={startDemo}>
-            Try with a demo profile
-          </button>
+          <div className="auth__demo-wrap rise" style={{ "--i": 7 }} ref={demoRef}>
+            <button
+              type="button"
+              className="btn btn--ghost auth__demo"
+              onClick={() => setPickDemo((v) => !v)}
+              aria-expanded={pickDemo}
+              aria-haspopup="true"
+            >
+              Try with a demo profile
+            </button>
+            {pickDemo && (
+              <div className="auth__demos" role="menu" aria-label="Demo people (made up)">
+                <p className="auth__demos-title">Pick a made-up person</p>
+                {DEMO_PROFILES.map((d) => (
+                  <button key={d.id} type="button" role="menuitem" className="auth__demo-pick" onClick={() => startDemo(d)}>
+                    <strong>{d.label}</strong>
+                    <span>{d.who}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           <p className="auth__switch rise" style={{ "--i": 8 }}>
             {copy.switchText} <Link to={copy.switchTo}>{copy.switchLink}</Link>
+          </p>
+          <p className="auth__switch auth__org rise" style={{ "--i": 9 }}>
+            University or HR team? <Link to="/org">See the organisation view</Link>
           </p>
         </form>
       </section>
       </div>
     </main>
   );
+}
+
+/* Everything Bridge keeps in this browser (answers, pathway, progress, account) */
+function clearBridgeData() {
+  Object.keys(localStorage)
+    .filter((k) => k.startsWith("bridge."))
+    .forEach((k) => localStorage.removeItem(k));
 }
 
 function EyeIcon({ open }) {

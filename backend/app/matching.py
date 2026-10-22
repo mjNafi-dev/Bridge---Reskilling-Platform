@@ -6,6 +6,7 @@ Bridge score = weighted mix of four parts (all 0..1):
   D  Demand        future demand from the trend layer (balance of moderate + fast scenarios)
   E  Ease          how quickly the gap can be closed at the user's weekly hours
   I  Interest fit  match with the work types the user enjoys (Holland RIASEC, from O*NET)
+Jobs that serve one of the user's chosen causes (UN SDGs, see sdg.py) get +3 points.
 The comfort slider (0 = stay close, 1 = stretch) moves weight between F/E and D.
 If no demand data exists yet, D is left out and the other weights are rescaled,
 and the result says so. Skill similarity uses embeddings computed on a RunPod GPU
@@ -19,6 +20,7 @@ from pathlib import Path
 import numpy as np
 
 from .embeddings import get_embeddings
+from .sdg import CAUSE_BOOST, CAUSES, cause_goals, tag
 from .similarity import similarity
 
 DB_PATH = Path(__file__).resolve().parents[1] / "data" / "bridge.db"
@@ -57,6 +59,7 @@ def load_catalogue(db_path=DB_PATH):
         occ["riasec_scores"] = json.loads(occ["riasec_scores"] or "null")
         occ["alt_labels"] = json.loads(occ["alt_labels"] or "[]")
         occ["skills"] = []
+        occ["sdgs"] = tag(occ)  # UN SDG goals this job serves, with a reason
     for r in db.execute(
         "SELECT os.occupation_uri, os.relation, s.uri, s.title, s.skill_type "
         "FROM occupation_skills os JOIN skills s ON s.uri = os.skill_uri"
@@ -233,6 +236,7 @@ def match(profile, comfort=0.5, catalogue=None, pin=None):
     role_titles = [r["title"] for r in profile.get("roles") or [] if r.get("title")]
     user_vecs = emb.encode([t for t, _, _ in evidence]) if emb else None
     role_vecs = emb.encode(role_titles) if emb and role_titles else None
+    wanted = cause_goals(profile)
     results = []
 
     for occ in cat["occupations"].values():
@@ -250,13 +254,18 @@ def match(profile, comfort=0.5, catalogue=None, pin=None):
         w = weights(comfort, D is not None, I is not None)
         parts = {"F": F, "E": E, "D": D, "I": I}
         score = sum(w[k] * parts[k] for k in w)
+        causes = [c for c in profile.get("causes") or [] if CAUSES.get(c, set()) & {g["goal"] for g in occ["sdgs"]}]
+        boost = CAUSE_BOOST if causes and wanted else 0
         results.append({
             "uri": occ["uri"],
             "title": occ["title"],
             "description": occ["description"],
             "category": occ["category"],
             "isco": occ["isco_code"],
-            "score": round(score * 100),
+            "score": min(100, round(score * 100) + boost),
+            "sdgs": occ["sdgs"],
+            "cause_boost": boost,
+            "causes_matched": causes,
             "familiarity": round(F * 100),
             "hours": round(hours),
             "weeks": round(weeks, 1),

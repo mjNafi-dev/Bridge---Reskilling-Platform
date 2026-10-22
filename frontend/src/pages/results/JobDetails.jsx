@@ -1,6 +1,9 @@
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 
 /* "View more details": everything behind one match, in a dialog. */
+
+export const causeList = (causes = []) => causes.map((c) => c.toLowerCase()).join(" and ");
 
 const sentence = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "");
 const PART = {
@@ -55,6 +58,9 @@ export default function JobDetails({ job, open, onClose, onPathway }) {
               <span className="bar-row__value num">{part.value}</span>
             </div>
           ))}
+          {job.cause_boost > 0 && (
+            <p className="details__muted">+{job.cause_boost} points because this role serves a cause you picked: {causeList(job.causes_matched)}.</p>
+          )}
         </section>
 
         <div className="details__cols">
@@ -104,6 +110,26 @@ export default function JobDetails({ job, open, onClose, onPathway }) {
             <p className="details__muted">No demand data for this job yet.</p>
           )}
         </section>
+
+        {job.sdgs?.length > 0 && (
+          <section className="details__section">
+            <h3>Who it helps</h3>
+            <ul className="sdg-list">
+              {job.sdgs.map((g) => (
+                <li key={g.goal}>
+                  <span className="sdg-list__badge num">SDG {g.goal}</span>
+                  <span><strong>{g.name}.</strong> {g.reason}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="details__muted">UN Sustainable Development Goals, matched from the role's ILO job group (ISCO-08) and title.</p>
+          </section>
+        )}
+
+        <p className="details__sources">
+          Skills from ESCO, interests from O*NET, demand from O*NET, live postings and the ILO. Every number is an estimate.{" "}
+          <Link to="/data">See all data sources</Link>
+        </p>
 
         <footer className="details__foot">
           <button type="button" className="btn btn--ghost" onClick={onClose}>Back to options</button>

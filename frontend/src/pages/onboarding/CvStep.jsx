@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { SAMPLE_CV, CV_FIELDS } from "../../data/sampleCv.js";
+import { readCv } from "../../api.js";
 import { ArrowIcon } from "./Onboarding.jsx";
 // 3D icons from thiings.co (free, no attribution required; credited in README anyway).
 // Kept in public/cv/ and loaded by URL.
@@ -13,12 +14,17 @@ const retryImg = "/cv/retry.png";
 /*
   CV upload: optional, only pre-fills later questions.
   Stages: idle → uploading (progress bar) → reading (step-by-step checklist) → done.
-  Demo: real CV reading comes with the backend (text extraction + OCR + AI).
-  For now every upload fills the SYNTHETIC sample profile, and the page says so.
+  The server reads the file (backend/app/cv.py): roles, education, skills matched to ESCO,
+  languages, courses, projects, hobbies. Every filled field gets a "From your CV" badge.
+  The sample CV is a SYNTHETIC person (backend/scripts/make_sample_cv.py).
 */
 
 const ACCEPTED = [".pdf", ".docx", ".txt"];
 const MAX_MB = 5;
+const SAMPLE_NAME = "sample-cv-graphic-designer.pdf";
+const SAMPLE_URL = `/cv/${SAMPLE_NAME}`;
+// Used only if the server can't be reached while trying the sample
+const LOCAL_SAMPLE = { profile: SAMPLE_CV, filled: CV_FIELDS, found: { method: "sample" } };
 const READ_STAGES = [
   "Reading your CV",
   "Finding your education and roles",
@@ -60,23 +66,67 @@ export default function CvStep({ profile, setProfile, onContinue, onBack }) {
     };
   }, []);
   const later = (fn, ms) => timers.current.push(setTimeout(fn, ms));
+  const wait = (ms) => new Promise((resolve) => later(resolve, ms));
+  const run = useRef(0); // bumps on every upload or reset, so a stale read never lands
 
-  function start(name) {
+  // Upload → read on the server → fill the answers it found. The checklist is paced so
+  // each line is readable; the last one waits for the server.
+  async function start(file, isSample = false) {
+    const id = ++run.current;
+    const alive = () => run.current === id;
     setError("");
-    setFileName(name);
+    setFileName(file.name);
     setStage("uploading");
     setProgress(0);
-    // Upload progress (simulated until the backend exists)
-    for (let i = 1; i <= 20; i++) later(() => setProgress(i * 5), i * 60);
-    later(() => {
+    setReadStep(0);
+    const began = Date.now();
+    let uploaded;
+    const sent = new Promise((resolve) => (uploaded = resolve));
+    const reading = readCv(file, (pct) => {
+      if (alive()) setProgress(pct);
+      if (pct >= 100) uploaded();
+    });
+    reading.catch(() => {}); // handled where it's awaited
+    try {
+      await Promise.race([sent, reading]);
+      await wait(Math.max(300, 900 - (Date.now() - began)));
+      if (!alive()) return;
       setStage("reading");
-      setReadStep(0);
-      READ_STAGES.forEach((_, i) => later(() => setReadStep(i + 1), (i + 1) * 900));
-      later(() => {
-        setProfile((p) => ({ ...p, ...SAMPLE_CV, cvFileName: name, cvFilled: CV_FIELDS }));
-        setStage("done");
-      }, READ_STAGES.length * 900 + 400);
-    }, 1300);
+      for (let i = 1; i < READ_STAGES.length; i++) {
+        await wait(650);
+        if (!alive()) return;
+        setReadStep(i);
+      }
+      const result = await reading;
+      if (!alive()) return;
+      setReadStep(READ_STAGES.length);
+      await wait(450);
+      if (alive()) apply(result, file.name);
+    } catch (e) {
+      if (!alive()) return;
+      if (isSample) return apply(LOCAL_SAMPLE, file.name); // server down: the sample still works
+      setStage("idle");
+      setError(e.message);
+    }
+  }
+
+  function apply(result, name) {
+    setProfile((p) => {
+      const next = { ...p };
+      (p.cvFilled || []).forEach((k) => delete next[k]); // answers from an earlier CV
+      return { ...next, ...result.profile, cvFileName: name, cvFilled: result.filled, cvFound: result.found };
+    });
+    setStage("done");
+  }
+
+  async function trySample() {
+    try {
+      const res = await fetch(SAMPLE_URL);
+      if (!res.ok) throw new Error();
+      start(new File([await res.blob()], SAMPLE_NAME, { type: "application/pdf" }), true);
+    } catch {
+      apply(LOCAL_SAMPLE, SAMPLE_NAME);
+    }
   }
 
   function handleFile(file) {
@@ -84,15 +134,17 @@ export default function CvStep({ profile, setProfile, onContinue, onBack }) {
     const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
     if (!ACCEPTED.includes(ext)) return setError("Please use a PDF, Word (.docx) or text file.");
     if (file.size > MAX_MB * 1024 * 1024) return setError(`That file is over ${MAX_MB} MB. Try a smaller one.`);
-    start(file.name);
+    start(file);
   }
 
   function reset() {
+    run.current++;
     timers.current.forEach(clearTimeout);
     setProfile((p) => {
       const cleared = { ...p };
-      CV_FIELDS.forEach((k) => delete cleared[k]);
+      (p.cvFilled?.length ? p.cvFilled : CV_FIELDS).forEach((k) => delete cleared[k]);
       delete cleared.cvFileName;
+      delete cleared.cvFound;
       cleared.cvFilled = [];
       return cleared;
     });
@@ -135,8 +187,10 @@ export default function CvStep({ profile, setProfile, onContinue, onBack }) {
           </div>
           {error && <p className="f__err" role="alert">{error}</p>}
           <p className="cv__demo-note">
-            Demo version: please don't upload a real CV. Uploads fill in a made-up sample profile, or{" "}
-            <button type="button" className="link-btn" onClick={() => start("sample-cv-graphic-designer.pdf")}>use the sample CV</button>.
+            We read your file once for your roles, skills and education, then throw it away. We never keep the file or
+            read your name and contact details. This is a hackathon demo, so please use a made-up CV, or{" "}
+            <button type="button" className="link-btn" onClick={trySample}>try our sample CV</button>{" "}
+            (<a className="link-btn" href={SAMPLE_URL} download>download it</a> to see what it says).
           </p>
         </>
       )}
@@ -172,14 +226,7 @@ export default function CvStep({ profile, setProfile, onContinue, onBack }) {
         <div className="cv-status cv-status--done">
           <img className="cv-status__img cv-status__img--pop" src={acceptedImg} alt="" width="88" height="88" />
           <FileRow name={fileName} done />
-          <p className="cv-done__title">Done. We filled in:</p>
-          <ul className="cv-done__list">
-            <li>Education</li>
-            <li>{profile.roles?.length || 0} role{profile.roles?.length === 1 ? "" : "s"} with tasks and tools</li>
-            <li>{profile.skills?.length || 0} skills</li>
-            <li>Languages and courses</li>
-          </ul>
-          <p className="f__hint">Look for the <span className="f__cv">From your CV</span> badge on the next pages and fix anything that's off.</p>
+          <CvSummary profile={profile} />
           <button type="button" className="link-btn" onClick={reset}>Remove and start over</button>
         </div>
       )}
@@ -213,6 +260,64 @@ export default function CvStep({ profile, setProfile, onContinue, onBack }) {
         </div>
       )}
     </div>
+  );
+}
+
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+/* What the CV filled in. Counts come from the current answers, so edits on later pages show here too. */
+function CvSummary({ profile }) {
+  const found = profile.cvFound || {};
+  const roles = profile.roles || [];
+  const skills = profile.skills || [];
+  const tasks = roles.reduce((n, r) => n + (r.tasks?.length || 0), 0);
+  const tools = new Set(roles.flatMap((r) => r.tools || [])).size;
+  const matched = skills.filter((s) => s.esco).length;
+  const education = [profile.eduLevel, profile.eduField].filter(Boolean).join(" in ");
+  const extras = [
+    profile.languages?.length && plural(profile.languages.length, "language"),
+    profile.courses?.length && plural(profile.courses.length, "course"),
+    profile.projects?.length && plural(profile.projects.length, "project"),
+    profile.hobbies?.length && plural(profile.hobbies.length, "hobby").replace("hobbys", "hobbies"),
+  ].filter(Boolean);
+  const missing = [!education && "education", !roles.length && "work experience", !skills.length && "skills"].filter(Boolean);
+  const filled = profile.cvFilled || [];
+
+  if (!filled.length) {
+    return (
+      <>
+        <p className="cv-done__title">We couldn't pick much out of this one.</p>
+        <p className="f__hint">No problem: fill in the next pages yourself, or try a Word or text version of your CV.</p>
+      </>
+    );
+  }
+  return (
+    <>
+      <p className="cv-done__title">Done. We filled in:</p>
+      <ul className="cv-done__list">
+        {education && <li>Education: {education}</li>}
+        {roles.length > 0 && <li>{plural(roles.length, "role")} with {plural(tasks, "task")}{tools ? ` and ${plural(tools, "tool")}` : ""}</li>}
+        {skills.length > 0 && <li>{plural(skills.length, "skill")}{matched ? `, ${matched} matched to the official ESCO skills list` : ""}</li>}
+        {extras.length > 0 && <li>{extras.join(", ")}</li>}
+      </ul>
+      {found.examples?.length > 0 && (
+        <div className="cv-esco">
+          <p className="label-mono">How the ESCO list names your skills</p>
+          <div className="cv-esco__pairs">
+            {found.examples.map((e, i) => (
+              <span key={e.skill} className="cv-esco__pair" style={{ "--i": i }}>
+                {e.skill} <span aria-hidden="true">→</span> <em>{e.esco}</em>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      {missing.length > 0 && <p className="f__hint">Not found in your CV: {missing.join(", ")}. You'll fill {missing.length === 1 ? "it" : "those"} in yourself.</p>}
+      <p className="f__hint">
+        Look for the <span className="f__cv">From your CV</span> badge on the next pages and fix anything that's off.
+        {found.method === "ai" && " Read with AI."}
+      </p>
+    </>
   );
 }
 

@@ -5,7 +5,8 @@
 
 // Same rough estimates as the backend (hours to learn one missing item)
 const HOURS = { skill: 18, knowledge: 12 };
-const KNOWN = 0.5; // at or above this, a topic counts as already yours
+const KNOWN = 0.5; // at or above this, a topic is off the main path (you partly know it)
+const SOLID = 0.9; // at or above this, a topic needs no brushing up either
 
 export const STATUS = ["todo", "learning", "done"];
 export const STATUS_LABEL = { todo: "Not started", learning: "Learning", done: "Done" };
@@ -42,21 +43,57 @@ export function buildSteps(job) {
     });
 }
 
+/* Topics you already know well (nothing to do) */
 export function alreadyHave(job) {
-  return job.topics.filter((t) => t.relation !== "optional" && t.coverage >= KNOWN).map((t) => sentence(t.title));
+  return job.topics.filter((t) => t.relation !== "optional" && t.coverage >= SOLID).map((t) => sentence(t.title));
 }
 
-/* Familiarity now, counting progress (average over essential topics, like the matcher) */
+/* Topics you partly know: optional brush-ups, weakest first */
+export function reviseSteps(job) {
+  return job.topics
+    .filter((t) => t.relation !== "optional" && t.coverage >= KNOWN && t.coverage < SOLID)
+    .sort((a, b) => a.coverage - b.coverage)
+    .map((t) => ({
+      id: t.title,
+      title: sentence(t.title),
+      type: t.type,
+      coverage: t.coverage,
+      revise: true,
+      hours: Math.max(1, Math.round((HOURS[t.type] || 15) * (1 - t.coverage))),
+    }));
+}
+
+/* Familiarity now: starts at the matcher's number and closes the gap as path topics and
+   brush-ups get done. 100% only once every one of them is done, never just by finishing
+   the new topics. */
 export function currentFamiliarity(job, progress) {
-  const essential = job.topics.filter((t) => t.relation !== "optional");
-  if (!essential.length) return job.familiarity;
-  const sum = essential.reduce((s, t) => s + effectiveCoverage(t, progress[t.title]), 0);
-  return Math.round((sum / essential.length) * 100);
+  const work = [...buildSteps(job), ...reviseSteps(job)];
+  const gap = work.reduce((g, s) => g + (1 - s.coverage), 0);
+  if (!gap) return job.familiarity;
+  const closed = work.reduce((g, s) => g + (effectiveCoverage(s, progress[s.id]) - s.coverage), 0);
+  return Math.min(100, Math.round(job.familiarity + (100 - job.familiarity) * (closed / gap)));
 }
 
-/* Topics with progress applied, for the bubble diagram */
-export function topicsWithProgress(job, progress) {
-  return job.topics.map((t) => ({ ...t, coverage: effectiveCoverage(t, progress[t.title]) }));
+/* Optional topics the user chose to learn as extras (started or done) */
+export function extraSteps(job, progress) {
+  return job.topics
+    .filter((t) => t.relation === "optional" && progress[t.title] && progress[t.title] !== "todo")
+    .map((t) => ({
+      id: t.title,
+      title: sentence(t.title),
+      type: t.type,
+      extra: true,
+      hours: Math.max(2, Math.round((HOURS[t.type] || 15) * (1 - t.coverage))),
+    }));
+}
+
+/* Optional topics worth adding next, broadest first, skipping ones already started */
+export function nextExtras(job, progress, limit = 3) {
+  return job.topics
+    .filter((t) => t.relation === "optional" && t.coverage < 0.2 && (progress[t.title] || "todo") === "todo")
+    .sort((a, b) => b.breadth - a.breadth)
+    .slice(0, limit)
+    .map((t) => ({ id: t.title, title: sentence(t.title) }));
 }
 
 /* Search links only: no scraping, no accounts. Free sources first. */
@@ -104,10 +141,10 @@ export function learnedTopics(progress) {
     .map(([name, status]) => ({ name: sentence(name), status }));
 }
 
-/* Optional skills for this role you don't have yet, broadest first */
-export function worthLookingInto(job, limit = 8) {
+/* Optional skills for this role you don't have yet (and haven't started), broadest first */
+export function worthLookingInto(job, limit = 8, progress = {}) {
   return job.topics
-    .filter((t) => t.relation === "optional" && t.coverage < 0.2)
+    .filter((t) => t.relation === "optional" && t.coverage < 0.2 && (progress[t.title] || "todo") === "todo")
     .sort((a, b) => b.breadth - a.breadth)
     .slice(0, limit)
     .map((t) => sentence(t.title));

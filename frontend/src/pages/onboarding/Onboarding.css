@@ -49,11 +49,11 @@
   flex: 1;
   height: 6px;
   border-radius: var(--radius-pill);
-  background: var(--night-line);
+  background: var(--night-muted);
   transition: background var(--dur-slow) var(--ease-out);
 }
 
-.ob__progress-dot.is-done { background: var(--done-muted); }
+.ob__progress-dot.is-done { background: var(--night-done); }
 .ob__progress-dot.is-current { background: var(--paper); }
 
 .ob__steps {
@@ -94,8 +94,9 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  border: 1.5px solid var(--night-line);
+  border: 1.5px solid var(--night-muted);
   background: transparent;
+  color: var(--paper);
   font: var(--text-mono);
   font-size: 11px;
   transition: background var(--dur-base) var(--ease-out), border-color var(--dur-base) ease, transform var(--dur-base) var(--ease-out);
@@ -144,15 +145,18 @@
 .ob-step--done,
 .ob-step--skipped { color: var(--paper); }
 
-.ob-step--done .ob-step__mark,
-.ob-step--skipped .ob-step__mark {
-  border-color: var(--done-default);
-  background: var(--done-default);
-  color: var(--paper);
+/* Done: bright green with a dark tick, so it reads on the dark panel */
+.ob-step--done .ob-step__mark {
+  border-color: var(--night-done);
+  background: var(--night-done);
+  color: var(--night);
 }
 
-/* Skipped optional step: same colours as done, dash instead of a tick */
+/* Skipped optional step: a plain filled ring with a dash, so it isn't mistaken for done */
 .ob-step--skipped .ob-step__mark {
+  border-color: transparent;
+  background: var(--night-muted);
+  color: var(--paper);
   font-size: 14px;
   font-weight: 700;
 }
@@ -819,7 +823,7 @@
   height: 100%;
   background: var(--ink);
   border-radius: inherit;
-  transition: width 0.1s linear;
+  transition: width 0.5s var(--ease-out);
 }
 
 /* ---------- CV step ---------- */
@@ -1005,6 +1009,50 @@
   padding-left: var(--space-24);
   font: var(--text-body-medium);
   color: var(--d2);
+}
+
+.cv-done__list li + li { margin-top: 2px; }
+
+/* How ESCO reads a few of the skills: "Photo retouching → edit photographs" */
+.cv-esco {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-16);
+  border-radius: var(--radius-md);
+  background: var(--l05);
+}
+
+.cv-esco__pairs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.cv-esco__pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  border: 1px solid var(--l1);
+  font: var(--text-body-small);
+  animation: pop-in var(--dur-base) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 80ms + 200ms);
+}
+
+.cv-esco__pair em {
+  font-style: normal;
+  color: var(--familiar-strong);
+}
+
+.skill-row__esco {
+  display: block;
+  margin-top: 2px;
+  font: var(--text-body-small);
+  font-size: 12px;
+  color: var(--d3);
 }
 
 /* ---------- Modal ---------- */

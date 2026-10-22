@@ -97,6 +97,16 @@
   color: var(--night-text);
 }
 
+.auth__facts a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--night-line);
+  text-underline-offset: 3px;
+  transition: color var(--dur-fast) ease;
+}
+
+.auth__facts a:hover { color: var(--paper); text-decoration-color: currentColor; }
+
 /* ---------- Right side: form ---------- */
 .auth__form-side {
   display: flex;
@@ -252,6 +262,60 @@
 }
 
 .auth__demo:hover:not(:disabled) { border-color: var(--familiar-default); }
+
+/* Demo people: a popover that opens above the button, so nothing else on the page moves */
+.auth__demo-wrap { position: relative; display: flex; flex-direction: column; }
+
+.auth__demos {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + var(--space-8));
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+  padding: var(--space-12);
+  border: 1px solid var(--l1);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  box-shadow: var(--shadow-3);
+  transform-origin: bottom center;
+  animation: demos-in var(--dur-base) var(--ease-out);
+}
+
+@keyframes demos-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+}
+
+.auth__demos-title {
+  grid-column: 1 / -1;
+  font: var(--text-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mid);
+}
+
+.auth__demo-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-12);
+  border: 1px solid var(--familiar-muted);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease;
+}
+
+.auth__demo-pick:hover { border-color: var(--familiar-default); background: var(--familiar-subtle); }
+.auth__demo-pick strong { font: var(--text-title-small); font-size: 14px; color: var(--ink); }
+.auth__demo-pick span { font: var(--text-body-small); font-size: 12px; color: var(--d3); }
+
+@media (max-width: 420px) {
+  .auth__demos { grid-template-columns: 1fr; }
+}
 
 .auth__switch {
   margin-top: var(--space-8);

@@ -261,7 +261,10 @@ function SkillList({ value, onChange }) {
           {value.map((s, i) => (
             <li key={s.name} className="skill-row">
               <div className="skill-row__top">
-                <span className="skill-row__name">{s.name}</span>
+                <span className="skill-row__name">
+                  {s.name}
+                  {s.esco && s.esco.toLowerCase() !== s.name.toLowerCase() && <span className="skill-row__esco" title="The matching skill in the official ESCO list">ESCO: {s.esco}</span>}
+                </span>
                 <span className="skill-row__used-label">Last used</span>
                 <select className="input input--select input--sm" value={s.lastUsed} onChange={(e) => update(i, { lastUsed: e.target.value })} aria-label={`When you last used ${s.name}`}>
                   {["This year", "1–3 years ago", "3+ years ago"].map((o) => <option key={o}>{o}</option>)}
