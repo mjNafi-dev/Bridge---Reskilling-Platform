@@ -48,13 +48,13 @@ export default function ProfileSheet({ open, onClose, profile, job, ai, onConnec
   return (
     <dialog
       ref={ref}
-      className="sheet"
+      className="sheet ui-modal"
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
       aria-labelledby="sheet-title"
     >
       <div className="sheet__inner">
-        <header className="sheet__head">
+        <header className="sheet__head ui-modal__band night">
           <span className="sheet__avatar" aria-hidden="true">{name.charAt(0).toUpperCase()}</span>
           <div className="sheet__who">
             <h2 id="sheet-title">{name}</h2>

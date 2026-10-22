@@ -25,13 +25,13 @@ export default function JobDetails({ job, open, onClose, onPathway }) {
   return (
     <dialog
       ref={ref}
-      className="details"
+      className="details ui-modal"
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()} // click on the backdrop closes it
       aria-labelledby="details-title"
     >
       <div className="details__inner">
-        <header className="details__head">
+        <header className="details__head ui-modal__band night">
           <div>
             <p className="label-mono">{job.category || "Role"}</p>
             <h2 id="details-title">{sentence(job.title)}</h2>
@@ -106,8 +106,8 @@ export default function JobDetails({ job, open, onClose, onPathway }) {
         </section>
 
         <footer className="details__foot">
-          <button type="button" className="results__btn results__btn--ghost" onClick={onClose}>Back to options</button>
-          <button type="button" className="results__btn results__btn--primary" onClick={onPathway}>Select pathway</button>
+          <button type="button" className="btn btn--ghost" onClick={onClose}>Back to options</button>
+          <button type="button" className="btn btn--primary" onClick={onPathway}>Select pathway</button>
         </footer>
       </div>
     </dialog>

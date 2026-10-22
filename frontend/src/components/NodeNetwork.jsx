@@ -36,7 +36,8 @@ const PAIRS = [
   "Photography → Motion design",
 ];
 
-const COLORS = ["var(--ink)", "var(--familiar-default)", "var(--done-default)", "var(--highlight-default)"];
+// --nn-ink lets a dark panel turn the "ink" dots light
+const COLORS = ["var(--nn-ink, var(--ink))", "var(--familiar-default)", "var(--done-default)", "var(--highlight-default)"];
 const COLOR_ODDS = [0.4, 0.25, 0.17, 0.18];
 
 // Small seeded random so the layout is the same on every load

@@ -185,16 +185,16 @@ export default function CvStep({ profile, setProfile, onContinue, onBack }) {
       )}
 
       <footer className="ob__nav">
-        <button type="button" className="btn-secondary" disabled={busy} onClick={onBack}>
+        <button type="button" className="btn btn--ghost" disabled={busy} onClick={onBack}>
           <ArrowIcon dir="left" /> Back
         </button>
         <div className="ob__nav-right">
           {stage !== "done" && (
-            <button type="button" className="btn-secondary" disabled={busy} onClick={() => setAskSkip(true)}>
+            <button type="button" className="btn btn--ghost" disabled={busy} onClick={() => setAskSkip(true)}>
               Skip for now
             </button>
           )}
-          <button type="button" className="btn-primary" disabled={stage !== "done"} onClick={onContinue}>
+          <button type="button" className="btn btn--primary" disabled={stage !== "done"} onClick={onContinue}>
             Continue <ArrowIcon dir="right" />
           </button>
         </div>
@@ -206,8 +206,8 @@ export default function CvStep({ profile, setProfile, onContinue, onBack }) {
             <h3 id="skip-title">Continue without a CV?</h3>
             <p>Uploading a CV fills most of the next pages for you. Without it, you'll start those pages empty and fill them in yourself.</p>
             <div className="modal__actions">
-              <button type="button" className="btn-secondary" onClick={() => { setAskSkip(false); onContinue(); }}>Continue anyway</button>
-              <button type="button" className="btn-primary" onClick={() => { setAskSkip(false); inputRef.current?.click(); }}>Upload CV</button>
+              <button type="button" className="btn btn--ghost" onClick={() => { setAskSkip(false); onContinue(); }}>Continue anyway</button>
+              <button type="button" className="btn btn--primary" onClick={() => { setAskSkip(false); inputRef.current?.click(); }}>Upload CV</button>
             </div>
           </div>
         </div>

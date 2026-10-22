@@ -12,14 +12,8 @@
   box-shadow: var(--shadow-3);
 }
 
-.connect::backdrop { background: rgba(17, 17, 17, 0.45); }
-.connect[open] { animation: connect-in 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
-
-@keyframes connect-in {
-  from { opacity: 0; transform: translateY(12px); }
-}
-
 .connect__inner { padding: var(--space-32); }
+.ui-modal__band + .connect__cols { margin-top: 0; }
 .connect h2 { margin-top: var(--space-4); }
 .connect__lead { margin-top: var(--space-12); color: var(--d2); }
 
@@ -84,19 +78,6 @@
   margin-top: var(--space-24);
 }
 
-.connect__btn {
-  height: 44px;
-  padding: 0 var(--space-24);
-  border-radius: var(--radius-md);
-  font: var(--text-label);
-  cursor: pointer;
-}
-
-.connect__btn--primary { border: 0; background: var(--ink); color: var(--paper); }
-.connect__btn--primary:hover { background: var(--d2); }
-.connect__btn--ghost { border: 1px solid var(--l2); background: var(--paper); color: var(--ink); }
-.connect__btn:disabled { opacity: var(--opacity-muted); cursor: progress; }
-
 .connect__done {
   display: flex;
   flex-direction: column;
@@ -117,7 +98,7 @@
   font: 700 26px/1 var(--font-body);
 }
 
-.connect__done .connect__btn { margin-top: var(--space-12); }
+.connect__done .btn { margin-top: var(--space-12); }
 
 @media (max-width: 640px) {
   .connect__cols { grid-template-columns: 1fr; }

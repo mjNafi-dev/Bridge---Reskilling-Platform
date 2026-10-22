@@ -59,16 +59,18 @@ export default function ConnectAI({ open, onDone, interests = [], continueLabel 
   const example = interests[0] || "football";
 
   return (
-    <dialog ref={ref} className="connect" onCancel={(e) => (e.preventDefault(), onDone(null))} aria-labelledby="connect-title">
+    <dialog ref={ref} className="connect ui-modal" onCancel={(e) => (e.preventDefault(), onDone(null))} aria-labelledby="connect-title">
       <div className="connect__inner">
         {state !== "connected" ? (
           <>
-            <p className="label-mono">Optional · Demo</p>
-            <h2 id="connect-title">Learn with your own AI</h2>
-            <p className="connect__lead">
-              Connect the AI you already use and it can explain each topic through things you love, like a{" "}
-              <strong>{example.toLowerCase()}</strong> analogy for a tricky chapter.
-            </p>
+            <header className="ui-modal__band night">
+              <p className="label-mono">Optional · Demo</p>
+              <h2 id="connect-title">Learn with your own AI</h2>
+              <p className="connect__lead">
+                Connect the AI you already use and it can explain each topic through things you love, like a{" "}
+                <strong>{example.toLowerCase()}</strong> analogy for a tricky chapter.
+              </p>
+            </header>
 
             <div className="connect__cols">
               <div>
@@ -113,10 +115,10 @@ export default function ConnectAI({ open, onDone, interests = [], continueLabel 
             </p>
 
             <footer className="connect__foot">
-              <button type="button" className="connect__btn connect__btn--ghost" onClick={() => onDone(null)} disabled={state === "connecting"}>
+              <button type="button" className="btn btn--ghost" onClick={() => onDone(null)} disabled={state === "connecting"}>
                 Maybe later
               </button>
-              <button type="button" className="connect__btn connect__btn--primary" onClick={connect} disabled={state === "connecting"}>
+              <button type="button" className="btn btn--primary" onClick={connect} disabled={state === "connecting"}>
                 {state === "connecting" ? "Connecting…" : `Connect ${provider.name}`}
               </button>
             </footer>
@@ -128,7 +130,7 @@ export default function ConnectAI({ open, onDone, interests = [], continueLabel 
             <p className="connect__lead">
               Ask it about any topic on your pathway. When it thinks you've learned something, you'll see a suggestion to approve.
             </p>
-            <button type="button" className="connect__btn connect__btn--primary" onClick={() => onDone(pick)}>
+            <button type="button" className="btn btn--primary" onClick={() => onDone(pick)}>
               {continueLabel}
             </button>
           </div>

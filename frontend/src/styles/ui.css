@@ -1,0 +1,179 @@
+/* Shared UI: page background, buttons, entrance motion, popups and page transitions.
+   Every page uses these instead of its own copies. Tokens come from tokens.css. */
+
+/* ---------- Page ---------- */
+
+/* Fine dot grid on the page: flat, quiet, echoes the node network */
+body {
+  background-color: var(--paper);
+  background-image: radial-gradient(var(--dot-grid) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+  background-attachment: fixed;
+}
+
+::selection { background: var(--familiar-muted); color: var(--ink); }
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  height: 48px;
+  padding: 0 var(--space-24);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font: var(--text-label);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) ease,
+    border-color var(--dur-fast) ease,
+    color var(--dur-fast) ease,
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-fast) ease;
+}
+
+.btn:active:not(:disabled) { transform: scale(0.98); }
+.btn:disabled { opacity: var(--opacity-disabled); cursor: not-allowed; }
+
+.btn--primary {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 6px 18px -6px rgba(17, 17, 17, 0.45);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--d1);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 10px 24px -8px rgba(17, 17, 17, 0.5);
+}
+
+.btn--ghost {
+  border-color: var(--l2);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.btn--ghost:hover:not(:disabled) { border-color: var(--ink); }
+
+.btn--sm { height: 36px; padding: 0 var(--space-16); font-size: 14px; }
+
+/* Arrows inside buttons nudge forward on hover */
+.btn svg { transition: transform var(--dur-base) var(--ease-out); }
+.btn:hover:not(:disabled) .btn__arrow--right { transform: translateX(3px); }
+.btn:hover:not(:disabled) .btn__arrow--left { transform: translateX(-3px); }
+
+/* ---------- Entrance motion ---------- */
+
+/* Add .rise to anything that should float up into place; --i staggers siblings */
+.rise {
+  animation: rise var(--dur-slow) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+}
+
+/* Count/status changes: a small pop */
+.pop { animation: pop 0.35s var(--ease-out); }
+
+@keyframes pop {
+  0% { transform: scale(0.6); }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+/* ---------- Popups (dialog.ui-modal) ----------
+   Open and close both animate: closing keeps the dialog in the top layer while it fades. */
+
+dialog.ui-modal {
+  opacity: 0;
+  transform: translateY(16px) scale(0.98);
+  transition:
+    opacity var(--dur-base) ease,
+    transform var(--dur-base) var(--ease-out),
+    overlay var(--dur-base) allow-discrete,
+    display var(--dur-base) allow-discrete;
+}
+
+dialog.ui-modal[open] { opacity: 1; transform: none; }
+
+@starting-style {
+  dialog.ui-modal[open] { opacity: 0; transform: translateY(16px) scale(0.98); }
+}
+
+dialog.ui-modal::backdrop {
+  background: rgba(17, 17, 17, 0);
+  backdrop-filter: blur(0);
+  transition:
+    background var(--dur-base) ease,
+    backdrop-filter var(--dur-base) ease,
+    overlay var(--dur-base) allow-discrete,
+    display var(--dur-base) allow-discrete;
+}
+
+dialog.ui-modal[open]::backdrop {
+  background: rgba(17, 17, 17, 0.42);
+  backdrop-filter: blur(3px);
+}
+
+@starting-style {
+  dialog.ui-modal[open]::backdrop { background: rgba(17, 17, 17, 0); backdrop-filter: blur(0); }
+}
+
+/* ---------- Page transitions (View Transitions API, see lib/go.js) ---------- */
+
+::view-transition-old(root) { animation: vt-out 0.22s ease both; }
+::view-transition-new(root) { animation: vt-in 0.42s var(--ease-out) both; }
+
+@keyframes vt-out { to { opacity: 0; transform: translateY(-6px); } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(10px); } }
+
+/* Shared pieces morph between pages instead of cross-fading */
+::view-transition-group(side-panel),
+::view-transition-group(job-title),
+::view-transition-group(brand) {
+  animation-duration: 0.55s;
+  animation-timing-function: var(--ease-in-out);
+}
+
+::view-transition-image-pair(side-panel) {
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+}
+
+::view-transition-old(side-panel),
+::view-transition-new(side-panel) {
+  height: 100%;
+  object-fit: none;
+  object-position: left top;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+  .rise, .pop { animation: none; }
+}
+
+/* Dark header band across the top of a popup (bleeds to the popup's edges).
+   Popups set --modal-pad-x / --modal-pad-y on their inner box if they pad differently. */
+.ui-modal__band {
+  margin: calc(-1 * var(--modal-pad-y, 32px)) calc(-1 * var(--modal-pad-x, 32px)) var(--space-24);
+  padding: var(--space-24) var(--modal-pad-x, 32px);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.ui-modal__band .label-mono { color: var(--night-text); }
+.ui-modal__band p:not(.label-mono) { color: var(--night-text); }
+.ui-modal__band strong { color: var(--paper); }
+
+/* Close buttons sitting on a dark band */
+.night .details__close,
+.night .sheet__close { background: rgba(255, 255, 255, 0.1); color: var(--paper); }
+.night .details__close:hover,
+.night .sheet__close:hover { background: rgba(255, 255, 255, 0.18); }

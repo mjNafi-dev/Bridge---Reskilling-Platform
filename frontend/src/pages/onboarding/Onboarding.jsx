@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useGo } from "../../lib/go.js";
 import BrandMark from "../../components/BrandMark.jsx";
 import { STEPS } from "./steps.js";
 import { Field, validateFields } from "./fields.jsx";
@@ -36,14 +37,33 @@ function save(key, value) {
 }
 
 export default function Onboarding() {
-  const navigate = useNavigate();
+  const go = useGo();
   const [params] = useSearchParams();
   const editing = params.get("from") === "pathway";
   const [profile, setProfile] = useState(() => load(STORAGE_KEY, { hoursPerWeek: 5, cvFilled: [] }));
   const [stepIndex, setStepIndex] = useState(() => Math.min(load(STEP_KEY, 0), STEPS.length - 1));
   const [visited, setVisited] = useState(() => new Set(STEPS.slice(0, stepIndex + 1).map((s) => s.id)));
   const [errors, setErrors] = useState({});
+  const [dir, setDir] = useState("next"); // which way the step content slides in
   const contentRef = useRef(null);
+  const stepRefs = useRef([]);
+  const [pill, setPill] = useState(null); // position of the light "current step" pill
+
+  // The pill slides to the current step's row (re-measured once fonts load and on resize)
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = stepRefs.current[stepIndex];
+      if (!el) return;
+      setPill({ top: el.offsetTop, height: el.offsetHeight });
+      // Phones: the steps are one scrolling row, so bring the current one into view
+      const row = el.parentElement;
+      if (row && row.scrollWidth > row.clientWidth) row.scrollTo({ left: el.offsetLeft - 16, behavior: "smooth" });
+    };
+    measure();
+    document.fonts?.ready.then(measure);
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [stepIndex]);
 
   const step = STEPS[stepIndex];
   const isLast = stepIndex === STEPS.length - 1;
@@ -69,6 +89,7 @@ export default function Onboarding() {
 
   function goTo(i) {
     setErrors({});
+    setDir(i < stepIndex ? "back" : "next");
     setStepIndex(i);
   }
 
@@ -91,7 +112,7 @@ export default function Onboarding() {
       setErrors(validateFields(STEPS[firstMissing].fields, profile));
       return;
     }
-    navigate(editing ? "/pathway?updated=1" : "/results");
+    go(editing ? "/pathway?updated=1" : "/results");
   }
 
   // Optional steps that were passed without any answers show a dash instead of a tick
@@ -104,11 +125,10 @@ export default function Onboarding() {
     });
   };
 
-  const doneCount = STEPS.filter(isComplete).length;
 
   return (
     <main className="ob">
-      <aside className="ob__panel">
+      <aside className="ob__panel night">
         <BrandMark />
         <div className="ob__panel-head">
           <h1 className="ob__panel-title">{editing ? "Edit your profile" : "Build your profile"}</h1>
@@ -118,14 +138,20 @@ export default function Onboarding() {
         </div>
 
         <div className="ob__progress" aria-hidden="true">
-          <span style={{ width: `${(doneCount / STEPS.length) * 100}%` }} />
+          {STEPS.map((s, i) => (
+            <span
+              key={s.id}
+              className={`ob__progress-dot${i === stepIndex ? " is-current" : isComplete(s) || isSkipped(s) ? " is-done" : ""}`}
+            />
+          ))}
         </div>
 
         <ol className="ob__steps">
+          {pill && <span className="ob__steps-pill" style={{ transform: `translateY(${pill.top}px)`, height: pill.height }} />}
           {STEPS.map((s, i) => {
             const state = i === stepIndex ? "current" : isSkipped(s) ? "skipped" : isComplete(s) ? "done" : "todo";
             return (
-              <li key={s.id}>
+              <li key={s.id} ref={(el) => (stepRefs.current[i] = el)}>
                 <button type="button" className={`ob-step ob-step--${state}`} onClick={() => goTo(i)} aria-current={i === stepIndex ? "step" : undefined}>
                   <span className="ob-step__mark">{state === "done" ? <CheckIcon /> : state === "skipped" ? "–" : i + 1}</span>
                   <span className="ob-step__name">{s.nav}</span>
@@ -140,10 +166,10 @@ export default function Onboarding() {
       </aside>
 
       <section className="ob__main" ref={contentRef}>
-        <div className="ob__content" key={step.id}>
+        <div className="ob__content" key={step.id} data-dir={dir}>
           <header className="ob__head">
             {editing && (
-              <button type="button" className="btn-primary ob__save" onClick={finish}>
+              <button type="button" className="btn btn--primary ob__save" onClick={finish}>
                 Save & back to my pathway
               </button>
             )}
@@ -180,16 +206,16 @@ export default function Onboarding() {
           {step.custom !== "cv" && (
             <footer className="ob__nav">
               {stepIndex > 0 ? (
-                <button type="button" className="btn-secondary" onClick={() => goTo(stepIndex - 1)}>
+                <button type="button" className="btn btn--ghost" onClick={() => goTo(stepIndex - 1)}>
                   <ArrowIcon dir="left" /> Back
                 </button>
               ) : <span />}
               {isLast ? (
-                <button type="button" className="btn-primary" onClick={finish}>
+                <button type="button" className="btn btn--primary" onClick={finish}>
                   {editing ? "Save & back to my pathway" : "Confirm & find my matches"}
                 </button>
               ) : (
-                <button type="button" className="btn-primary" onClick={next}>
+                <button type="button" className="btn btn--primary" onClick={next}>
                   {step.required ? "Next" : "Next (or skip)"} <ArrowIcon dir="right" />
                 </button>
               )}
@@ -211,7 +237,7 @@ function CheckIcon() {
 
 export function ArrowIcon({ dir }) {
   return (
-    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={`btn__arrow--${dir}`} viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       {dir === "left" ? <path d="M10 3L5 8l5 5" /> : <path d="M6 3l5 5-5 5" />}
     </svg>
   );

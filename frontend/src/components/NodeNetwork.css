@@ -14,12 +14,12 @@
 }
 
 .node-network__lines line {
-  stroke: var(--d3);
+  stroke: var(--nn-line, var(--d3));
   stroke-width: 0.8;
 }
 
 .node-network__lines line.node-network__icon-line {
-  stroke: var(--ink);
+  stroke: var(--nn-ink, var(--ink));
   stroke-width: 1.4;
   stroke-linecap: round;
 }
@@ -37,6 +37,7 @@
   gap: var(--space-8);
   padding: 6px 10px;
   background: var(--paper);
+  color: var(--ink);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-2);
   font: var(--text-mono);

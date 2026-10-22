@@ -3,7 +3,7 @@
 **Feel:** a trusted mentor. Calm, clear, encouraging, professional but never formal.
 **Rule #1:** readability beats decoration.
 
-Code: [`frontend/src/styles/tokens.css`](../frontend/src/styles/tokens.css) (all values) and [`base.css`](../frontend/src/styles/base.css) (defaults).
+Code: [`frontend/src/styles/tokens.css`](../frontend/src/styles/tokens.css) (all values), [`base.css`](../frontend/src/styles/base.css) (defaults) and [`ui.css`](../frontend/src/styles/ui.css) (shared buttons, entrance motion, popups, page transitions).
 
 ## Fonts (all free)
 
@@ -19,7 +19,9 @@ Code: [`frontend/src/styles/tokens.css`](../frontend/src/styles/tokens.css) (all
 
 ## Colour
 
-Mostly white (`--paper`) and soft grey (`--l05`), near-black text (`--ink`), black pill buttons.
+Mostly white (`--paper`) on a fine dot grid (`--dot-grid`, 22px), near-black text (`--ink`), black pill buttons.
+
+**Night surfaces** (`--night`, `.night` class) are the dark anchors: the sign-up / onboarding side panel, the dashboard header, the logo pill and the header band on every popup. Text on night uses `--paper` and `--night-text`; lines use `--night-line`.
 
 Accents have a **meaning**, so they're never used as decoration:
 
@@ -40,10 +42,12 @@ The 3-state topic checklist: **empty outline** = unfamiliar · **amber outline**
 
 ## Motion
 
-Subtle and lightweight (CSS/SVG, no heavy 3D):
-- Sections fade/slide in on scroll.
-- The recommended-skill card stays pinned while its details change.
-- The overlap diagram animates its connecting lines when results appear.
+Seamless and calm (CSS/SVG, no heavy 3D, no glows). Tokens: `--ease-out` (arriving), `--ease-in-out` (travelling), `--dur-fast` 150ms, `--dur-base` 260ms, `--dur-slow` 520ms.
+- **Page transitions** (View Transitions API, `lib/go.js`): pages cross-fade and shared pieces morph. The sign-up panel shrinks into the onboarding panel (`side-panel`), the logo stays put (`brand`), the job title flies from the results card into the dashboard header (`job-title`).
+- **Entrances:** `.rise` floats pieces up in a stagger (`--i`); onboarding steps slide in from the side you're heading towards; dashboard bubbles pop in one by one.
+- **Feedback:** `.pop` on status and chip changes; buttons press in and their arrows nudge forward; option cards lean towards the middle; the onboarding "current step" pill slides between rows.
+- **Living details:** the dashed "bridge" between what you know and the next topic keeps flowing; the current step on the path pulses softly; "Connected" breathes.
+- **Popups** fade and rise in and out (closing animates too), over a lightly blurred backdrop.
 - Everything respects the system "reduce motion" setting.
 
 ## Imagery

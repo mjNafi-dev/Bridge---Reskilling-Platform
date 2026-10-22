@@ -254,7 +254,7 @@ function SkillList({ value, onChange }) {
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), add())}
         />
-        <button type="button" className="btn-secondary" onClick={add}>Add</button>
+        <button type="button" className="btn btn--ghost" onClick={add}>Add</button>
       </div>
       {value.length > 0 && (
         <ul className="skills__list">

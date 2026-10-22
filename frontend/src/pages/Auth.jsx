@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useGo } from "../lib/go.js";
 import BrandMark from "../components/BrandMark.jsx";
 import NodeNetwork from "../components/NodeNetwork.jsx";
 import CyclingTagline from "../components/CyclingTagline.jsx";
@@ -35,7 +36,7 @@ const COPY = {
 
 export default function Auth({ mode }) {
   const copy = COPY[mode];
-  const navigate = useNavigate();
+  const go = useGo(); // page transition: this panel morphs into the onboarding panel
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +51,7 @@ export default function Auth({ mode }) {
     } catch {
       /* storage blocked: carry on without it */
     }
-    navigate("/onboarding");
+    go("/onboarding");
   }
 
   function startDemo() {
@@ -62,25 +63,29 @@ export default function Auth({ mode }) {
     } catch {
       /* ignore */
     }
-    navigate("/onboarding");
+    go("/onboarding");
   }
 
   return (
     <main className="auth">
       <div className="auth__inner">
-      <section className="auth__panel">
+      <section className="auth__panel night">
         <BrandMark />
         <div className="auth__visual">
           <NodeNetwork shape={focused} />
         </div>
-        <CyclingTagline className="auth__tagline" />
+        <div className="auth__panel-foot">
+          <CyclingTagline className="auth__tagline" />
+          <p className="auth__facts">117 roles · 2,981 skills · ESCO, O*NET and ILO data</p>
+        </div>
       </section>
 
       <section className="auth__form-side">
         <form className="auth__form" onSubmit={handleSubmit} noValidate>
-          <h1 className="auth__title">{copy.title}</h1>
+          <p className="label-mono rise" style={{ "--i": 0 }}>{mode === "signup" ? "Start here" : "Welcome back"}</p>
+          <h1 className="auth__title rise" style={{ "--i": 1 }}>{copy.title}</h1>
 
-          <label className="field">
+          <label className="field rise" style={{ "--i": 2 }}>
             <span className="field__label">Your email</span>
             <input
               type="email"
@@ -94,7 +99,7 @@ export default function Auth({ mode }) {
             />
           </label>
 
-          <label className="field">
+          <label className="field rise" style={{ "--i": 3 }}>
             <span className="field__label">{copy.passwordLabel}</span>
             <span className="field__password">
               <input
@@ -119,11 +124,11 @@ export default function Auth({ mode }) {
             </span>
           </label>
 
-          <button type="submit" className="btn btn--primary">{copy.button}</button>
+          <button type="submit" className="btn btn--primary rise" style={{ "--i": 4 }}>{copy.button}</button>
 
-          <div className="auth__divider"><span>or continue with</span></div>
+          <div className="auth__divider rise" style={{ "--i": 5 }}><span>or continue with</span></div>
 
-          <div className="auth__socials">
+          <div className="auth__socials rise" style={{ "--i": 6 }}>
             {["Google", "GitHub", "Apple"].map((name) => (
               <span key={name} className="social" tabIndex={0}>
                 <button type="button" className="social__btn" disabled aria-label={`${name} sign-in (not available in the demo)`}>
@@ -136,11 +141,11 @@ export default function Auth({ mode }) {
             ))}
           </div>
 
-          <button type="button" className="btn btn--ghost" onClick={startDemo}>
+          <button type="button" className="btn btn--ghost auth__demo rise" style={{ "--i": 7 }} onClick={startDemo}>
             Try with a demo profile
           </button>
 
-          <p className="auth__switch">
+          <p className="auth__switch rise" style={{ "--i": 8 }}>
             {copy.switchText} <Link to={copy.switchTo}>{copy.switchLink}</Link>
           </p>
         </form>

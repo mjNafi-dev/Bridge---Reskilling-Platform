@@ -6,6 +6,7 @@ import TopicField, { TIERS } from "./TopicField.jsx";
 import { pickBubbles } from "./layout.js";
 import JobDetails from "./JobDetails.jsx";
 import ConnectAI from "../../components/ConnectAI.jsx";
+import { useGo } from "../../lib/go.js";
 import "./Results.css";
 
 /*
@@ -35,6 +36,7 @@ const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion:
 
 export default function Results() {
   const navigate = useNavigate();
+  const go = useGo(); // the job title flies into the pathway header
   const [profile] = useState(readProfile);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -179,7 +181,7 @@ export default function Results() {
       <main className="results results--empty">
         <h2>No profile yet</h2>
         <p>Answer a few questions first, then Bridge can find your matches.</p>
-        <Link className="results__btn results__btn--primary" to="/onboarding">Go to onboarding</Link>
+        <Link className="btn btn--primary" to="/onboarding">Go to onboarding</Link>
       </main>
     );
   }
@@ -204,7 +206,7 @@ export default function Results() {
 
   return (
     <main className={`results${uiIn ? " results--in" : ""}`} ref={stageRef}>
-      <div className="results__brand" ref={brandRef}>
+      <div className="results__brand night" ref={brandRef}>
         <BrandMark />
       </div>
 
@@ -260,7 +262,7 @@ export default function Results() {
         <section className="results__none">
           <h2>No matches yet</h2>
           <p>Add a few more skills or roles and Bridge will have more to work with.</p>
-          <Link className="results__btn results__btn--primary" to="/onboarding">Edit my answers</Link>
+          <Link className="btn btn--primary" to="/onboarding">Edit my answers</Link>
         </section>
       )}
 
@@ -272,12 +274,12 @@ export default function Results() {
           </section>
 
           <section className="results__main">
-            <JobCard job={job} />
+            <JobCard job={job} rank={line[active] + 1} total={n} />
             <div className="results__actions">
-              <button type="button" className="results__btn results__btn--ghost" onClick={() => setDetails(true)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setDetails(true)}>
                 View more details
               </button>
-              <button type="button" className="results__btn results__btn--primary" onClick={choosePathway}>
+              <button type="button" className="btn btn--primary" onClick={choosePathway}>
                 Select pathway
               </button>
             </div>
@@ -311,7 +313,7 @@ export default function Results() {
             continueLabel="Go to my pathway"
             onDone={() => {
               setConnectOpen(false);
-              navigate("/pathway");
+              go("/pathway");
             }}
           />
         </>
@@ -327,7 +329,7 @@ function Stat({ job, run }) {
   return (
     <div className="stat">
       <p className="stat__lead">You’re already familiar with</p>
-      <p className="stat__value num">{value}%</p>
+      <p className="stat__value num">{value}<small>%</small></p>
       <p className="stat__lead">of what this role needs</p>
       <p className="stat__hint">Coloured bubbles are what you already know, grey ones are new. Hover one to see its topic.</p>
       <ul className="stat__legend">
@@ -381,17 +383,17 @@ export function scoreTone(score) {
 
 const PART_LABEL = { F: "Familiarity", E: "Ease", D: "Demand", I: "Interest fit" };
 
-function JobCard({ job }) {
+function JobCard({ job, rank, total }) {
   // Same bubbles as the diagram, so the count matches what you see
   const bubbles = pickBubbles(job.topics, job.familiarity);
   const known = bubbles.filter((b) => b.filled).length;
   return (
     <article className="job-card" data-flip={job.uri}>
       <div className="job-card__top">
-        <h1 className="job-card__title" title={sentence(job.title)}>{sentence(job.title)}</h1>
-        <div className="job-card__score">
-          <span className="job-card__score-row">
-            <span className="hint hint--below" tabIndex={0} aria-label="How the Bridge score is built">
+        <div className="job-card__head">
+          <p className={`job-card__kicker${rank === 1 ? " job-card__kicker--best" : ""}`}>
+            {rank === 1 ? "Best match" : `Option ${rank} of ${total}`}
+            <span className="hint hint--below job-card__score-info" tabIndex={0} aria-label="How the Bridge score is built">
               <InfoIcon />
               <span className="hint__bubble hint__bubble--wide" role="tooltip">
                 <strong>How the Bridge score is built</strong>
@@ -403,10 +405,10 @@ function JobCard({ job }) {
                 ))}
               </span>
             </span>
-            <span className={`job-card__score-value num tone--${scoreTone(job.score)}`}>{job.score}%</span>
-          </span>
-          <span className="job-card__score-label">Bridge score</span>
+          </p>
+          <h1 className="job-card__title" title={sentence(job.title)}>{sentence(job.title)}</h1>
         </div>
+        <ScoreRing value={job.score} />
       </div>
       <ul className="job-card__meta">
         <li className="hint" tabIndex={0}>
@@ -437,6 +439,29 @@ function JobCard({ job }) {
   );
 }
 
+/* Bridge score ring: fills from empty whenever the score changes */
+function ScoreRing({ value }) {
+  const R = 33;
+  const C = 2 * Math.PI * R;
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setShown(value));
+    return () => cancelAnimationFrame(id);
+  }, [value]);
+  return (
+    <div className={`ring tone--${scoreTone(value)}`} role="img" aria-label={`Bridge score ${value}%`}>
+      <svg viewBox="0 0 76 76" aria-hidden="true">
+        <circle className="ring__track" cx="38" cy="38" r={R} />
+        <circle className="ring__value" cx="38" cy="38" r={R} strokeDasharray={C} strokeDashoffset={C * (1 - shown / 100)} />
+      </svg>
+      <span className="ring__text">
+        <span className="ring__num num">{value}%</span>
+        <span className="ring__label">Bridge</span>
+      </span>
+    </div>
+  );
+}
+
 function OptionList({ side, items, results, onPick }) {
   if (!items.length) return <div className={`options options--${side}`} />;
   return (
@@ -448,6 +473,7 @@ function OptionList({ side, items, results, onPick }) {
             <button type="button" className="option" data-flip={results[rank].uri} onClick={() => onPick(pos)} title={sentence(results[rank].title)}>
               <span className="option__title">{sentence(results[rank].title)}</span>
               <span className="option__score num">{results[rank].score}%</span>
+              <span className="option__bar" aria-hidden="true"><span style={{ width: `${results[rank].score}%` }} /></span>
             </button>
           </li>
         ))}

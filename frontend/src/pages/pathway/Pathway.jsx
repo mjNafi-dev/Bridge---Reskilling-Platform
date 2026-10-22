@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { fetchMatch } from "../../api.js";
+import { useGo } from "../../lib/go.js";
 import BrandMark from "../../components/BrandMark.jsx";
 import ConnectAI, { AI_PROVIDERS, readAI, saveAI } from "../../components/ConnectAI.jsx";
 import ProfileSheet from "../../components/ProfileSheet.jsx";
@@ -41,6 +42,7 @@ function readJSON(key, fallback) {
 
 export default function Pathway() {
   const navigate = useNavigate();
+  const go = useGo();
   const [params] = useSearchParams();
   const [job, setJob] = useState(() => readJSON("bridge.selectedJob", null));
   const [profileOpen, setProfileOpen] = useState(false);
@@ -53,6 +55,7 @@ export default function Pathway() {
   const [askOpen, setAskOpen] = useState(false);
   const [weekHours, setWeekHours] = useState(() => readJSON("bridge.weekHours", 0));
   const [shared, setShared] = useState(false);
+  const [showAll, setShowAll] = useState(false); // the path shows the next few topics until expanded
 
   const steps = useMemo(() => (job ? buildSteps(job) : []), [job]);
 
@@ -86,7 +89,7 @@ export default function Pathway() {
       <main className="pw pw--empty">
         <h2>No pathway yet</h2>
         <p>Pick a role on your results first.</p>
-        <Link className="pw__btn pw__btn--primary" to="/results">See my options</Link>
+        <Link className="btn btn--primary" to="/results">See my options</Link>
       </main>
     );
   }
@@ -94,6 +97,8 @@ export default function Pathway() {
   const familiarity = currentFamiliarity(job, progress);
   const upNext = steps.find((s) => progress[s.id] !== "done");
   const doneCount = steps.filter((s) => progress[s.id] === "done").length;
+  // Path list: always show a few past the topic you're on
+  const shownSteps = Math.max(6, steps.indexOf(upNext) + 3);
   const hoursLeft = steps.filter((s) => progress[s.id] !== "done").reduce((h, s) => h + s.hours, 0);
   const perWeek = Number(profile.hoursPerWeek) || 5;
   const weeksLeft = Math.ceil(hoursLeft / perWeek);
@@ -138,7 +143,7 @@ export default function Pathway() {
   };
 
   const menu = [
-    { label: "Change pathway", run: () => navigate("/results") },
+    { label: "Change pathway", run: () => go("/results") },
     { label: "Edit my details", run: () => setProfileOpen(true) },
     { label: provider ? `Disconnect ${provider.name}` : "Connect your AI", run: toggleAI },
     { label: "Start from scratch", run: startOver, danger: true },
@@ -164,7 +169,7 @@ export default function Pathway() {
 
   return (
     <main className="pw">
-      <div className="pw__brand">
+      <div className="pw__brand night">
         <BrandMark />
       </div>
 
@@ -176,7 +181,7 @@ export default function Pathway() {
       {recal && <RecalBanner recal={recal} onClose={() => setRecal(null)} />}
 
       {/* ---------- Header ---------- */}
-      <section className="pw-head">
+      <section className="pw-head night rise">
         <MoreMenu items={menu} />
         <MiniBubbles job={job} progress={progress} />
         <div className="pw-head__text">
@@ -188,14 +193,14 @@ export default function Pathway() {
           <div className="pw-progress">
             <div className="pw-progress__row">
               <span>Familiar now</span>
-              <span className="num">{familiarity}% → 100%</span>
+              <span className="num"><CountUp value={familiarity} />% → 100%</span>
             </div>
             <span className="pw-progress__bar"><span style={{ width: `${familiarity}%` }} /></span>
             <span className="pw-progress__note">
               Started at {job.familiarity}% · {doneCount} of {steps.length} topics done
             </span>
           </div>
-          <Link to="/results" className="pw__link">← Back to my options</Link>
+          <button type="button" className="pw__link" onClick={() => go("/results")}>← Back to my options</button>
         </div>
       </section>
 
@@ -203,14 +208,14 @@ export default function Pathway() {
         {/* ---------- Main column ---------- */}
         <div className="pw-main">
           {upNext ? (
-            <section className="pw-card pw-next" aria-label="Up next">
+            <section className="pw-card pw-next rise" style={{ "--i": 1 }} aria-label="Up next">
               <p className="label-mono">Up next</p>
               <h2 className="pw-next__title">{upNext.title}</h2>
               <p className="pw-next__bridge">
                 {upNext.buildsOn ? (
                   <>
                     <span className="pw-chip pw-chip--known">{upNext.buildsOn}</span>
-                    <span className="pw-next__arrow" aria-hidden="true">→</span>
+                    <span className="pw-next__link" aria-hidden="true" />
                     <span className="pw-chip">{upNext.title}</span>
                   </>
                 ) : upNext.refresher ? (
@@ -238,11 +243,11 @@ export default function Pathway() {
                   <StatusDot status={progress[upNext.id] || "todo"} /> {STATUS_LABEL[progress[upNext.id] || "todo"]}
                 </button>
                 {provider ? (
-                  <button type="button" className="pw__btn pw__btn--ghost" onClick={() => setAskOpen((v) => !v)}>
+                  <button type="button" className="btn btn--ghost" onClick={() => setAskOpen((v) => !v)}>
                     Ask {provider.name} to explain it with {interest.toLowerCase()}
                   </button>
                 ) : (
-                  <button type="button" className="pw__btn pw__btn--ghost" onClick={() => setConnectOpen(true)}>
+                  <button type="button" className="btn btn--ghost" onClick={() => setConnectOpen(true)}>
                     Connect your AI for personal examples
                   </button>
                 )}
@@ -265,17 +270,21 @@ export default function Pathway() {
             </section>
           )}
 
-          <section className="pw-card" aria-label="Your path">
+          <section className="pw-card rise" style={{ "--i": 2 }} aria-label="Your path">
             <div className="pw-card__head">
               <h3>Your path</h3>
               <span className="pw-card__note">Closest to what you know first</span>
             </div>
             <ol className="pw-path">
-              {steps.map((s, i) => {
+              {steps.slice(0, showAll ? steps.length : shownSteps).map((s, i) => {
                 const status = progress[s.id] || "todo";
                 return (
-                  <li key={s.id} className={`pw-step pw-step--${status}${s === upNext ? " is-next" : ""}`}>
-                    <span className="pw-step__num num">{i + 1}</span>
+                  <li
+                    key={s.id}
+                    className={`pw-step pw-step--${status}${s === upNext ? " is-next" : ""}${i >= shownSteps ? " rise" : ""}`}
+                    style={i >= shownSteps ? { "--i": i - shownSteps } : undefined}
+                  >
+                    <span className="pw-step__num num">{status === "done" ? <TickIcon /> : i + 1}</span>
                     <div className="pw-step__text">
                       <span className="pw-step__title">{s.title}</span>
                       <span className="pw-step__sub">
@@ -289,6 +298,14 @@ export default function Pathway() {
                 );
               })}
             </ol>
+            {steps.length > shownSteps && (
+              <button type="button" className="pw-more" onClick={() => setShowAll((v) => !v)} aria-expanded={showAll}>
+                {showAll ? "Show fewer" : `Show all ${steps.length} topics`}
+                <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                  <path d="M4 6l4 4 4-4" />
+                </svg>
+              </button>
+            )}
             {alreadyHave(job).length > 0 && (
               <p className="pw-have">
                 <strong>Already yours:</strong> {alreadyHave(job).join(", ")}
@@ -299,7 +316,7 @@ export default function Pathway() {
 
         {/* ---------- Side column ---------- */}
         <aside className="pw-side">
-          <section className="pw-card" aria-label="Your AI">
+          <section className="pw-card rise" style={{ "--i": 2 }} aria-label="Your AI">
             <div className="pw-card__head">
               <h3>Your AI</h3>
               <span className={`pw-pill${provider ? " pw-pill--on" : ""}`}>{provider ? "Connected" : "Not connected"}</span>
@@ -315,10 +332,10 @@ export default function Pathway() {
                       <strong>{provider.name} suggests:</strong> you've got the basics of {upNext.title.toLowerCase()} from your last chat. Mark it as learning?
                     </p>
                     <div className="pw-suggest__actions">
-                      <button type="button" className="pw__btn pw__btn--primary pw__btn--sm" onClick={() => setStatus(upNext.id, "learning")}>
+                      <button type="button" className="btn btn--primary btn--sm" onClick={() => setStatus(upNext.id, "learning")}>
                         Accept
                       </button>
-                      <button type="button" className="pw__btn pw__btn--ghost pw__btn--sm" onClick={() => setSuggestionDismissed(true)}>
+                      <button type="button" className="btn btn--ghost btn--sm" onClick={() => setSuggestionDismissed(true)}>
                         Not yet
                       </button>
                     </div>
@@ -340,14 +357,14 @@ export default function Pathway() {
                 <p className="pw-card__text">
                   Connect Claude, ChatGPT, Gemini or any MCP assistant to learn with examples from your own interests.
                 </p>
-                <button type="button" className="pw__btn pw__btn--primary pw__btn--sm" onClick={() => setConnectOpen(true)}>
+                <button type="button" className="btn btn--primary btn--sm" onClick={() => setConnectOpen(true)}>
                   Connect your AI
                 </button>
               </>
             )}
           </section>
 
-          <section className="pw-card" aria-label="This week">
+          <section className="pw-card rise" style={{ "--i": 3 }} aria-label="This week">
             <div className="pw-card__head">
               <h3>This week</h3>
               <span className="pw-card__note num">
@@ -356,12 +373,12 @@ export default function Pathway() {
             </div>
             <span className="pw-progress__bar"><span style={{ width: `${Math.min(100, (weekHours / perWeek) * 100)}%` }} /></span>
             <div className="pw-week__actions">
-              <button type="button" className="pw__btn pw__btn--ghost pw__btn--sm" onClick={() => logHour(1)}>
+              <button type="button" className="btn btn--ghost btn--sm" onClick={() => logHour(1)}>
                 + Log an hour
               </button>
               <button
                 type="button"
-                className="pw__btn pw__btn--ghost pw__btn--sm"
+                className="btn btn--ghost btn--sm"
                 onClick={() => logHour(-1)}
                 disabled={weekHours === 0}
                 aria-label="Remove an hour"
@@ -374,22 +391,22 @@ export default function Pathway() {
             )}
           </section>
 
-          <section className="pw-card pw-missing" aria-label="Edit my details">
+          <section className="pw-card pw-missing rise" style={{ "--i": 4 }} aria-label="Edit my details">
             <h3>Something missing?</h3>
             <p className="pw-card__text">
               Finished a course or picked up a new skill? Add it and your pathway recalibrates on its own.
             </p>
-            <button type="button" className="pw__btn pw__btn--ghost pw__btn--sm" onClick={() => setProfileOpen(true)}>
+            <button type="button" className="btn btn--ghost btn--sm" onClick={() => setProfileOpen(true)}>
               Edit my details
             </button>
           </section>
 
-          <section className="pw-card" aria-label="Share my journey">
+          <section className="pw-card rise" style={{ "--i": 5 }} aria-label="Share my journey">
             <h3>Share my journey</h3>
             <p className="pw-card__text">
               A read-only link for an employer or HR: your chosen path and progress. Only you decide who gets it.
             </p>
-            <button type="button" className="pw__btn pw__btn--ghost pw__btn--sm" onClick={share}>
+            <button type="button" className="btn btn--ghost btn--sm" onClick={share}>
               {shared ? "Link copied (demo)" : "Copy share link"}
             </button>
           </section>
@@ -397,7 +414,7 @@ export default function Pathway() {
       </div>
 
       {/* ---------- Your skills ---------- */}
-      <section className="pw-card pw-skills" aria-label="Your skills">
+      <section className="pw-card pw-skills rise" style={{ "--i": 3 }} aria-label="Your skills">
         <div className="pw-skills__head">
           <div>
             <h3>Your skills</h3>
@@ -554,7 +571,38 @@ function MoreMenu({ items }) {
 }
 
 function StatusDot({ status }) {
-  return <span className={`pw-dot pw-dot--${status}`} aria-hidden="true" />;
+  // keyed by status so the pop animation replays on every change
+  return <span key={status} className={`pw-dot pw-dot--${status} pop`} aria-hidden="true" />;
+}
+
+function TickIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3.5 8.5l3 3 6-7" />
+    </svg>
+  );
+}
+
+/* Number that counts towards its new value instead of jumping */
+function CountUp({ value }) {
+  const [shown, setShown] = useState(value);
+  const from = useRef(value);
+  useEffect(() => {
+    const a = from.current;
+    if (a === value) return;
+    const start = performance.now();
+    let raf;
+    const tick = (t) => {
+      const k = Math.min(1, (t - start) / 600);
+      const v = Math.round(a + (value - a) * (1 - Math.pow(1 - k, 3)));
+      setShown(v);
+      from.current = v;
+      if (k < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+  return shown;
 }
 
 /* The same bubble circle as the results page, static, with progress coloured in */
@@ -576,6 +624,7 @@ function MiniBubbles({ job, progress }) {
           cy={shape.points[i].y * k}
           r={shape.radii[i] * k}
           className={`pw-bubble topic--${b.filled ? knownTier(shape.topics[b.topic].coverage) : "new"}`}
+          style={{ "--i": i }}
         >
           <title>{sentence(shape.topics[b.topic].title)}</title>
         </circle>
