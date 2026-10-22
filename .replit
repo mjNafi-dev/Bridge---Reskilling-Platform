@@ -3,6 +3,7 @@ run = "bash scripts/start.sh"
 
 [nix]
 channel = "stable-25_05"
+packages = ["freetype", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "tcl", "tk", "zlib"]
 
 [deployment]
 build = ["bash", "scripts/build.sh"]
@@ -11,3 +12,34 @@ run = ["bash", "-c", "cd backend && python -m uvicorn app.main:app --host 0.0.0.
 [[ports]]
 localPort = 8000
 externalPort = 80
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Run"
+
+[[workflows.workflow]]
+name = "Run"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash scripts/start.sh"
+waitForPort = 8000
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[userenv]
+
+[userenv.development]
+PIP_CONSTRAINT = "/home/runner/workspace/replit-constraints.txt"
+REQUESTS_CA_BUNDLE = "/etc/ssl/certs/ca-certificates.crt"
+SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt"
