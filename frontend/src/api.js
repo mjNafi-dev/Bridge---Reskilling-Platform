@@ -43,6 +43,17 @@ export async function fetchDataOverview() {
   return res.json();
 }
 
+// Checked courses for pathway topics, filtered by the budget answer and ordered by learning style
+export async function fetchCourses(topics, budget, learnStyle) {
+  const res = await fetch("/api/courses", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ topics, budget: budget || null, learnStyle: learnStyle || [] }),
+  });
+  if (!res.ok) throw new Error(`Courses failed (${res.status})`);
+  return res.json();
+}
+
 // Anonymous, combined numbers for an organisation (Org heatmap page)
 export async function fetchOrg(code) {
   const res = await fetch(`/api/org/${encodeURIComponent(code)}`);

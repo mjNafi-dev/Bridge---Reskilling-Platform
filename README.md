@@ -24,7 +24,7 @@ Built for SDC Hackathon 2026, Domain 1: Aiversecity Future-Ready Workforce.
 | Resource | Link |
 | --- | --- |
 | GitHub repository | https://github.com/mjNafi-dev/Bridge---Reskilling-Platform |
-| Replit project | ⚠️ add the Replit project link (Share → copy link) |
+| Replit project | https://replit.com/@stewpeed-dev/Bridge-Reskilling-Platform |
 | Live demo | https://bridge-reskill.replit.app |
 | RunPod | GPU pod `bridge-skill-embeddings` (ID `f2w43seqazno9r`, 1× NVIDIA A40). Proof: [`submission/RunPod Proof of Use.pdf`](submission/RunPod%20Proof%20of%20Use.pdf) |
 | Slide deck | ⚠️ to add |
@@ -50,6 +50,7 @@ Bridge starts from the person, not the job board. It reads their experience, mat
 - **Future demand with sources.** Live job postings, O\*NET Bright Outlook and the ILO 2025 GenAI exposure index, as two labelled scenarios (moderate vs fast AI change).
 - **UN SDG tags.** Every role shows which SDGs it serves and why; roles that serve the causes you pick get a small boost.
 - **My pathway.** Up next, a path ordered from familiar to new, optional brush-ups for topics you partly know, progress that carries over when you switch roles, and a celebration when you finish.
+- **Real courses for every topic.** A hand-checked catalogue of 138 courses (70 free) from official pages such as OpenLearn, MIT OpenCourseWare, Kaggle, Khan Academy, CS50, Cisco and Coursera, matched to ESCO skills by meaning. Your budget answer filters them ("Free only" hides paid ones) and your learning style orders them. Every topic also gets a YouTube search, which is the fallback when no course fits.
 - **Share my journey.** A read-only link for an employer: role, topics done, skills. No scores or rankings, and nothing stored on a server (the snapshot lives in the link).
 - **Organisation view.** For universities and HR teams: an anonymous heatmap of which skills members' likely next roles need, by department, with suggested workshops. Groups under 5 people are hidden.
 - **Data sources page.** Every source with its version, retrieval date and licence, and how each part of the score is built.
@@ -60,6 +61,7 @@ Bridge starts from the person, not the job board. It reads their experience, mat
 | --- | --- |
 | Skill matching | Embeddings (BAAI/bge-small-en-v1.5). ESCO skills and job titles were embedded once on a **RunPod GPU**; the user's phrases are embedded on the server's CPU with the same model. |
 | Bridge score, demand, SDG tags, peer comparison | Transparent rules and maths over public data. No generative AI. |
+| Course suggestions | A hand-checked course list; what each course teaches is matched to ESCO skills with the same embeddings. No generative AI. |
 | CV reading | Rules by default. Optional AI mode uses Claude (via Replit AI Integrations) with structured output; anything it fills is shown with a "From your CV" badge for the user to check. |
 | "Learn with your own AI" popup | Demo only: shows how an MCP-connected assistant could explain topics with the user's interests. Nothing is connected for real. |
 
@@ -81,7 +83,7 @@ Bridge starts from the person, not the job board. It reads their experience, mat
 1. On the sign-up page, click **Try with a demo profile** and pick a made-up person, or create an account (any email; nothing is checked).
 2. In onboarding, on **CV upload**, click **try our sample CV** (a made-up graphic designer) and watch the next pages fill in.
 3. **Confirm & find my matches**: hover the bubbles, switch roles with the arrows, open **View more details**.
-4. **Select pathway**: mark topics Learning or Done, open **Brush up what you know**, try **Copy share link → Preview**.
+4. **Select pathway**: see real courses under **Up next**, open a topic's **courses** toggle, mark topics Learning or Done, open **Brush up what you know**, try **Copy share link → Preview**.
 5. Back on the sign-up page: **University or HR team? → See the organisation view**, demo code `DEMO-UNI-2026`.
 6. **ESCO, O\*NET and ILO data** (sign-up page) opens the Data sources page.
 
@@ -159,9 +161,10 @@ The GPU job in [`runpod/embed_skills.py`](runpod/embed_skills.py) embedded 3,943
 │   │   ├── similarity.py    # Word-overlap fallback when embeddings are missing
 │   │   ├── cv.py            # CV reading: text extraction, sections, rules, ESCO matching
 │   │   ├── cv_ai.py         # Optional Claude CV reading (off unless BRIDGE_CV_AI=1)
-│   │   └── sdg.py           # UN SDG tags per role + the causes boost
-│   ├── data/                # bridge.db, embeddings, synthetic demo organisation
-│   ├── scripts/             # build_db, fetch_trends, make_org_demo, make_sample_cv
+│   │   ├── sdg.py           # UN SDG tags per role + the causes boost
+│   │   └── courses.py       # Course suggestions: budget filter, learning-style order
+│   ├── data/                # bridge.db, embeddings, courses.json + course_map.json, demo organisation
+│   ├── scripts/             # build_db, fetch_trends, build_course_map, make_org_demo, make_sample_cv
 │   └── requirements.txt
 ├── frontend/
 │   ├── public/cv/           # CV-step icons + the synthetic sample CV (PDF)
@@ -186,7 +189,8 @@ The GPU job in [`runpod/embed_skills.py`](runpod/embed_skills.py) embedded 3,943
 | `GET /api/health` | Status, number of roles, whether AI CV reading is on |
 | `POST /api/match` | Profile → five ranked roles with scores, topics, demand, SDGs, peers |
 | `POST /api/cv` | CV file → onboarding answers (file never stored) |
-| `GET /api/data` | Sources, catalogue size, live snapshot, RunPod job details |
+| `POST /api/courses` | Pathway topics + budget + learning style → up to 3 checked courses per topic |
+| `GET /api/data` | Sources, catalogue size, course catalogue, live snapshot, RunPod job details |
 | `GET /api/org/{code}` | Anonymous, combined numbers for an organisation (demo: `DEMO-UNI-2026`) |
 | `GET /api/sources` | Data sources with retrieval dates |
 
@@ -198,6 +202,7 @@ Run from the repo root. Everything comes from public sources; nothing is invente
 | --- | --- |
 | `python backend/scripts/build_db.py` | Rebuilds `bridge.db` from the ESCO API, the ESCO–O\*NET crosswalk and O\*NET interest types |
 | `python backend/scripts/fetch_trends.py` | New dated demand snapshot: live postings, O\*NET Bright Outlook, ILO GenAI exposure (needs `openpyxl`) |
+| `python backend/scripts/build_course_map.py` | After editing `courses.json`: re-matches courses to ESCO skills (`--check` also tests every link) |
 | `python backend/scripts/make_org_demo.py` | Regenerates the synthetic Demo University |
 | `python backend/scripts/make_sample_cv.py` | Regenerates the synthetic sample CV PDF (needs `fpdf2`) |
 
@@ -214,6 +219,8 @@ Run from the repo root. Everything comes from public sources; nothing is invente
 ## Credits
 
 **Data:** [ESCO](https://esco.ec.europa.eu) (European Commission), [O\*NET](https://www.onetcenter.org) (US Department of Labor, CC BY 4.0), [ILO 2025 GenAI exposure index](https://github.com/pgmyrek/2025_GenAI_scores_ISCO08) (Gmyrek et al., ILO Working Paper 140, CC BY 4.0), job posting counts from the [Remotive](https://remotive.com) and [Arbeitnow](https://www.arbeitnow.com) public APIs, UN [Sustainable Development Goals](https://sdgs.un.org/goals).
+
+**Courses:** links only, to each provider's own page (OpenLearn, MIT OpenCourseWare, Kaggle, Khan Academy, Harvard CS50, freeCodeCamp, The Odin Project, MDN, Cisco Networking Academy, HubSpot Academy, Microsoft Learn, OpenWHO, Coursera and others; full list in `backend/data/courses.json`). Bridge copies no course content.
 
 **Model:** [BAAI/bge-small-en-v1.5](https://huggingface.co/BAAI/bge-small-en-v1.5) (MIT).
 

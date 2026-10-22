@@ -96,13 +96,19 @@ export function nextExtras(job, progress, limit = 3) {
     .map((t) => ({ id: t.title, title: sentence(t.title) }));
 }
 
-/* Search links only: no scraping, no accounts. Free sources first. */
+/* A YouTube search for a topic: always offered next to the checked courses, and on its own
+   when no course in the catalogue fits. A plain search link: no API, no key. */
+export function youtubeSearch(title) {
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} tutorial`)}`;
+}
+
+/* Search links, used only if the course catalogue can't be reached. Free sources first. */
 export function resourcesFor(title) {
   const q = encodeURIComponent(title);
   return [
-    { label: "Free videos", where: "YouTube", free: true, url: `https://www.youtube.com/results?search_query=${q}+tutorial` },
+    { label: "Free videos", where: "YouTube", free: true, url: youtubeSearch(title) },
     { label: "Free lessons", where: "Khan Academy", free: true, url: `https://www.khanacademy.org/search?page_search_query=${q}` },
-    { label: "Courses", where: "Coursera (many free to audit)", free: false, url: `https://www.coursera.org/search?query=${q}` },
+    { label: "Courses", where: "Coursera", free: false, url: `https://www.coursera.org/search?query=${q}` },
   ];
 }
 

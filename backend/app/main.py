@@ -10,9 +10,9 @@ from pathlib import Path
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from . import cv_ai
+from . import courses, cv_ai
 from .cv import MAX_BYTES, CvError, read_cv
 from .matching import load_catalogue, match
 
@@ -33,6 +33,12 @@ class MatchRequest(BaseModel):
     profile: dict
     comfort: float = 0.5  # 0 = stay close to what I know, 1 = open to brand-new
     pin: str | None = None  # chosen job's uri: always sent back (recalibrating the dashboard)
+
+
+class CoursesRequest(BaseModel):
+    topics: list[str] = Field(max_length=300)  # pathway topic names (ESCO skill titles)
+    budget: str | None = None  # onboarding answer: Free only / Low-cost / HRD Corp claimable / Any
+    learnStyle: list[str] = []  # onboarding answer: Videos / Reading / Hands-on practice / Learning with others
 
 
 @app.get("/api/health")
@@ -73,6 +79,7 @@ def data_overview():
         "counts": counts,
         "snapshot": dict(zip(("fetched_at", "postings_total", "remotive", "arbeitnow"), snap)) if snap else None,
         "embeddings": emb,
+        "courses": courses.overview(),
         "cv_ai": cv_ai.enabled(),
     }
 
@@ -94,6 +101,12 @@ def org_view(code: str):
 @app.post("/api/match")
 def run_match(req: MatchRequest):
     return match(req.profile, req.comfort, CATALOGUE, req.pin)
+
+
+@app.post("/api/courses")
+def course_suggestions(req: CoursesRequest):
+    """Checked courses for each pathway topic, filtered by budget and ordered by learning style."""
+    return courses.suggest(req.topics, req.budget, req.learnStyle)
 
 
 @app.post("/api/cv")

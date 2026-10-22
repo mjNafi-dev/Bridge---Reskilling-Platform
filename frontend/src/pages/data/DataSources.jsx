@@ -131,6 +131,25 @@ export default function DataSources() {
         </div>
       </section>
 
+      {data?.courses && (
+        <section className="ds-section">
+          <h2 className="ds-section__title">Courses on your pathway</h2>
+          <div className="ds-card">
+            <p className="label-mono">Hand-checked catalogue</p>
+            <h3>{fmt(data.courses.count)} real courses, {fmt(data.courses.free)} of them free</h3>
+            <p className="ds-card__use">
+              Picked from official provider pages (OpenLearn, MIT OpenCourseWare, Kaggle, Khan Academy, Harvard CS50, freeCodeCamp, Cisco, HubSpot, Microsoft, WHO, Coursera and more), each link, title and level checked on the date below. Hours are the provider's own estimate, or ours where they give none. What each course teaches is matched to ESCO skills by meaning with the same embeddings, and only close matches are kept. Your budget answer decides which courses you see (free only hides paid ones) and how you like to learn decides the order. Topics with no close match get a YouTube search instead.
+            </p>
+            <dl className="ds-card__facts">
+              <div><dt>Providers</dt><dd>{fmt(data.courses.providers)}</dd></div>
+              <div><dt>Skills</dt><dd>{fmt(data.courses.skills)} with a matching course</dd></div>
+              <div><dt>Checked</dt><dd>{fmtDate(data.courses.checked)}</dd></div>
+              <div><dt>Prices</dt><dd>Free, or the provider's own price in words (they change)</dd></div>
+            </dl>
+          </div>
+        </section>
+      )}
+
       <section className="ds-section ds-cols">
         <div className="ds-card">
           <p className="label-mono">GPU job on RunPod</p>

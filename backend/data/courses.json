@@ -1,0 +1,2664 @@
+{
+ "checked": "2026-10-22",
+ "about": "Hand-picked courses from official provider pages. Each link, title, level and length was checked on the date above (by status and title where a site allows it, otherwise by reading the page). Hours are the provider's own figure, rounded; 'hoursEstimate' marks Bridge's estimate where the provider gives none. 'paid' means a subscription or fee for the full course (Coursera offers a free trial and financial aid). Prices change.",
+ "courses": [
+  {
+   "id": "google-data-analytics",
+   "title": "Google Data Analytics Professional Certificate",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/professional-certificates/google-data-analytics",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 180,
+   "level": "Beginner",
+   "format": "video",
+   "community": true,
+   "teaches": [
+    "perform data analysis",
+    "process data",
+    "perform data cleansing",
+    "spreadsheets",
+    "SQL query languages",
+    "data visualisation",
+    "report analysis results",
+    "R programming"
+   ]
+  },
+  {
+   "id": "coursera-foundations-data",
+   "title": "Foundations: Data, Data, Everywhere (Google)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/foundations-data",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "data analysis basics",
+    "interpret current data",
+    "data-driven decision making",
+    "analytical thinking"
+   ]
+  },
+  {
+   "id": "coursera-what-is-ds",
+   "title": "What is Data Science? (IBM)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/what-is-datascience",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 8,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "data science",
+    "data mining",
+    "big data",
+    "data models"
+   ]
+  },
+  {
+   "id": "coursera-ml",
+   "title": "Machine Learning Specialization (Stanford, DeepLearning.AI)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/specializations/machine-learning-introduction",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 80,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "machine learning",
+    "supervised learning",
+    "neural networks",
+    "regression and classification",
+    "artificial neural networks",
+    "recommender systems"
+   ]
+  },
+  {
+   "id": "coursera-basic-stats",
+   "title": "Basic Statistics (University of Amsterdam)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/basic-statistics",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "statistics",
+    "apply statistical analysis techniques",
+    "probability",
+    "descriptive statistics",
+    "execute analytical mathematical calculations"
+   ]
+  },
+  {
+   "id": "coursera-sql-ds",
+   "title": "SQL for Data Science (UC Davis)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/sql-for-data-science",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 16,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "SQL",
+    "query languages",
+    "relational databases",
+    "filter and join data",
+    "perform data analysis"
+   ]
+  },
+  {
+   "id": "coursera-db-mgmt",
+   "title": "Database Management Essentials (University of Colorado)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/database-management",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 120,
+   "level": "Intermediate",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "design database scheme",
+    "database management systems",
+    "data models",
+    "relational database design",
+    "normalisation",
+    "SQL"
+   ]
+  },
+  {
+   "id": "kaggle-ml",
+   "title": "Intro to Machine Learning",
+   "provider": "Kaggle",
+   "url": "https://www.kaggle.com/learn/intro-to-machine-learning",
+   "cost": "free",
+   "price": "Free",
+   "hours": 3,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "machine learning",
+    "decision trees",
+    "build predictive models",
+    "model validation"
+   ]
+  },
+  {
+   "id": "kaggle-python",
+   "title": "Python",
+   "provider": "Kaggle",
+   "url": "https://www.kaggle.com/learn/python",
+   "cost": "free",
+   "price": "Free",
+   "hours": 5,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "Python",
+    "computer programming",
+    "functions and loops",
+    "scripting"
+   ]
+  },
+  {
+   "id": "kaggle-pandas",
+   "title": "Pandas",
+   "provider": "Kaggle",
+   "url": "https://www.kaggle.com/learn/pandas",
+   "cost": "free",
+   "price": "Free",
+   "hours": 4,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "pandas",
+    "process data",
+    "manipulate tabular data",
+    "Python data analysis"
+   ]
+  },
+  {
+   "id": "kaggle-sql",
+   "title": "Intro to SQL",
+   "provider": "Kaggle",
+   "url": "https://www.kaggle.com/learn/intro-to-sql",
+   "cost": "free",
+   "price": "Free",
+   "hours": 3,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "SQL",
+    "query languages",
+    "BigQuery",
+    "database queries"
+   ]
+  },
+  {
+   "id": "kaggle-dataviz",
+   "title": "Data Visualization",
+   "provider": "Kaggle",
+   "url": "https://www.kaggle.com/learn/data-visualization",
+   "cost": "free",
+   "price": "Free",
+   "hours": 4,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "data visualisation",
+    "charts",
+    "visual presentation techniques",
+    "seaborn"
+   ]
+  },
+  {
+   "id": "kaggle-cleaning",
+   "title": "Data Cleaning",
+   "provider": "Kaggle",
+   "url": "https://www.kaggle.com/learn/data-cleaning",
+   "cost": "free",
+   "price": "Free",
+   "hours": 4,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "perform data cleansing",
+    "data quality",
+    "missing values",
+    "data processing"
+   ]
+  },
+  {
+   "id": "khan-stats",
+   "title": "Statistics and probability",
+   "provider": "Khan Academy",
+   "url": "https://www.khanacademy.org/math/statistics-probability",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "statistics",
+    "probability",
+    "data distributions",
+    "hypothesis testing"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "khan-sql",
+   "title": "Intro to SQL: Querying and managing data",
+   "provider": "Khan Academy",
+   "url": "https://www.khanacademy.org/computing/computer-programming/sql",
+   "cost": "free",
+   "price": "Free",
+   "hours": 8,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "SQL",
+    "query languages",
+    "relational databases",
+    "manage data"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mslearn-powerbi",
+   "title": "Training for Power BI",
+   "provider": "Microsoft Learn",
+   "url": "https://learn.microsoft.com/en-us/training/powerplatform/power-bi",
+   "cost": "free",
+   "price": "Free",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "Power BI",
+    "business intelligence",
+    "dashboards",
+    "data visualisation",
+    "track key performance indicators",
+    "report analysis results"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "elements-of-ai",
+   "title": "Elements of AI (University of Helsinki)",
+   "provider": "Elements of AI",
+   "url": "https://www.elementsofai.com/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 30,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "artificial intelligence",
+    "machine learning basics",
+    "AI ethics",
+    "neural networks"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "coursera-ai-everyone",
+   "title": "AI For Everyone (DeepLearning.AI)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/ai-for-everyone",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 7,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "artificial intelligence",
+    "AI strategy for business",
+    "machine learning concepts",
+    "AI ethics"
+   ]
+  },
+  {
+   "id": "cs50x",
+   "title": "CS50x: Introduction to Computer Science",
+   "provider": "Harvard CS50",
+   "url": "https://cs50.harvard.edu/x/",
+   "cost": "free",
+   "price": "Free (optional paid certificate on edX)",
+   "hours": 100,
+   "level": "Beginner",
+   "format": "video",
+   "community": true,
+   "teaches": [
+    "computer programming",
+    "algorithms",
+    "C programming",
+    "task algorithmisation",
+    "data structures",
+    "computer science"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "cs50p",
+   "title": "CS50's Introduction to Programming with Python",
+   "provider": "Harvard CS50",
+   "url": "https://cs50.harvard.edu/python/",
+   "cost": "free",
+   "price": "Free (optional paid certificate on edX)",
+   "hours": 40,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "Python",
+    "computer programming",
+    "debug software",
+    "unit tests",
+    "software libraries"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "cs50w",
+   "title": "CS50's Web Programming with Python and JavaScript",
+   "provider": "Harvard CS50",
+   "url": "https://cs50.harvard.edu/web/",
+   "cost": "free",
+   "price": "Free (optional paid certificate on edX)",
+   "hours": 60,
+   "level": "Intermediate",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "web programming",
+    "JavaScript",
+    "Django",
+    "SQL",
+    "web application development",
+    "Git"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "coursera-py4e",
+   "title": "Programming for Everybody (Getting Started with Python)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/python",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "Python",
+    "computer programming",
+    "programming basics"
+   ]
+  },
+  {
+   "id": "fcc-learn",
+   "title": "freeCodeCamp curriculum (web design, JavaScript, Python)",
+   "provider": "freeCodeCamp",
+   "url": "https://www.freecodecamp.org/learn/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 300,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": true,
+   "teaches": [
+    "responsive web design",
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "use markup languages",
+    "web programming",
+    "Python"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "odin-foundations",
+   "title": "Foundations",
+   "provider": "The Odin Project",
+   "url": "https://www.theodinproject.com/paths/foundations/courses/foundations",
+   "cost": "free",
+   "price": "Free",
+   "hours": 60,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": true,
+   "teaches": [
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "Git",
+    "web development",
+    "command line"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mdn-learn",
+   "title": "Learn web development",
+   "provider": "MDN Web Docs",
+   "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "web accessibility",
+    "use markup languages",
+    "web programming"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "coursera-html-css-js",
+   "title": "HTML, CSS, and Javascript for Web Developers (Johns Hopkins)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/html-css-javascript-for-web-developers",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 40,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "responsive web design",
+    "web programming"
+   ]
+  },
+  {
+   "id": "pro-git",
+   "title": "Pro Git (book)",
+   "provider": "Git",
+   "url": "https://git-scm.com/book/en/v2",
+   "cost": "free",
+   "price": "Free",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "Git",
+    "tools for software configuration management",
+    "version control",
+    "branching and merging"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-6005",
+   "title": "Software Construction (MIT 6.005)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/6-005-software-construction-spring-2016/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 60,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "software design",
+    "unit testing",
+    "debug software",
+    "specifications",
+    "use software design patterns",
+    "Java"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "refactoring-guru",
+   "title": "Design Patterns",
+   "provider": "Refactoring.Guru",
+   "url": "https://refactoring.guru/design-patterns",
+   "cost": "free",
+   "price": "Free",
+   "hours": 15,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "use software design patterns",
+    "object-oriented programming",
+    "refactoring",
+    "software architecture"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "android-basics",
+   "title": "Android Basics with Compose",
+   "provider": "Android Developers (Google)",
+   "url": "https://developer.android.com/courses/android-basics-compose/course",
+   "cost": "free",
+   "price": "Free",
+   "hours": 100,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "Android",
+    "Kotlin",
+    "mobile application development",
+    "mobile operating systems"
+   ]
+  },
+  {
+   "id": "apple-swift",
+   "title": "Develop in Swift tutorials",
+   "provider": "Apple Developer",
+   "url": "https://developer.apple.com/tutorials/develop-in-swift",
+   "cost": "free",
+   "price": "Free",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "Swift",
+    "iOS",
+    "SwiftUI",
+    "mobile application development",
+    "Xcode"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "unity-essentials",
+   "title": "Unity Essentials",
+   "provider": "Unity Learn",
+   "url": "https://learn.unity.com/pathway/unity-essentials",
+   "cost": "free",
+   "price": "Free",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "Unity",
+    "game engines",
+    "digital game development",
+    "3D scenes",
+    "C# scripting"
+   ]
+  },
+  {
+   "id": "coursera-game-design",
+   "title": "Introduction to Game Design (CalArts)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/game-design",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 6,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "game design",
+    "digital game genres",
+    "gameplay mechanics",
+    "game prototyping"
+   ]
+  },
+  {
+   "id": "postgres-tutorial",
+   "title": "PostgreSQL Tutorial (official docs)",
+   "provider": "PostgreSQL",
+   "url": "https://www.postgresql.org/docs/current/tutorial.html",
+   "cost": "free",
+   "price": "Free",
+   "hours": 4,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "PostgreSQL",
+    "SQL",
+    "relational databases",
+    "database management systems"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "google-it-support",
+   "title": "Google IT Support Professional Certificate",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/professional-certificates/google-it-support",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 120,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "ICT help desk",
+    "troubleshoot",
+    "computer hardware",
+    "operating systems",
+    "system administration",
+    "IT security",
+    "customer support"
+   ]
+  },
+  {
+   "id": "coursera-tech-support",
+   "title": "Technical Support Fundamentals (Google)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/technical-support-fundamentals",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "troubleshoot",
+    "computer hardware components",
+    "have computer literacy",
+    "customer support for ICT"
+   ]
+  },
+  {
+   "id": "coursera-networking",
+   "title": "The Bits and Bytes of Computer Networking (Google)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/computer-networking",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "computer networks",
+    "TCP/IP",
+    "network troubleshooting",
+    "DNS and DHCP"
+   ]
+  },
+  {
+   "id": "cisco-networking",
+   "title": "Networking Basics",
+   "provider": "Cisco Networking Academy",
+   "url": "https://www.netacad.com/courses/networking-basics",
+   "cost": "free",
+   "price": "Free",
+   "hours": 22,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "computer networks",
+    "network protocols",
+    "ICT network configuration",
+    "IP addressing",
+    "wireless networks"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "cisco-cyber",
+   "title": "Introduction to Cybersecurity",
+   "provider": "Cisco Networking Academy",
+   "url": "https://www.netacad.com/courses/introduction-to-cybersecurity",
+   "cost": "free",
+   "price": "Free",
+   "hours": 6,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "cyber security",
+    "ICT security",
+    "protect personal data",
+    "online threats"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "google-cybersecurity",
+   "title": "Google Cybersecurity Professional Certificate",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/professional-certificates/google-cybersecurity",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 170,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "cyber security",
+    "ICT security",
+    "security information and event management",
+    "Linux",
+    "Python",
+    "incident response"
+   ]
+  },
+  {
+   "id": "lf-linux",
+   "title": "Introduction to Linux (LFS101)",
+   "provider": "Linux Foundation",
+   "url": "https://training.linuxfoundation.org/training/introduction-to-linux/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 60,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "Linux",
+    "operating systems",
+    "command line",
+    "system administration",
+    "shell scripting"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "ms-az900",
+   "title": "Introduction to Cloud Infrastructure (AZ-900T00)",
+   "provider": "Microsoft Learn",
+   "url": "https://learn.microsoft.com/en-us/training/courses/az-900t00",
+   "cost": "free",
+   "price": "Free",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "cloud computing",
+    "cloud technologies",
+    "Microsoft Azure",
+    "cloud security"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "aws-essentials",
+   "title": "AWS Cloud Technical Essentials",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/aws-cloud-technical-essentials",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "cloud computing",
+    "Amazon Web Services",
+    "cloud technologies",
+    "deploy applications"
+   ]
+  },
+  {
+   "id": "google-ux",
+   "title": "Google UX Design Professional Certificate",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/professional-certificates/google-ux-design",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 200,
+   "level": "Beginner",
+   "format": "video",
+   "community": true,
+   "teaches": [
+    "user experience design",
+    "wireframes",
+    "design prototypes",
+    "Figma",
+    "usability testing",
+    "user research",
+    "translate requirement concepts into visual design"
+   ]
+  },
+  {
+   "id": "coursera-ux-foundations",
+   "title": "Foundations of User Experience (UX) Design (Google)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/foundations-user-experience-design",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "user experience design",
+    "user-centred design",
+    "accessibility",
+    "design process"
+   ]
+  },
+  {
+   "id": "coursera-graphic-design",
+   "title": "Graphic Design Specialization (CalArts)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/specializations/graphic-design",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 80,
+   "level": "Beginner",
+   "format": "video",
+   "community": true,
+   "teaches": [
+    "graphic design",
+    "typography",
+    "design graphics",
+    "image making",
+    "visual communication",
+    "branding"
+   ]
+  },
+  {
+   "id": "canva-design-school",
+   "title": "Canva Design School",
+   "provider": "Canva",
+   "url": "https://www.canva.com/design-school/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 5,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "graphic design",
+    "design graphics",
+    "social media graphics",
+    "presentation design",
+    "visual presentation techniques"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "coursera-design-thinking",
+   "title": "Design Thinking for Innovation (UVA Darden)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/uva-darden-designbiz",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 6,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "design thinking",
+    "develop creative ideas",
+    "innovation",
+    "create solutions to problems"
+   ]
+  },
+  {
+   "id": "blender-tutorials",
+   "title": "Blender tutorials (official)",
+   "provider": "Blender",
+   "url": "https://www.blender.org/support/tutorials/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "Blender",
+    "3D modelling",
+    "3D animation",
+    "3D rendering",
+    "3D texturing"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "khan-pixar",
+   "title": "Pixar in a Box",
+   "provider": "Khan Academy",
+   "url": "https://www.khanacademy.org/computing/pixar",
+   "cost": "free",
+   "price": "Free",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "animation",
+    "storytelling",
+    "3D modelling",
+    "character design",
+    "animation principles"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "coursera-photography",
+   "title": "Photography Basics and Beyond: From Smartphone to DSLR (Michigan State)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/specializations/photography-basics",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 120,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "photography",
+    "camera settings",
+    "composition",
+    "photo editing",
+    "lighting"
+   ]
+  },
+  {
+   "id": "davinci-training",
+   "title": "DaVinci Resolve training",
+   "provider": "Blackmagic Design",
+   "url": "https://www.blackmagicdesign.com/products/davinciresolve/training",
+   "cost": "free",
+   "price": "Free",
+   "hours": 25,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "video editing",
+    "colour grading",
+    "audio post-production",
+    "motion graphics",
+    "edit digital moving images"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "coursera-good-with-words",
+   "title": "Good with Words: Writing and Editing (Michigan)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/specializations/good-with-words",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 80,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "writing",
+    "editing",
+    "apply grammar and spelling rules",
+    "grammar",
+    "spelling",
+    "provide written content"
+   ]
+  },
+  {
+   "id": "google-tech-writing",
+   "title": "Technical Writing courses",
+   "provider": "Google",
+   "url": "https://developers.google.com/tech-writing",
+   "cost": "free",
+   "price": "Free",
+   "hours": 6,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "technical writing",
+    "provide technical documentation",
+    "documentation types",
+    "write clearly",
+    "information structure"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "coursera-journalism",
+   "title": "English for Journalism (University of Pennsylvania)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/journalism",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "journalism",
+    "news writing",
+    "interview people",
+    "English for media"
+   ]
+  },
+  {
+   "id": "google-dm-ecom",
+   "title": "Google Digital Marketing & E-commerce Professional Certificate",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/professional-certificates/google-digital-marketing-ecommerce",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 190,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "digital marketing",
+    "e-commerce",
+    "search engine optimisation",
+    "email marketing",
+    "marketing analytics",
+    "online marketing campaigns"
+   ]
+  },
+  {
+   "id": "coursera-intro-marketing",
+   "title": "Introduction to Marketing (Wharton)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/wharton-marketing",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "marketing mix",
+    "branding",
+    "plan marketing strategy",
+    "customer centricity",
+    "market pricing"
+   ]
+  },
+  {
+   "id": "meta-smm",
+   "title": "Meta Social Media Marketing Professional Certificate",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/professional-certificates/facebook-social-media-marketing",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 100,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "social media marketing",
+    "online community management",
+    "advertising campaigns",
+    "content strategy",
+    "social media analytics"
+   ]
+  },
+  {
+   "id": "hubspot-inbound",
+   "title": "Inbound Marketing",
+   "provider": "HubSpot Academy",
+   "url": "https://academy.hubspot.com/courses/inbound-marketing",
+   "cost": "free",
+   "price": "Free",
+   "hours": 4,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "inbound marketing",
+    "content marketing strategy",
+    "lead generation",
+    "implement marketing strategies"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "hubspot-content",
+   "title": "Content Marketing",
+   "provider": "HubSpot Academy",
+   "url": "https://academy.hubspot.com/courses/content-marketing",
+   "cost": "free",
+   "price": "Free",
+   "hours": 6,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "content marketing strategy",
+    "content development processes",
+    "blogging",
+    "provide written content",
+    "repurpose content"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "hubspot-social",
+   "title": "Social Media Marketing",
+   "provider": "HubSpot Academy",
+   "url": "https://academy.hubspot.com/courses/social-media",
+   "cost": "free",
+   "price": "Free",
+   "hours": 5,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "social media marketing",
+    "social media strategy",
+    "online community management",
+    "social listening"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "google-seo",
+   "title": "SEO Starter Guide",
+   "provider": "Google",
+   "url": "https://developers.google.com/search/docs/fundamentals/seo-starter-guide",
+   "cost": "free",
+   "price": "Free",
+   "hours": 2,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "search engine optimisation",
+    "keywords in digital content",
+    "web content management",
+    "site structure"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "hubspot-sales",
+   "title": "Inbound Sales",
+   "provider": "HubSpot Academy",
+   "url": "https://academy.hubspot.com/courses/inbound-sales",
+   "cost": "free",
+   "price": "Free",
+   "hours": 3,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "sales strategies",
+    "prospecting",
+    "sales process",
+    "identify customer's needs",
+    "build business relationships"
+   ]
+  },
+  {
+   "id": "trailhead-crm",
+   "title": "Salesforce CRM basics",
+   "provider": "Salesforce Trailhead",
+   "url": "https://trailhead.salesforce.com/content/learn/modules/lex_implementation_basics",
+   "cost": "free",
+   "price": "Free",
+   "hours": 2,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "use customer relationship management software",
+    "CRM",
+    "Salesforce",
+    "maintain relationship with customers"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "coursera-customer-service",
+   "title": "Customer Service Fundamentals",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/customer-service-fundamentals",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "customer service",
+    "communicate with customers",
+    "handle complaints",
+    "guarantee customer satisfaction",
+    "listen actively"
+   ]
+  },
+  {
+   "id": "coursera-market-research",
+   "title": "Market Research Specialization (UC Davis)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/specializations/market-research",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 80,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "market research",
+    "perform market research",
+    "consumer behaviour",
+    "surveys",
+    "analyse consumer buying trends"
+   ]
+  },
+  {
+   "id": "coursera-entrepreneurship",
+   "title": "Entrepreneurship I: Laying the Foundation (Wharton)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/entrepreneurship-1",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "entrepreneurship",
+    "business plans",
+    "identify potential markets for companies",
+    "start a business",
+    "retail entrepreneurship"
+   ]
+  },
+  {
+   "id": "coursera-business-strategy",
+   "title": "Business Strategy Specialization (UVA Darden)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/specializations/business-strategy",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 90,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "business strategy concepts",
+    "implement strategic planning",
+    "analyse external factors of companies",
+    "analyse internal factors of companies",
+    "competitive advantage"
+   ]
+  },
+  {
+   "id": "coursera-operations",
+   "title": "Introduction to Operations Management (Wharton)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/wharton-operations",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "operations management",
+    "process analysis",
+    "productivity",
+    "inventory management",
+    "quality management"
+   ]
+  },
+  {
+   "id": "coursera-scm",
+   "title": "Supply Chain Management Specialization (Rutgers)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/specializations/supply-chain-management",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 80,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "supply chain management",
+    "logistics",
+    "procurement",
+    "supply chain planning",
+    "maintain relationship with suppliers"
+   ]
+  },
+  {
+   "id": "coursera-sc-logistics",
+   "title": "Supply Chain Logistics (Rutgers)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/supply-chain-logistics",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "logistics",
+    "warehouse operations",
+    "transportation management",
+    "inventory control"
+   ]
+  },
+  {
+   "id": "google-pm",
+   "title": "Google Project Management Professional Certificate",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/professional-certificates/google-project-management",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 140,
+   "level": "Beginner",
+   "format": "video",
+   "community": true,
+   "teaches": [
+    "project management",
+    "perform project management",
+    "agile project management",
+    "finish project within budget",
+    "risk management",
+    "stakeholder management"
+   ]
+  },
+  {
+   "id": "coursera-pm-foundations",
+   "title": "Foundations of Project Management (Google)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/project-management-foundations",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "project management",
+    "project life cycle",
+    "project roles",
+    "plan projects"
+   ]
+  },
+  {
+   "id": "coursera-agile-jira",
+   "title": "Agile with Atlassian Jira",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/agile-atlassian-jira",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "agile project management",
+    "Scrum",
+    "Kanban",
+    "Jira",
+    "ICT project management methodologies"
+   ]
+  },
+  {
+   "id": "coursera-motivate",
+   "title": "Inspiring and Motivating Individuals (Michigan)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/motivate-people-teams",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "manage staff",
+    "motivate employees",
+    "leadership",
+    "give constructive feedback",
+    "delegate activities"
+   ]
+  },
+  {
+   "id": "coursera-hr",
+   "title": "Human Resource Management: HR for People Managers (Minnesota)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/specializations/human-resource-management",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 80,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "human resource management",
+    "recruit employees",
+    "employee performance management",
+    "compensation and benefits",
+    "employment law"
+   ]
+  },
+  {
+   "id": "coursera-recruiting",
+   "title": "Recruiting, Hiring, and Onboarding Employees (Minnesota)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/recruiting-hiring-onboarding-employees",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "recruit employees",
+    "interview people",
+    "hiring process",
+    "onboarding",
+    "job market offers"
+   ]
+  },
+  {
+   "id": "coursera-communication",
+   "title": "Improving Communication Skills (Wharton)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/wharton-communication-skills",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "communication",
+    "persuasion",
+    "listen actively",
+    "use different communication channels",
+    "build business relationships"
+   ]
+  },
+  {
+   "id": "coursera-public-speaking",
+   "title": "Introduction to Public Speaking (University of Washington)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/public-speaking",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "public speaking",
+    "presentations",
+    "deliver a presentation",
+    "speak confidently"
+   ]
+  },
+  {
+   "id": "coursera-teamwork",
+   "title": "Teamwork Skills: Communicating Effectively in Groups (Colorado Boulder)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/teamwork-skills-effective-communication",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": true,
+   "teaches": [
+    "teamwork",
+    "communicate professionally with colleagues",
+    "handle conflicts",
+    "apply conflict management",
+    "work in teams"
+   ]
+  },
+  {
+   "id": "coursera-negotiation",
+   "title": "Successful Negotiation: Essential Strategies and Skills (Michigan)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/negotiation-skills",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "negotiation",
+    "negotiate with suppliers",
+    "negotiate sales contracts",
+    "handle conflicts"
+   ]
+  },
+  {
+   "id": "coursera-problem-solving",
+   "title": "Creative Problem Solving (Minnesota)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/creative-problem-solving",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "create solutions to problems",
+    "develop creative ideas",
+    "address problems critically",
+    "creative thinking"
+   ]
+  },
+  {
+   "id": "coursera-learning-how",
+   "title": "Learning How to Learn",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/learning-how-to-learn",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "learning techniques",
+    "study skills",
+    "undertake continuous professional development",
+    "memory techniques"
+   ]
+  },
+  {
+   "id": "coursera-excel",
+   "title": "Excel Skills for Business Specialization (Macquarie)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/specializations/excel",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 120,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "Microsoft Excel",
+    "spreadsheets software",
+    "data analysis in spreadsheets",
+    "formulas and functions",
+    "pivot tables"
+   ]
+  },
+  {
+   "id": "coursera-everyday-excel",
+   "title": "Everyday Excel, Part 1 (Colorado Boulder)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/everyday-excel-part-1",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 30,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "Microsoft Excel",
+    "spreadsheets software",
+    "formulas",
+    "financial functions"
+   ]
+  },
+  {
+   "id": "learnfree-excel",
+   "title": "Excel: Foundations",
+   "provider": "LearnFree (GCFGlobal)",
+   "url": "https://www.learnfree.org/series/excel-foundations",
+   "cost": "free",
+   "price": "Free",
+   "hours": 5,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "Microsoft Excel",
+    "spreadsheets software",
+    "have computer literacy",
+    "data entry"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "coursera-fin-accounting",
+   "title": "Introduction to Financial Accounting (Wharton)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/wharton-accounting",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 22,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "financial accounting",
+    "accounting entries",
+    "interpret financial statements",
+    "balance sheet",
+    "accounting techniques"
+   ]
+  },
+  {
+   "id": "coursera-bookkeeping",
+   "title": "Intuit Academy Bookkeeping Professional Certificate",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/professional-certificates/intuit-bookkeeping",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 40,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "bookkeeping",
+    "maintain financial records",
+    "accounting entries",
+    "QuickBooks",
+    "accounting department processes",
+    "bank reconciliation"
+   ]
+  },
+  {
+   "id": "coursera-fin-nonfin",
+   "title": "Finance for Non-Financial Professionals (UC Irvine)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/finance-for-non-finance-managers",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 7,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "manage budgets",
+    "control of expenses",
+    "financial statements",
+    "provide cost benefit analysis reports",
+    "financial management"
+   ]
+  },
+  {
+   "id": "coursera-fin-planning",
+   "title": "Financial Planning for Young Adults (Illinois)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/financial-planning",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "personal finance",
+    "budgeting",
+    "saving and credit",
+    "financial planning"
+   ]
+  },
+  {
+   "id": "khan-finance",
+   "title": "Finance and capital markets",
+   "provider": "Khan Academy",
+   "url": "https://www.khanacademy.org/economics-finance-domain/core-finance",
+   "cost": "free",
+   "price": "Free",
+   "hours": 30,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "finance",
+    "interest and debt",
+    "investments",
+    "financial markets",
+    "corporate finance",
+    "financial analysis"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "openwho-ipc",
+   "title": "Infection prevention and control (WHO learning channel)",
+   "provider": "OpenWHO (World Health Organization)",
+   "url": "https://openwho.org/channel/Infection+prevention+and+control/521973",
+   "cost": "free",
+   "price": "Free",
+   "hours": 3,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "infection prevention and control",
+    "hygiene in health care setting",
+    "ensure safety of healthcare users",
+    "follow clinical guidelines",
+    "hand hygiene"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "coursera-psych",
+   "title": "Introduction to Psychology (Yale)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/introduction-psychology",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "psychology",
+    "human behaviour",
+    "social sciences",
+    "mental health"
+   ]
+  },
+  {
+   "id": "coursera-pfa",
+   "title": "Psychological First Aid (Johns Hopkins)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/psychological-first-aid",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 6,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "psychological first aid",
+    "manage social crisis",
+    "support people in crisis",
+    "relate empathetically",
+    "deal with emergency care situations"
+   ]
+  },
+  {
+   "id": "coursera-healthcare-delivery",
+   "title": "Healthcare Delivery Providers (Penn)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/healthcare-delivery-providers",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "healthcare system",
+    "health care providers",
+    "health care organisation",
+    "contribute to continuity of health care"
+   ]
+  },
+  {
+   "id": "coursera-food-health",
+   "title": "Stanford Introduction to Food and Health",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/food-and-health",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 6,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "nutrition",
+    "healthy eating",
+    "provide health education",
+    "educate on the prevention of illness",
+    "cooking at home"
+   ]
+  },
+  {
+   "id": "coursera-exercise",
+   "title": "Science of Exercise (Colorado Boulder)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/science-exercise",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "exercise science",
+    "physical fitness",
+    "human physiology",
+    "personal training",
+    "health benefits of exercise"
+   ]
+  },
+  {
+   "id": "coursera-teach-online",
+   "title": "Learning to Teach Online (UNSW Sydney)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/teach-online",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "online teaching",
+    "apply teaching strategies",
+    "e-learning",
+    "blended learning",
+    "curriculum design"
+   ]
+  },
+  {
+   "id": "coursera-instructional-design",
+   "title": "Instructional Design Foundations and Applications (Illinois)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/instructional-design-foundations-applications",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "instructional design",
+    "learning theories",
+    "curriculum objectives",
+    "design training programmes",
+    "e-learning"
+   ]
+  },
+  {
+   "id": "coursera-clinical-teaching",
+   "title": "Teaching and Assessing Clinical Skills (Imperial College London)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/clinical-skills",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 20,
+   "level": "Intermediate",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "teach clinical skills",
+    "assess students",
+    "give constructive feedback",
+    "vocational teaching"
+   ]
+  },
+  {
+   "id": "coursera-career-planning",
+   "title": "Career Planning: A Pathway to Employment (Illinois)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/career-planning",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 30,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "career guidance",
+    "career planning",
+    "job search",
+    "CV writing",
+    "job market offers"
+   ]
+  },
+  {
+   "id": "coursera-research-methods",
+   "title": "Understanding Research Methods (University of London)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/research-methods",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 6,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "research methodology",
+    "perform scientific research",
+    "literature review",
+    "consult information sources",
+    "social sciences research"
+   ]
+  },
+  {
+   "id": "coursera-copyright",
+   "title": "Copyright for Educators & Librarians (Duke, Emory, UNC)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/copyright-for-education",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "copyright legislation",
+    "intellectual property rights",
+    "fair use",
+    "licensing"
+   ]
+  },
+  {
+   "id": "coursera-sustainability",
+   "title": "Introduction to Sustainability (Illinois)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/sustainability",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 40,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "sustainability",
+    "environmental policy",
+    "climate change",
+    "renewable energy",
+    "ensure compliance with environmental legislation"
+   ]
+  },
+  {
+   "id": "coursera-corp-sustainability",
+   "title": "Corporate Sustainability (Bocconi)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/corp-sustainability",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "corporate social responsibility",
+    "sustainable business strategy",
+    "ESG",
+    "stakeholder management"
+   ]
+  },
+  {
+   "id": "unccelearn",
+   "title": "Free climate change courses",
+   "provider": "UN CC:Learn",
+   "url": "https://unccelearn.org/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 6,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "climate change",
+    "green economy",
+    "sustainability",
+    "environmental awareness"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "sdg-academy",
+   "title": "Free courses on sustainable development",
+   "provider": "SDG Academy",
+   "url": "https://sdgacademy.org/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "sustainable development goals",
+    "social justice",
+    "global health",
+    "sustainable development"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "khan-math",
+   "title": "Math (from arithmetic to calculus)",
+   "provider": "Khan Academy",
+   "url": "https://www.khanacademy.org/math",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "mathematics",
+    "algebra",
+    "geometry",
+    "execute analytical mathematical calculations",
+    "arithmetic"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "khan-physics",
+   "title": "Physics",
+   "provider": "Khan Academy",
+   "url": "https://www.khanacademy.org/science/physics",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "physics",
+    "mechanics",
+    "forces and motion",
+    "energy",
+    "electricity and magnetism"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "khan-ee",
+   "title": "Electrical engineering",
+   "provider": "Khan Academy",
+   "url": "https://www.khanacademy.org/science/electrical-engineering",
+   "cost": "free",
+   "price": "Free",
+   "hours": 25,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "electricity",
+    "electronics",
+    "electric circuits",
+    "electrical engineering",
+    "semiconductors"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "coursera-power-systems",
+   "title": "Electric Power Systems (University at Buffalo)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/electric-power-systems",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "electric power systems",
+    "electricity distribution",
+    "electrical grid",
+    "power generation"
+   ]
+  },
+  {
+   "id": "coursera-solar",
+   "title": "Solar Energy Basics (SUNY)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/solar-energy-basics",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 12,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "solar energy",
+    "photovoltaic systems",
+    "solar panels",
+    "renewable energy technologies"
+   ]
+  },
+  {
+   "id": "coursera-arduino",
+   "title": "The Arduino Platform and C Programming (UC Irvine)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/arduino-platform",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "Arduino",
+    "embedded systems",
+    "C programming",
+    "microcontrollers",
+    "electronics prototyping"
+   ]
+  },
+  {
+   "id": "arduino-docs",
+   "title": "Arduino learn guides",
+   "provider": "Arduino",
+   "url": "https://docs.arduino.cc/learn/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "Arduino",
+    "electronics",
+    "sensors",
+    "microcontrollers",
+    "programming hardware"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "coursera-3d-printing",
+   "title": "The 3D Printing Revolution (Illinois)",
+   "provider": "Coursera",
+   "url": "https://www.coursera.org/learn/3d-printing-revolution",
+   "cost": "paid",
+   "price": "Coursera subscription (7-day free trial, financial aid available)",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "3D printing",
+    "additive manufacturing",
+    "digital fabrication",
+    "prepare production prototypes"
+   ]
+  },
+  {
+   "id": "ol-bookkeeping",
+   "title": "Introduction to bookkeeping and accounting",
+   "provider": "OpenLearn (The Open University)",
+   "url": "https://www.open.edu/openlearn/money-business/introduction-bookkeeping-and-accounting",
+   "cost": "free",
+   "price": "Free",
+   "hours": 8,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "bookkeeping",
+    "accounting entries",
+    "maintain financial records",
+    "double-entry bookkeeping",
+    "trial balance",
+    "profit and loss account"
+   ]
+  },
+  {
+   "id": "ol-digital-skills",
+   "title": "Digital skills: succeeding in a digital world",
+   "provider": "OpenLearn (The Open University)",
+   "url": "https://www.open.edu/openlearn/education-development/digital-skills-succeeding-digital-world",
+   "cost": "free",
+   "price": "Free",
+   "hours": 24,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "have computer literacy",
+    "digital literacy",
+    "online safety",
+    "find information online",
+    "digital identity",
+    "protect personal data and privacy"
+   ]
+  },
+  {
+   "id": "ol-caring-adults",
+   "title": "Caring for adults",
+   "provider": "OpenLearn (The Open University)",
+   "url": "https://www.open.edu/openlearn/health-sports-psychology/caring-adults",
+   "cost": "free",
+   "price": "Free",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "person-centred care",
+    "care for adults",
+    "support carers",
+    "assist with daily living",
+    "empathise with the healthcare user",
+    "safeguarding vulnerable people"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "ol-social-work",
+   "title": "An introduction to social work",
+   "provider": "OpenLearn (The Open University)",
+   "url": "https://www.open.edu/openlearn/health-sports-psychology/social-care-social-work/an-introduction-social-work",
+   "cost": "free",
+   "price": "Free",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "social work practice",
+    "social work values",
+    "build helping relationship with social service users",
+    "reflective practice",
+    "apply socially just working principles",
+    "assess social service users' situation",
+    "attachment theory"
+   ]
+  },
+  {
+   "id": "ol-teams",
+   "title": "Working in groups and teams",
+   "provider": "OpenLearn (The Open University)",
+   "url": "https://www.open.edu/openlearn/money-business/leadership-management/working-groups-and-teams",
+   "cost": "free",
+   "price": "Free",
+   "hours": 8,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "teamwork",
+    "manage a team",
+    "team roles",
+    "handle conflicts in teams",
+    "evaluate team performance",
+    "lead a team"
+   ]
+  },
+  {
+   "id": "ol-leadership",
+   "title": "Leadership and followership",
+   "provider": "OpenLearn (The Open University)",
+   "url": "https://www.open.edu/openlearn/education-development/learning/leadership-and-followership/content-section-overview",
+   "cost": "free",
+   "price": "Free",
+   "hours": 24,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "leadership",
+    "leadership skills",
+    "demonstrate leadership",
+    "lead others",
+    "manage staff",
+    "motivate others"
+   ]
+  },
+  {
+   "id": "cisco-python1",
+   "title": "Python Essentials 1",
+   "provider": "Cisco Networking Academy",
+   "url": "https://www.netacad.com/courses/python-essentials-1",
+   "cost": "free",
+   "price": "Free",
+   "hours": 30,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "Python",
+    "computer programming",
+    "programming basics",
+    "debug software"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "cisco-data-analytics",
+   "title": "Introduction to Data Analytics Essentials",
+   "provider": "Cisco Networking Academy",
+   "url": "https://www.netacad.com/courses/data-analytics-essentials",
+   "cost": "free",
+   "price": "Free",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "perform data analysis",
+    "data analytics",
+    "spreadsheets",
+    "data visualisation",
+    "report analysis results"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "cisco-hardware",
+   "title": "Computer Hardware Basics",
+   "provider": "Cisco Networking Academy",
+   "url": "https://www.netacad.com/courses/computer-hardware-basics",
+   "cost": "free",
+   "price": "Free",
+   "hours": 20,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "computer hardware components",
+    "assemble computers",
+    "install computer hardware",
+    "computer hardware troubleshooting",
+    "computer engineering"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "cisco-os",
+   "title": "Operating Systems Basics: Computer & Mobile Devices",
+   "provider": "Cisco Networking Academy",
+   "url": "https://www.netacad.com/courses/operating-systems-basics",
+   "cost": "free",
+   "price": "Free",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "operating systems",
+    "mobile operating systems",
+    "install software",
+    "configure computer settings"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "cisco-iot",
+   "title": "Introduction to IoT and Digital Transformation",
+   "provider": "Cisco Networking Academy",
+   "url": "https://www.netacad.com/courses/introduction-iot",
+   "cost": "free",
+   "price": "Free",
+   "hours": 6,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "internet of things",
+    "digital transformation",
+    "smart devices",
+    "automation technology",
+    "sensors"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-accounting",
+   "title": "Introduction to Financial and Managerial Accounting (15.501)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/15-501-introduction-to-financial-and-managerial-accounting-spring-2004/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "financial accounting",
+    "managerial accounting",
+    "interpret financial statements",
+    "accounting techniques",
+    "cost accounting"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-operations",
+   "title": "Introduction to Operations Management (15.760B)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/15-760b-introduction-to-operations-management-spring-2004/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "operations management",
+    "process analysis",
+    "inventory management",
+    "supply chain planning",
+    "quality management"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-hr",
+   "title": "Strategic HR Management (15.660)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/15-660-strategic-hr-management-spring-2003/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "human resource management",
+    "recruit employees",
+    "compensation and benefits",
+    "employee performance management",
+    "organisational culture"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-marketing",
+   "title": "Marketing Management (15.810)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/15-810-marketing-management-fall-2010/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "marketing management",
+    "plan marketing strategy",
+    "marketing mix",
+    "pricing strategies",
+    "customer segmentation",
+    "branding"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-new-enterprises",
+   "title": "New Enterprises (15.390)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/15-390-new-enterprises-spring-2013/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "entrepreneurship",
+    "start a business",
+    "business plans",
+    "identify potential markets for companies",
+    "business model"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-mgmt-comm",
+   "title": "Management Communication for Undergraduates (15.279)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/15-279-management-communication-for-undergraduates-fall-2012/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 30,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "business communication",
+    "write work-related reports",
+    "presentations",
+    "persuasive writing",
+    "communicate professionally with colleagues"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-finance",
+   "title": "Finance Theory I (15.401)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/15-401-finance-theory-i-fall-2008/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Intermediate",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "corporate finance",
+    "financial analysis",
+    "valuation",
+    "investment analysis",
+    "capital budgeting"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-circuits",
+   "title": "Circuits and Electronics (6.002)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/6-002-circuits-and-electronics-spring-2007/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 60,
+   "level": "Intermediate",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "electronics",
+    "electric circuits",
+    "circuit analysis",
+    "electrical engineering",
+    "semiconductors"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-design-mfg",
+   "title": "Design and Manufacturing I (2.007)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/2-007-design-and-manufacturing-i-spring-2009/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 60,
+   "level": "Intermediate",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "mechanical engineering",
+    "engineering principles",
+    "design prototypes",
+    "machine design",
+    "manufacturing processes",
+    "mechanics"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-psych",
+   "title": "Introduction to Psychology (9.00SC)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/9-00sc-introduction-to-psychology-fall-2011/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "psychology",
+    "human behaviour",
+    "cognition",
+    "learning and memory",
+    "social psychology"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "hubspot-digital",
+   "title": "Digital Marketing",
+   "provider": "HubSpot Academy",
+   "url": "https://academy.hubspot.com/courses/digital-marketing",
+   "cost": "free",
+   "price": "Free",
+   "hours": 3,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "digital marketing",
+    "online marketing",
+    "social media marketing",
+    "search engine optimisation",
+    "marketing analytics"
+   ]
+  },
+  {
+   "id": "hubspot-email",
+   "title": "Email Marketing",
+   "provider": "HubSpot Academy",
+   "url": "https://academy.hubspot.com/courses/email-marketing-certification-en",
+   "cost": "free",
+   "price": "Free",
+   "hours": 3,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "email marketing",
+    "execute email marketing",
+    "newsletters",
+    "customer segmentation",
+    "marketing automation"
+   ],
+   "hoursEstimate": true
+  }
+ ]
+}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { fetchMatch } from "../../api.js";
+import { fetchCourses, fetchMatch } from "../../api.js";
 import { useGo } from "../../lib/go.js";
 import { journeyLink } from "../../lib/journey.js";
 import BrandMark from "../../components/BrandMark.jsx";
@@ -23,6 +23,7 @@ import {
   reviseSteps,
   saveProgress,
   worthLookingInto,
+  youtubeSearch,
 } from "./pathwayData.js";
 import "./Pathway.css";
 
@@ -61,6 +62,8 @@ export default function Pathway() {
   const [weekHours, setWeekHours] = useState(() => readJSON("bridge.weekHours", 0));
   const [shared, setShared] = useState(false);
   const [showAll, setShowAll] = useState(false); // the path shows the next few topics until expanded
+  const [courses, setCourses] = useState(null); // { checked, topics: { [topic]: { courses, hidden } } } | "error"
+  const [openCourses, setOpenCourses] = useState(null); // topic whose courses are shown under its row
 
   const steps = useMemo(() => (job ? buildSteps(job) : []), [job]);
   const revise = useMemo(() => (job ? reviseSteps(job) : []), [job]); // optional brush-ups
@@ -89,6 +92,19 @@ export default function Pathway() {
       /* storage blocked */
     }
   }, [milestone, job]);
+
+  // Checked courses for every topic of this role, once per role (budget and learning style from onboarding)
+  useEffect(() => {
+    if (!job) return;
+    let live = true;
+    setCourses(null);
+    fetchCourses(job.topics.map((t) => t.title), profile.budget, profile.learnStyle)
+      .then((res) => live && setCourses(res))
+      .catch(() => live && setCourses("error"));
+    return () => {
+      live = false;
+    };
+  }, [job, profile]);
 
   // Recalibrate automatically after the profile was edited
   useEffect(() => {
@@ -150,6 +166,32 @@ export default function Pathway() {
   }
 
   const cycle = (id) => setStatus(id, STATUS[(STATUS.indexOf(progress[id] || "todo") + 1) % STATUS.length]);
+
+  // Every topic row can open its courses underneath (one at a time)
+  function courseToggle(s) {
+    const n = courses && courses !== "error" ? courses.topics[s.id]?.courses.length ?? 0 : null;
+    const open = openCourses === s.id;
+    return (
+      <button
+        type="button"
+        className={`pw-step__courses${open ? " is-open" : ""}`}
+        onClick={() => setOpenCourses(open ? null : s.id)}
+        aria-expanded={open}
+      >
+        {n === null ? "Courses" : n ? `${n} course${n > 1 ? "s" : ""}` : "Videos"}
+        <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+          <path d="M4 6l4 4 4-4" />
+        </svg>
+      </button>
+    );
+  }
+
+  const coursePanel = (s) =>
+    openCourses === s.id && (
+      <div className="pw-step__panel">
+        <CourseList topic={s} courses={courses} budget={profile.budget} compact />
+      </div>
+    );
 
   function logHour(delta = 1) {
     const h = Math.max(0, weekHours + delta);
@@ -294,17 +336,7 @@ export default function Pathway() {
               </p>
               <p className="pw-next__meta">About {upNext.hours} hours · {upNext.type === "knowledge" ? "Knowledge" : "Skill"}</p>
 
-              <ul className="pw-res">
-                {resourcesFor(upNext.title).map((r) => (
-                  <li key={r.where}>
-                    <a href={r.url} target="_blank" rel="noreferrer">
-                      <span className="pw-res__label">{r.label}</span>
-                      <span className="pw-res__where">{r.where}</span>
-                      {r.free && <span className="pw-res__free">Free</span>}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <CourseList topic={upNext} courses={courses} budget={profile.budget} />
 
               <div className="pw-next__actions">
                 <button type="button" className={`pw-status pw-status--${progress[upNext.id] || "todo"}`} onClick={() => cycle(upNext.id)}>
@@ -392,11 +424,13 @@ export default function Pathway() {
                       <span className="pw-step__title">{s.title}</span>
                       <span className="pw-step__sub">
                         {s.buildsOn ? `Builds on ${s.buildsOn}` : s.refresher ? "Refresher" : "New ground"} · {s.hours}h
+                        {courseToggle(s)}
                       </span>
                     </div>
                     <button type="button" className={`pw-status pw-status--${status}`} onClick={() => cycle(s.id)} aria-label={`${s.title}: ${STATUS_LABEL[status]}. Change status`}>
                       <StatusDot status={status} /> {STATUS_LABEL[status]}
                     </button>
+                    {coursePanel(s)}
                   </li>
                 );
               })}
@@ -420,11 +454,12 @@ export default function Pathway() {
                         <span className="pw-step__num num">{status === "done" ? <TickIcon /> : "+"}</span>
                         <div className="pw-step__text">
                           <span className="pw-step__title">{s.title}</span>
-                          <span className="pw-step__sub">Extra · {s.hours}h</span>
+                          <span className="pw-step__sub">Extra · {s.hours}h{courseToggle(s)}</span>
                         </div>
                         <button type="button" className={`pw-status pw-status--${status}`} onClick={() => cycle(s.id)} aria-label={`${s.title}: ${STATUS_LABEL[status]}. Change status`}>
                           <StatusDot status={status} /> {STATUS_LABEL[status]}
                         </button>
+                        {coursePanel(s)}
                       </li>
                     );
                   })}
@@ -454,11 +489,14 @@ export default function Pathway() {
                             <span className="pw-step__num num">{status === "done" ? <TickIcon /> : `${Math.round(s.coverage * 100)}`}</span>
                             <div className="pw-step__text">
                               <span className="pw-step__title">{s.title}</span>
-                              <span className="pw-step__sub">You know about {Math.round(s.coverage * 100)}% · {s.hours}h to revise</span>
+                              <span className="pw-step__sub">
+                                You know about {Math.round(s.coverage * 100)}% · {s.hours}h to revise{courseToggle(s)}
+                              </span>
                             </div>
                             <button type="button" className={`pw-status pw-status--${status}`} onClick={() => cycle(s.id)} aria-label={`${s.title}: ${STATUS_LABEL[status]}. Change status`}>
                               <StatusDot status={status} /> {STATUS_LABEL[status]}
                             </button>
+                            {coursePanel(s)}
                           </li>
                         );
                       })}
@@ -664,6 +702,80 @@ export default function Pathway() {
         }}
       />
     </main>
+  );
+}
+
+const FORMAT_LABEL = { video: "Videos", reading: "Reading", "hands-on": "Hands-on" };
+const shortDate = (iso) => (iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "");
+
+/* Checked courses for one topic (budget-filtered, ordered by learning style), always with a
+   YouTube search beside them. If the catalogue can't be reached, plain search links instead. */
+function CourseList({ topic, courses, budget, compact = false }) {
+  const cls = `pw-courses${compact ? " pw-courses--compact" : ""}`;
+  if (courses === "error") {
+    return (
+      <div className={cls}>
+        <ul className="pw-res">
+          {resourcesFor(topic.title).map((r) => (
+            <li key={r.where}>
+              <a href={r.url} target="_blank" rel="noreferrer">
+                <span className="pw-res__label">{r.label}</span>
+                <span className="pw-res__where">{r.where}</span>
+                {r.free && <span className="pw-res__free">Free</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+  const entry = courses?.topics[topic.id];
+  const list = entry?.courses || [];
+  const hidden = entry?.hidden || 0;
+  return (
+    <div className={cls}>
+      <ul className="pw-res">
+        {!courses && [0, 1].map((i) => <li key={i} className="pw-res__ghost" aria-hidden="true" />)}
+        {list.map((c) => (
+          <li key={c.id}>
+            <a href={c.url} target="_blank" rel="noreferrer">
+              <span className="pw-res__label">{c.title}</span>
+              <span className="pw-res__where">
+                {c.provider} ·{" "}
+                <span title={c.hoursEstimate ? "Our estimate: the provider doesn't give one" : "The provider's own estimate"}>
+                  about {c.hours}h
+                </span>{" "}
+                · {c.level} · {FORMAT_LABEL[c.format] || c.format}
+              </span>
+              {c.cost === "free" ? (
+                <span className="pw-res__free">Free</span>
+              ) : (
+                <span className="pw-res__price">{c.price}</span>
+              )}
+            </a>
+          </li>
+        ))}
+        <li>
+          <a href={youtubeSearch(topic.title)} target="_blank" rel="noreferrer">
+            <span className="pw-res__label">Videos on YouTube</span>
+            <span className="pw-res__where">Search for “{topic.title.toLowerCase()} tutorial”</span>
+            <span className="pw-res__free">Free</span>
+          </a>
+        </li>
+      </ul>
+      {courses && (
+        <p className="pw-courses__note">
+          {list.length === 0 && hidden > 0
+            ? `${hidden} paid course${hidden > 1 ? "s fit" : " fits"} this topic, hidden because your budget is free only. `
+            : list.length === 0
+            ? "No checked course fits this exact topic yet, so here's a video search. "
+            : budget === "Free only"
+            ? "Free courses only, from your budget answer. "
+            : ""}
+          Courses checked {shortDate(courses.checked)} · <Link to="/data">how we pick them</Link>
+        </p>
+      )}
+    </div>
   );
 }
 
