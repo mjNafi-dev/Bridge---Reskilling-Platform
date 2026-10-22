@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Shell scripts run on Linux (Replit): always LF
+*.sh text eol=lf
+.replit text eol=lf

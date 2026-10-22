@@ -21,7 +21,7 @@ Code: [`frontend/src/styles/tokens.css`](../frontend/src/styles/tokens.css) (all
 
 Mostly white (`--paper`) on a fine dot grid (`--dot-grid`, 22px), near-black text (`--ink`), black pill buttons.
 
-**Night surfaces** (`--night`, `.night` class) are the dark anchors: the sign-up / onboarding side panel, the dashboard header, the logo pill and the header band on every popup. Text on night uses `--paper` and `--night-text`; lines use `--night-line`.
+**Night surfaces** (`--night`, `.night` class) are the dark anchors: the sign-up / onboarding side panel, the dashboard header, the logo pill and the header band on every popup. Text on night uses `--paper` and `--night-text`; lines use `--night-line`. Done marks and progress on night use the brighter `--night-done` green with dark ink on top; empty dots and rings use `--night-muted`.
 
 Accents have a **meaning**, so they're never used as decoration:
 
