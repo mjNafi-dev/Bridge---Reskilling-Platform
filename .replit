@@ -3,11 +3,13 @@ run = "bash scripts/start.sh"
 
 [nix]
 channel = "stable-25_05"
-packages = ["freetype", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "tcl", "tk", "zlib"]
+packages = ["cacert", "freetype", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "tcl", "tk", "zlib"]
 
 [deployment]
 build = ["bash", "scripts/build.sh"]
 run = ["bash", "-c", "cd backend && python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+deploymentTarget = "gce"
+ignorePorts = false
 
 [[ports]]
 localPort = 8000
