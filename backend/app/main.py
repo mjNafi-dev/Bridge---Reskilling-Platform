@@ -25,6 +25,7 @@ CATALOGUE = load_catalogue()  # loaded once at startup
 class MatchRequest(BaseModel):
     profile: dict
     comfort: float = 0.5  # 0 = stay close to what I know, 1 = open to brand-new
+    pin: str | None = None  # chosen job's uri: always sent back (recalibrating the dashboard)
 
 
 @app.get("/api/health")
@@ -40,4 +41,4 @@ def sources():
 
 @app.post("/api/match")
 def run_match(req: MatchRequest):
-    return match(req.profile, req.comfort, CATALOGUE)
+    return match(req.profile, req.comfort, CATALOGUE, req.pin)

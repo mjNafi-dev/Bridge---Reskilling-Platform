@@ -50,5 +50,6 @@ export const DEMO_PROFILE = {
   budget: "Free only",
   learnStyle: ["Videos", "Hands-on practice"],
   genres: ["Mystery", "Sci-fi"],
+  sports: ["Football"],
   hobbies: ["Photography walks"],
 };

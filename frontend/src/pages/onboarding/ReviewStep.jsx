@@ -13,12 +13,14 @@ function show(value) {
   return String(value);
 }
 
-export default function ReviewStep({ profile, steps, onEdit }) {
+export default function ReviewStep({ profile, steps, onEdit, note = true }) {
   return (
     <div className="review">
-      <p className="review__note">
-        Have a look before we run the matching. Anything marked <span className="f__cv">From your CV</span> was filled in for you, so double-check it.
-      </p>
+      {note && (
+        <p className="review__note">
+          Have a look before we run the matching. Anything marked <span className="f__cv">From your CV</span> was filled in for you, so double-check it.
+        </p>
+      )}
 
       {steps.map((s, i) => {
         if (!s.fields && s.custom !== "cv") return null;

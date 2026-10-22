@@ -41,6 +41,9 @@ WORKTYPE_RIASEC = {
     "Organising": "Conventional",
 }
 
+PEER_LEVEL = 0.8  # a typical worker is comfortable with their own job's essential skills
+_peer_cache = {}  # target job uri -> familiarity of a typical worker from every other job
+
 MAX_PER_CATEGORY = 2
 TOP_N = 5
 
@@ -107,6 +110,10 @@ def user_evidence(profile):
     for c in profile.get("courses") or []:
         if c.get("name"):
             ev.append((c["name"], 0.5, "course"))
+    # Topics learned on Bridge (kept when switching pathway): learning = basics, done = comfortable
+    for t in profile.get("learned") or []:
+        if t.get("name"):
+            ev.append((t["name"], LEVEL_WEIGHT[as_int(t.get("level"), 1, 0, 3)], "learned"))
     if profile.get("eduField"):
         ev.append((profile["eduField"], 0.45, "education"))
     return [(str(t).strip(), w, k) for t, w, k in ev if t and str(t).strip()]
@@ -135,15 +142,15 @@ def familiarity(occ, evidence, user_vecs=None, emb=None):
             best, best_ev = 0.0, None
         total += w
         covered += w * min(1.0, best)
-        if sk["relation"] == "essential":
-            # One entry per essential skill: what the results bubbles are drawn from
-            topics.append({
-                "title": sk["title"],
-                "type": sk["type"],
-                "coverage": round(min(1.0, best), 2),
-                "from": best_ev[0] if best_ev and best >= COVER_THRESHOLD else None,
-                "breadth": sk.get("breadth", 1),
-            })
+        # One entry per skill (essential and optional): what the results bubbles are drawn from
+        topics.append({
+            "title": sk["title"],
+            "type": sk["type"],
+            "relation": sk["relation"],
+            "coverage": round(min(1.0, best), 2),
+            "from": best_ev[0] if best_ev and best >= COVER_THRESHOLD else None,
+            "breadth": sk.get("breadth", 1),
+        })
         if best_ev and best >= 0.35:
             overlaps.append({"from": best_ev[0], "source": best_ev[2], "to": sk["title"], "strength": round(best, 2), "relation": sk["relation"]})
         elif sk["relation"] == "essential":
@@ -164,6 +171,35 @@ def interest_fit(occ, profile):
         return None
     # O*NET interest scores run 1..7
     return sum((scores.get(t, 1) - 1) / 6 for t in picked) / len(picked)
+
+
+def peer_familiarities(target, cat, emb):
+    """
+    A synthetic comparison group built from ESCO, not real people: for every other job,
+    a typical worker who knows that job's essential skills. Returns how familiar each
+    of them would be with `target`, using the same familiarity measure as for the user.
+    """
+    if target["uri"] in _peer_cache:
+        return _peer_cache[target["uri"]]
+    out = []
+    for occ in cat["occupations"].values():
+        if occ["uri"] == target["uri"]:
+            continue
+        known = [sk for sk in occ["skills"] if sk["relation"] == "essential" and (emb is None or sk["uri"] in emb.skill_vec)]
+        if not known:
+            continue
+        evidence = [(sk["title"], PEER_LEVEL, "peer") for sk in known]
+        vecs = emb.skill_matrix([sk["uri"] for sk in known]) if emb is not None else None
+        out.append(familiarity(target, evidence, vecs, emb)[0])
+    _peer_cache[target["uri"]] = out
+    return out
+
+
+def add_peer_rank(result, cat, emb):
+    peers = peer_familiarities(cat["occupations"][result["uri"]], cat, emb)
+    if peers:
+        ahead = sum(round(p * 100) < result["familiarity"] for p in peers)
+        result["peers"] = {"ahead_of": round(100 * ahead / len(peers)), "group_size": len(peers), "is_estimate": True}
 
 
 def is_current_role(occ, role_vecs, role_titles, emb):
@@ -187,7 +223,8 @@ def weights(comfort, has_demand, has_interest):
     return {k: v / total for k, v in w.items()}
 
 
-def match(profile, comfort=0.5, catalogue=None):
+def match(profile, comfort=0.5, catalogue=None, pin=None):
+    """pin: a job uri to always return as `pinned` (the user's chosen pathway, for recalibration)."""
     cat = catalogue or load_catalogue()
     evidence = user_evidence(profile)
     hours_per_week = as_int(profile.get("hoursPerWeek"), 5, 1, 167)
@@ -226,7 +263,6 @@ def match(profile, comfort=0.5, catalogue=None):
             "overlaps": overlaps[:6],
             "gaps": sorted(gaps, key=lambda g: g["coverage"])[:8],
             "topics": topics,
-            "topics_known": sum(t["coverage"] >= COVER_THRESHOLD for t in topics),
             "demand": None if not d else {
                 "moderate": round(d["moderate"] * 100),
                 "fast": round(d["fast"] * 100),
@@ -254,8 +290,13 @@ def match(profile, comfort=0.5, catalogue=None):
         if len(picked) == TOP_N:
             break
 
+    pinned = next((r for r in results if r["uri"] == pin), None) if pin else None
+    for r in picked + ([pinned] if pinned else []):
+        add_peer_rank(r, cat, emb)
+
     return {
         "results": picked,
+        "pinned": pinned,
         "comfort": comfort,
         "demand_available": bool(cat["demand"]),
         "similarity_method": f"embeddings ({emb.model_name})" if emb else "word overlap",

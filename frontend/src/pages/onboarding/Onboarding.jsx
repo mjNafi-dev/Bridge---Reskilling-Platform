@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import BrandMark from "../../components/BrandMark.jsx";
 import { STEPS } from "./steps.js";
 import { Field, validateFields } from "./fields.jsx";
@@ -11,6 +11,8 @@ import "./Onboarding.css";
   Onboarding shell: step list on the left, the current step on the right.
   The whole profile lives in one object, saved to the browser after every change
   so a refresh never loses answers.
+  ?from=pathway = edit mode (opened from the profile on the dashboard): saving goes
+  back to the dashboard, which recalibrates the pathway with the new answers.
 */
 
 const STORAGE_KEY = "bridge.profile";
@@ -35,6 +37,8 @@ function save(key, value) {
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const editing = params.get("from") === "pathway";
   const [profile, setProfile] = useState(() => load(STORAGE_KEY, { hoursPerWeek: 5, cvFilled: [] }));
   const [stepIndex, setStepIndex] = useState(() => Math.min(load(STEP_KEY, 0), STEPS.length - 1));
   const [visited, setVisited] = useState(() => new Set(STEPS.slice(0, stepIndex + 1).map((s) => s.id)));
@@ -87,7 +91,7 @@ export default function Onboarding() {
       setErrors(validateFields(STEPS[firstMissing].fields, profile));
       return;
     }
-    navigate("/results");
+    navigate(editing ? "/pathway?updated=1" : "/results");
   }
 
   // Optional steps that were passed without any answers show a dash instead of a tick
@@ -107,8 +111,10 @@ export default function Onboarding() {
       <aside className="ob__panel">
         <BrandMark />
         <div className="ob__panel-head">
-          <h1 className="ob__panel-title">Build your profile</h1>
-          <p className="ob__panel-sub">About 8–10 minutes. Your answers save as you go.</p>
+          <h1 className="ob__panel-title">{editing ? "Edit your profile" : "Build your profile"}</h1>
+          <p className="ob__panel-sub">
+            {editing ? "Changes save as you go. Your pathway updates when you head back." : "About 8–10 minutes. Your answers save as you go."}
+          </p>
         </div>
 
         <div className="ob__progress" aria-hidden="true">
@@ -136,6 +142,11 @@ export default function Onboarding() {
       <section className="ob__main" ref={contentRef}>
         <div className="ob__content" key={step.id}>
           <header className="ob__head">
+            {editing && (
+              <button type="button" className="btn-primary ob__save" onClick={finish}>
+                Save & back to my pathway
+              </button>
+            )}
             <p className="label-mono">
               Step {stepIndex + 1} of {STEPS.length}{step.required ? "" : " · Optional"}
             </p>
@@ -174,7 +185,9 @@ export default function Onboarding() {
                 </button>
               ) : <span />}
               {isLast ? (
-                <button type="button" className="btn-primary" onClick={finish}>Confirm & find my matches</button>
+                <button type="button" className="btn-primary" onClick={finish}>
+                  {editing ? "Save & back to my pathway" : "Confirm & find my matches"}
+                </button>
               ) : (
                 <button type="button" className="btn-primary" onClick={next}>
                   {step.required ? "Next" : "Next (or skip)"} <ArrowIcon dir="right" />

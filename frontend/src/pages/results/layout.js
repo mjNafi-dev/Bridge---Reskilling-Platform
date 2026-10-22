@@ -1,6 +1,7 @@
 /*
   Geometry for the results animation:
   - where each topic chip lands while "analysing" (scattered, no overlaps)
+  - which topics become bubbles and which are coloured
   - how the bubbles pack into one circle, filled like a water bottle
     (what you know settles at the bottom, what's new floats to the top)
 */
@@ -26,39 +27,41 @@ export function rng(seedText) {
   };
 }
 
+/* Colour for a bubble that counts as known (anything known is at least "some") */
+export const knownTier = (coverage) => (coverage >= 0.5 ? "strong" : coverage >= 0.3 ? "good" : "some");
+
+/* What the hover tip calls a topic */
+export function bubbleLabel(bubble, coverage) {
+  if (bubble.filled) return TIERS.find((t) => t.key === knownTier(coverage)).label;
+  return coverage > 0 ? "Slight overlap" : "New to you";
+}
+
+const MAX_BUBBLES = 56;
+
 /*
-  Splits each topic into a few bubbles and colours whole bubbles only, so the share of
-  coloured bubbles matches the familiarity % (the average coverage). A topic you know
-  better gets more of its bubbles coloured. Returns one entry per bubble:
-  { topic, filled, coverage, breadth, type } (coverage is 0 for uncoloured ones so they
-  float to the top of the circle).
+  One bubble (and one chip) per topic. All of the job's essential topics, topped up with
+  optional ones to give the screen plenty to show. Whole bubbles are coloured, the
+  best-known first, until the coloured share matches the familiarity % (which the
+  matcher works out from the essential topics). Returns one entry per bubble:
+  { topic, filled, coverage, breadth, type }; coverage is 0 for uncoloured ones so they
+  float to the top of the circle.
 */
-export function topicUnits(topics) {
-  const n = topics.length;
-  const per = Math.max(1, Math.min(5, Math.round(48 / Math.max(1, n))));
-  const share = topics.reduce((s, t) => s + t.coverage, 0) / Math.max(1, n);
-  const target = Math.round(share * n * per);
-  // Largest-remainder rounding: each topic gets coverage × per bubbles, totalling `target`
-  const exact = topics.map((t) => t.coverage * per);
-  const counts = exact.map(Math.floor);
-  let left = target - counts.reduce((s, c) => s + c, 0);
-  exact
-    .map((x, i) => [x - Math.floor(x), i])
-    .sort((a, b) => b[0] - a[0])
-    .forEach(([, i]) => {
-      if (left > 0 && counts[i] < per) {
-        counts[i]++;
-        left--;
-      }
-    });
-  const units = [];
-  topics.forEach((t, i) => {
-    for (let k = 0; k < per; k++) {
-      const filled = k < counts[i];
-      units.push({ topic: i, lead: k === 0, filled, coverage: filled ? t.coverage : 0, breadth: t.breadth, type: t.type });
-    }
+export function pickBubbles(topics, familiarity) {
+  const essential = topics.map((_, i) => i).filter((i) => topics[i].relation !== "optional");
+  const optional = topics.map((_, i) => i).filter((i) => topics[i].relation === "optional");
+  const chosen = [...essential, ...optional.slice(0, Math.max(0, MAX_BUBBLES - essential.length))];
+  const want = Math.round((familiarity / 100) * chosen.length);
+  const coloured = new Set(
+    chosen
+      .filter((i) => topics[i].coverage > 0)
+      .sort((a, b) => topics[b].coverage - topics[a].coverage)
+      .slice(0, want)
+  );
+  return chosen.map((i) => {
+    const t = topics[i];
+    const filled = coloured.has(i);
+    return { topic: i, filled, coverage: filled ? t.coverage : 0, breadth: t.breadth, type: t.type };
   });
-  return units;
 }
 
 /* A spread of bubble sizes for a job: broad skills (needed by many jobs) make bigger

@@ -191,7 +191,14 @@
 }
 
 .ob__head {
+  position: relative;
   margin-bottom: var(--space-32);
+}
+
+/* Edit mode (from the dashboard): save and go back, from any step */
+.ob__save {
+  float: right;
+  margin-left: var(--space-16);
 }
 
 .ob__title {

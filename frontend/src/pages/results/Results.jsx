@@ -3,7 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import BrandMark from "../../components/BrandMark.jsx";
 import { fetchMatch } from "../../api.js";
 import TopicField, { TIERS } from "./TopicField.jsx";
+import { pickBubbles } from "./layout.js";
 import JobDetails from "./JobDetails.jsx";
+import ConnectAI from "../../components/ConnectAI.jsx";
 import "./Results.css";
 
 /*
@@ -41,6 +43,7 @@ export default function Results() {
   const [uiIn, setUiIn] = useState(false);
   const [picked, setPicked] = useState(null); // position in the line; null = the best match (middle)
   const [details, setDetails] = useState(false);
+  const [connectOpen, setConnectOpen] = useState(false);
   const [reduced] = useState(prefersReducedMotion);
 
   const stageRef = useRef(null);
@@ -78,8 +81,8 @@ export default function Results() {
   const center = line.indexOf(0);
   const active = picked ?? center;
   const job = results[line[active]];
-  const firstTopics = results[0]?.topics || [];
-  const chipCount = firstTopics.length;
+  // One chip per bubble of the top match
+  const chipCount = results[0] ? pickBubbles(results[0].topics, results[0].familiarity).length : 0;
   // Chips populate over ~2.4 s whatever their number
   const chipStagger = Math.max(30, Math.min(140, Math.round(2400 / Math.max(1, chipCount))));
 
@@ -191,7 +194,9 @@ export default function Results() {
     } catch {
       /* storage blocked */
     }
-    navigate("/pathway");
+    // Offer to connect a personal AI first; either way we land on the pathway
+    setDetails(false);
+    setConnectOpen(true);
   }
 
   const stepIndex = phase === "loading" ? 0 : phase === "chips" ? 1 : phase === "blobs" ? 2 : 3;
@@ -239,6 +244,7 @@ export default function Results() {
         <TopicField
           key={job.uri}
           topics={job.topics}
+          familiarity={job.familiarity}
           seed={job.uri}
           phase={job === results[0] ? phase : "settled"}
           stage={geo.stage}
@@ -299,6 +305,15 @@ export default function Results() {
           )}
 
           <JobDetails job={job} open={details} onClose={() => setDetails(false)} onPathway={choosePathway} />
+          <ConnectAI
+            open={connectOpen}
+            interests={[profile.sports?.[0], profile.hobbies?.[0]].filter(Boolean)}
+            continueLabel="Go to my pathway"
+            onDone={() => {
+              setConnectOpen(false);
+              navigate("/pathway");
+            }}
+          />
         </>
       )}
     </main>
@@ -367,7 +382,9 @@ export function scoreTone(score) {
 const PART_LABEL = { F: "Familiarity", E: "Ease", D: "Demand", I: "Interest fit" };
 
 function JobCard({ job }) {
-  const known = job.topics_known ?? job.topics.filter((t) => t.coverage >= 0.2).length;
+  // Same bubbles as the diagram, so the count matches what you see
+  const bubbles = pickBubbles(job.topics, job.familiarity);
+  const known = bubbles.filter((b) => b.filled).length;
   return (
     <article className="job-card" data-flip={job.uri}>
       <div className="job-card__top">
@@ -401,9 +418,9 @@ function JobCard({ job }) {
         </li>
         <li className="hint" tabIndex={0}>
           <CapIcon />
-          <span className="num">{known}/{job.topics.length}</span>
+          <span className="num">{known}/{bubbles.length}</span>
           <span className="hint__bubble" role="tooltip">
-            You have some overlap with {known} of the {job.topics.length} core topics.
+            You already know {known} of the {bubbles.length} topics shown above.
           </span>
         </li>
         <li className="hint" tabIndex={0}>
