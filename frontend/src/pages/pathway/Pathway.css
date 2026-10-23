@@ -1,24 +1,133 @@
-/* My pathway dashboard. Same frame and logo spot as Results / Onboarding.
-   Dark header (like the side panels), then cards that rise in one after another. */
+/* My pathway dashboard. A sticky top bar, a dark header (like the side panels),
+   then cards that rise in one after another. */
 
 .pw {
   position: relative;
   width: 100%;
   max-width: calc(1280px + 2 * var(--space-64));
-  margin: max(48px, calc((100vh - 820px) / 2)) auto var(--space-64);
-  padding: 96px var(--space-64) 0;
+  margin: 0 auto var(--space-64);
+  padding: var(--space-24) var(--space-64) 0;
+}
+
+/* ---------- Top bar ----------
+   In the page flow and as wide as the cards, so the logo lines up with their left edge.
+   Once you scroll it shrinks into a centred island: logo, role, familiarity, up next, you. */
+
+.pw-top {
+  position: sticky;
+  top: var(--space-16);
+  z-index: 40;
+  margin-bottom: var(--space-24);
+  pointer-events: none; /* only the bar itself takes clicks, not the empty strip around it */
+}
+
+.pw-top__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  pointer-events: auto;
+  transition:
+    max-width 0.5s var(--ease-out),
+    padding 0.5s var(--ease-out),
+    background var(--dur-base) ease,
+    border-color var(--dur-base) ease,
+    box-shadow var(--dur-base) ease;
+}
+
+.pw-top.is-compact .pw-top__bar {
+  max-width: 760px;
+  padding: 5px;
+  border-color: var(--l1);
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-2);
 }
 
 .pw__brand {
-  position: absolute;
-  top: calc(var(--space-32) - 4px);
-  left: calc(var(--space-64) + var(--space-24) - 4px);
+  flex-shrink: 0;
   padding: 4px var(--space-16) 4px 4px;
   border-radius: var(--radius-md);
+  transition: padding 0.5s var(--ease-out);
 }
 
 .pw__brand .brand { gap: var(--space-8); }
 .pw__brand .brand__icon { width: 32px; height: 32px; }
+.pw__brand .brand__name {
+  display: inline-block;
+  max-width: 120px;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.5s var(--ease-out), opacity var(--dur-base) ease;
+}
+
+.pw-top.is-compact .pw__brand { padding-right: 4px; }
+.pw-top.is-compact .pw__brand .brand { gap: 0; }
+.pw-top.is-compact .pw__brand .brand__name { max-width: 0; opacity: 0; }
+
+/* The middle of the island: only there once you've scrolled */
+.pw-top__status {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity var(--dur-base) ease, transform var(--dur-base) var(--ease-out), visibility 0s linear var(--dur-base);
+}
+
+.pw-top.is-compact .pw-top__status {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity var(--dur-base) ease 0.15s, transform var(--dur-base) var(--ease-out) 0.15s, visibility 0s;
+}
+
+.pw-top__role {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: 600 15px/1.2 var(--font-display);
+}
+
+.pw-top__meter {
+  flex-shrink: 0;
+  width: 72px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--l1);
+  overflow: hidden;
+}
+
+.pw-top__meter span { display: block; height: 100%; border-radius: inherit; background: var(--done-default); transition: width 0.6s var(--ease-out); }
+.pw-top__pct { flex-shrink: 0; font: 500 13px/1 var(--font-mono); color: var(--d2); }
+
+.pw-top__next {
+  min-width: 0;
+  max-width: 260px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 4px 10px;
+  border: 1px solid var(--l1);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  font: var(--text-body-small);
+  color: var(--d2);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.pw-top__next:hover { border-color: var(--ink); color: var(--ink); }
 
 .pw--empty {
   display: flex;
@@ -52,21 +161,20 @@
 
 /* ---------- Profile button ---------- */
 
+/* Same squircle corners as the logo chip */
 .pw__me {
-  position: absolute;
-  top: calc(var(--space-32) - 4px);
-  right: var(--space-64);
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: var(--space-8);
   height: 40px;
   padding: 0 var(--space-16) 0 4px;
   border: 1px solid var(--l2);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   background: var(--paper);
   font: var(--text-label);
   cursor: pointer;
-  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-base) var(--ease-out);
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-base) var(--ease-out), padding 0.5s var(--ease-out), gap 0.5s var(--ease-out);
 }
 
 .pw__me:hover { border-color: var(--ink); box-shadow: var(--shadow-2); }
@@ -76,11 +184,23 @@
   place-items: center;
   width: 32px;
   height: 32px;
-  border-radius: 50%;
+  border-radius: var(--radius-sm);
   background: var(--ink);
   color: var(--paper);
   font: 600 14px/1 var(--font-display);
 }
+
+.pw__me-name {
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: max-width 0.5s var(--ease-out), opacity var(--dur-base) ease;
+}
+
+/* In the island: just the avatar */
+.pw-top.is-compact .pw__me { gap: 0; padding-right: 4px; }
+.pw-top.is-compact .pw__me-name { max-width: 0; opacity: 0; }
 
 /* ---------- Header (dark) ---------- */
 
@@ -125,6 +245,51 @@
 .pw-head__meta strong { color: var(--paper); }
 
 .pw-progress { max-width: 520px; margin: var(--space-8) 0; }
+
+/* Growth stage, in the header's free space on the right */
+.pw-stage {
+  flex: 0 0 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: var(--space-16); /* clear of the ⋯ menu */
+  text-align: center;
+}
+
+.pw-stage__img {
+  width: 128px;
+  height: 128px;
+  margin-bottom: var(--space-8);
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
+  animation: pw-stage-in 0.6s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+
+@keyframes pw-stage-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.85); }
+}
+
+.pw-stage__label { font: 600 20px/1.2 var(--font-display); color: var(--paper); }
+.pw-stage__text { font: var(--text-body-small); color: var(--night-text); text-wrap: balance; }
+
+
+/* Narrower screens: the stage becomes a row under the header content */
+@media (max-width: 1180px) {
+  .pw-head { flex-wrap: wrap; row-gap: var(--space-24); }
+  .pw-stage {
+    position: relative;
+    flex: 1 0 100%;
+    display: block;
+    min-height: 64px;
+    margin-top: 0;
+    padding: var(--space-16) 0 0 80px;
+    border-top: 1px solid var(--night-line);
+    text-align: left;
+  }
+  .pw-stage__img { position: absolute; left: 0; top: var(--space-16); width: 64px; height: 64px; margin: 0; }
+  .pw-stage .label-mono { display: none; }
+}
 .pw-progress__row { display: flex; justify-content: space-between; font: var(--text-title-small); }
 
 .pw-progress__bar {
@@ -281,15 +446,63 @@
 }
 
 .pw-card:hover { box-shadow: var(--shadow-2); }
-.pw-card h3 { font: var(--text-title-large); }
+.pw-card h3,
+.pw-skills__h { font: var(--text-title-large); }
 
 .pw-card__head {
   display: flex;
+  flex-wrap: wrap; /* in a narrow column the chips drop under the title instead of squeezing it */
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-12);
+  gap: var(--space-8) var(--space-12);
   margin-bottom: var(--space-12);
 }
+
+.pw-card__head h3 { white-space: nowrap; }
+
+/* Card title with a 3D icon (thiings.co) that moves a little when you hover the card */
+.pw-card__title { display: inline-flex; align-items: center; gap: var(--space-12); }
+
+.pw-card__icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.12));
+  transition: transform 0.4s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+.pw-card--ai:hover .pw-card__icon { transform: rotate(18deg) scale(1.08); }
+.pw-card--share:hover .pw-card__icon { transform: translate(3px, -3px) rotate(-6deg); }
+.pw-card--path:hover .pw-card__icon { transform: rotate(-8deg) translateY(-2px); }
+
+/* ---------- Resources (opens like Your skills; reuses its toggle and box styles) ---------- */
+.pw-resources__intro { margin-top: var(--space-24); }
+
+.pw-resources__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-24) var(--space-32);
+  list-style: none;
+}
+
+.pw-resources__topic { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-8); margin-bottom: var(--space-8); }
+.pw-resources__topic strong { font: var(--text-title-small); }
+
+.pw-resources__num {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--l05);
+  font: var(--text-mono);
+  color: var(--d3);
+}
+
+.pw-resources__tag { padding: 1px 8px; border-radius: var(--radius-sm); background: var(--l05); font: var(--text-body-small); font-size: 12px; color: var(--d3); }
+.pw-resources__tag--learning { background: var(--familiar-subtle); color: var(--familiar-strong); }
+.pw-resources__tag--done { background: var(--done-subtle); color: var(--done-strong); }
 
 .pw-card__note { font: var(--text-body-small); color: var(--d3); }
 .pw-card__text { margin: var(--space-8) 0 var(--space-16); font: var(--text-body-small); color: var(--d2); }
@@ -576,9 +789,26 @@
 
 /* ---------- Side cards ---------- */
 
+.pw-ai-status { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+
+/* Which AI is connected, with its mark */
+.pw-ai-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px 2px 6px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--ai, var(--ink)) 10%, var(--paper));
+  color: var(--ink);
+  font: var(--text-label);
+  font-size: 12px;
+}
+
+.pw-ai-chip svg { color: var(--ai, var(--ink)); }
+
 .pw-pill {
   padding: 2px 10px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: var(--l1);
   font: var(--text-mono);
   text-transform: uppercase;
@@ -621,6 +851,108 @@
 /* ---------- Your skills ---------- */
 
 .pw-skills { margin-top: var(--space-24); }
+
+/* Header: a toggle with the toolbox on the right */
+.pw-skills__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pw-skills__title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+
+.pw-skills__chevron {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--l05) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%23111111' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E") center no-repeat;
+  transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-fast) ease;
+}
+
+.pw-skills__toggle:hover .pw-skills__chevron { background-color: var(--l1); }
+.pw-skills.is-open .pw-skills__chevron { transform: rotate(180deg); }
+
+/* Body opens and closes smoothly */
+.pw-skills__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s var(--ease-in-out);
+}
+
+.pw-skills.is-open .pw-skills__body { grid-template-rows: 1fr; }
+.pw-skills__inner { min-height: 0; overflow: hidden; }
+.pw-skills__inner > .pw-skills__head { padding-top: var(--space-24); }
+
+/* The toolbox and its tools. Each tool rides two layers: the outer one slides sideways,
+   the inner one rises then drops, so together they make an arc out of the box. */
+.pw-toolbox {
+  --k: 1; /* scale for smaller screens */
+  position: relative;
+  flex-shrink: 0;
+  width: calc(320px * var(--k));
+  height: calc(96px * var(--k));
+}
+
+.pw-toolbox__box {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: calc(96px * var(--k));
+  height: calc(96px * var(--k));
+  object-fit: contain;
+  transition: opacity 0.2s ease, transform 0.35s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+/* Opening: the packed box swaps to the empty one underneath (so it never ghosts), then once
+   the things are out the empty box fades away and leaves its space to them.
+   Closing: the empty box comes back first, the things fly in, then it's packed again. */
+.pw-toolbox.is-open .pw-toolbox__box--full { opacity: 0; transition-delay: 0.05s; }
+.pw-toolbox.is-open .pw-toolbox__box--empty {
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.3s ease 0.45s, transform 0.3s ease 0.45s;
+}
+.pw-toolbox:not(.is-open) .pw-toolbox__box--full { transition-delay: 0.55s; }
+.pw-toolbox:not(.is-open) .pw-toolbox__box--empty { transition-delay: 0s; }
+.pw-skills__toggle:hover .pw-toolbox__box { transform: translateY(-2px) rotate(-2deg); }
+
+.pw-tool {
+  position: absolute;
+  right: calc(28px * var(--k)); /* the box's opening */
+  top: calc(18px * var(--k));
+  width: calc(40px * var(--k));
+  height: calc(40px * var(--k));
+  opacity: 0;
+  transform: translateX(0);
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.3, 1) var(--d), opacity 0.2s ease var(--d);
+}
+
+.pw-tool img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: translateY(0) rotate(0) scale(0.4);
+  transition: transform 0.6s cubic-bezier(0.3, -0.9, 0.5, 1.3) var(--d);
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.18));
+}
+
+.pw-toolbox.is-open .pw-tool { opacity: 1; transform: translateX(calc(var(--tx) * var(--k))); }
+.pw-toolbox.is-open .pw-tool img { transform: translateY(calc(var(--ty) * var(--k))) rotate(var(--rot)) scale(1); }
+.pw-toolbox:not(.is-open) .pw-tool { transition: transform 0.45s cubic-bezier(0.5, 0, 0.75, 0) calc(var(--d) + 0.12s), opacity 0.15s ease calc(var(--d) + 0.42s); }
+.pw-toolbox:not(.is-open) .pw-tool img { transition-delay: calc(var(--d) + 0.12s); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pw-tool, .pw-tool img, .pw-toolbox__box, .pw-skills__body { transition: none; }
+}
 
 .pw-skills__head {
   display: flex;
@@ -705,22 +1037,30 @@
 /* ---------- Smaller screens ---------- */
 
 @media (max-width: 1000px) {
-  .pw { margin: 0 auto; padding: 88px var(--space-24) var(--space-32); }
-  .pw__brand { top: var(--space-24); left: var(--space-24); }
-  .pw__me { top: var(--space-24); right: var(--space-24); }
+  .pw { padding: var(--space-24) var(--space-24) var(--space-32); }
+  .pw-top__next { display: none; }
   .pw-grid { grid-template-columns: 1fr; }
   .pw-skills__head { flex-direction: column; }
   .pw-skills__cols { grid-template-columns: 1fr; }
   .pw-skills__cols > div + div { padding-left: 0; border-left: 0; }
+  .pw-resources__list { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
-  .pw { padding: 80px var(--space-16) var(--space-32); }
-  .pw__brand { top: var(--space-16); left: var(--space-16); }
-  .pw__me { top: var(--space-16); right: var(--space-16); }
+  .pw { padding: var(--space-16) var(--space-16) var(--space-32); }
+  .pw-top { top: var(--space-8); }
   .pw__me-name { display: none; }
+  .pw__me { gap: 0; padding-right: 4px; }
+  .pw-top__meter { width: 40px; }
+  .pw-top__pct-word { display: none; }
+  .pw-top__status { gap: var(--space-8); }
   .pw-head { flex-direction: column; align-items: flex-start; padding: var(--space-24) var(--space-16); }
+
+  .pw-stage__text { display: none; }
   .pw-head__title { font-size: 32px; }
+  .pw-toolbox { --k: 0.62; }
+  .pw-skills__toggle { flex-wrap: wrap; }
+  .pw-skills__title { flex-basis: 100%; }
   .pw-res { grid-template-columns: 1fr; }
   .pw-step { grid-template-columns: 28px 1fr; }
   .pw-step .pw-status { grid-column: 2; justify-self: start; }
@@ -745,7 +1085,26 @@
 .pw-more svg { transition: transform var(--dur-base) var(--ease-out); }
 .pw-more[aria-expanded="true"] svg { transform: rotate(180deg); }
 
-.pw-share { display: flex; align-items: center; gap: var(--space-16); }
+.pw-share { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-8) var(--space-16); }
+
+/* Share code: big enough to read out or copy by hand */
+.pw-code { display: flex; flex-direction: column; gap: var(--space-8); }
+.pw-code__label { font: var(--text-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--mid); }
+
+.pw-code__value {
+  align-self: flex-start;
+  padding: var(--space-8) var(--space-16);
+  border: 1px dashed var(--l2);
+  border-radius: var(--radius-md);
+  background: var(--l05);
+  font: 600 26px/1.1 var(--font-mono);
+  letter-spacing: 0.08em;
+  user-select: all;
+}
+
+.pw-code__note { font: var(--text-body-small); color: var(--d3); }
+.pw-code__note .pw__link { font: inherit; }
+.pw-code__note--error { margin-top: var(--space-8); color: var(--danger); }
 
 /* ---------- Path complete ---------- */
 .pw-done {

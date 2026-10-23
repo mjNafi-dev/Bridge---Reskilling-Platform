@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { fetchCourses, fetchMatch } from "../../api.js";
+import { fetchCourses, fetchMatch, shareJourney } from "../../api.js";
 import { useGo } from "../../lib/go.js";
-import { journeyLink } from "../../lib/journey.js";
+import { buildJourney, journeyCodeLink, journeyLink } from "../../lib/journey.js";
 import BrandMark from "../../components/BrandMark.jsx";
-import ConnectAI, { AI_PROVIDERS, readAI, saveAI } from "../../components/ConnectAI.jsx";
+import ConnectAI, { AIIcon, AI_PROVIDERS, readAI, saveAI } from "../../components/ConnectAI.jsx";
 import ProfileSheet from "../../components/ProfileSheet.jsx";
 import { knownTier, packTopics, pickBubbles } from "../results/layout.js";
 import { SKILL_LEVELS } from "../onboarding/steps.js";
@@ -38,11 +38,28 @@ import "./Pathway.css";
 
 const sentence = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "");
 
+// How familiar you are with the role, as a plant growing up (3D icons from thiings.co)
+const STAGES = [
+  { from: 0, img: "1-sprout", label: "Just sprouted", text: "Mostly new ground. Every topic you finish adds a leaf." },
+  { from: 20, img: "2-seedling", label: "Taking root", text: "You already know some of the basics. Keep going." },
+  { from: 40, img: "3-bonsai", label: "Taking shape", text: "About half of this role already feels familiar." },
+  { from: 60, img: "4-tree", label: "Standing tall", text: "Most of this role is familiar. The rest is close." },
+  { from: 80, img: "5-blossom", label: "In full bloom", text: "Nearly there. This role is within reach." },
+];
+
 function readJSON(key, fallback) {
   try {
     return JSON.parse(localStorage.getItem(key) || "null") ?? fallback;
   } catch {
     return fallback;
+  }
+}
+
+function writeJSON(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* storage blocked */
   }
 }
 
@@ -60,10 +77,14 @@ export default function Pathway() {
   const [suggestionDismissed, setSuggestionDismissed] = useState(false);
   const [askOpen, setAskOpen] = useState(false);
   const [weekHours, setWeekHours] = useState(() => readJSON("bridge.weekHours", 0));
-  const [shared, setShared] = useState(false);
+  const [share, setShare] = useState(() => ({ code: readJSON("bridge.shareCode", null), state: "idle", copied: null })); // state: idle | making | error
   const [showAll, setShowAll] = useState(false); // the path shows the next few topics until expanded
   const [courses, setCourses] = useState(null); // { checked, topics: { [topic]: { courses, hidden } } } | "error"
   const [openCourses, setOpenCourses] = useState(null); // topic whose courses are shown under its row
+  const [compact, setCompact] = useState(false); // top bar shrinks into an island once you scroll
+  const [skillsOpen, setSkillsOpen] = useState(false); // "Your skills" starts packed away in its toolbox
+  const [resourcesOpen, setResourcesOpen] = useState(false); // so does "Resources", in its box
+  const nextRef = useRef(null);
 
   const steps = useMemo(() => (job ? buildSteps(job) : []), [job]);
   const revise = useMemo(() => (job ? reviseSteps(job) : []), [job]); // optional brush-ups
@@ -92,6 +113,13 @@ export default function Pathway() {
       /* storage blocked */
     }
   }, [milestone, job]);
+
+  useEffect(() => {
+    const onScroll = () => setCompact(window.scrollY > 72);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Checked courses for every topic of this role, once per role (budget and learning style from onboarding)
   useEffect(() => {
@@ -146,6 +174,14 @@ export default function Pathway() {
   const upNext = steps.find((s) => !isDone(s)) || (steps.length === 0 ? revise.find((s) => !isDone(s)) : undefined);
   const doneCount = steps.filter(isDone).length;
   const reviseDone = revise.filter(isDone).length;
+  const pathCourses = courses && courses !== "error"
+    ? [...new Map([...steps, ...revise].flatMap((t) => courses.topics[t.id]?.courses || []).map((c) => [c.id, c])).values()]
+    : [];
+  const resourceSummary = courses === "error"
+    ? "Video searches and trusted sites for every topic"
+    : !courses
+      ? "Finding courses for your topics…"
+      : `${pathCourses.length} checked course${pathCourses.length === 1 ? "" : "s"} · ${pathCourses.filter((c) => c.cost === "free").length} free · a video search for every topic`;
   const showRevise = reviseOpen ?? steps.length === 0;
   const openRevise = () => {
     setReviseOpen(true);
@@ -164,6 +200,8 @@ export default function Pathway() {
     setProgress(next);
     saveProgress(next);
   }
+
+  const toNext = () => nextRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
 
   const cycle = (id) => setStatus(id, STATUS[(STATUS.indexOf(progress[id] || "todo") + 1) % STATUS.length]);
 
@@ -241,24 +279,37 @@ export default function Pathway() {
   const extraPath = extraSteps(job, progress);
   const suggestions = nextExtras(job, progress);
 
-  // Read-only snapshot for an employer: role, topics and skills. No scores or rankings.
-  function shareLink() {
-    const brought = [...(profile.skills || []).map((s) => s.name).filter(Boolean), ...alreadyHave(job)];
-    return journeyLink({
-      name: (profile.name || "").replace(/\(.*?\)/g, "").trim().split(/\s+/)[0] || "",
+  // Read-only snapshot for an employer: their background like a CV, plus what they're
+  // learning here. No scores or rankings.
+  function snapshot() {
+    return buildJourney({
+      profile: readJSON("bridge.profile", profile), // edits made since the page opened
       role: sentence(job.title),
       done: [...steps, ...revise].filter(isDone).map((s) => s.title),
       learning: [...steps, ...revise].filter((s) => progress[s.id] === "learning").map((s) => s.title),
       total: steps.length + revise.length,
-      brought: [...new Set(brought)].slice(0, 16),
-      hours: Number(profile.hoursPerWeek) || null,
-      date: new Date().toISOString().slice(0, 10),
+      strong: alreadyHave(job),
     });
   }
 
-  function share() {
-    navigator.clipboard?.writeText(shareLink()).catch(() => {});
-    setShared(true);
+  const copy = (text, what) => {
+    navigator.clipboard?.writeText(text).catch(() => {});
+    setShare((s) => ({ ...s, copied: what }));
+  };
+
+  // A short code for today's snapshot (the same snapshot always gets the same code).
+  // If Bridge can't be reached, the long link still works: the snapshot is inside it.
+  async function makeCode({ copyLink = false } = {}) {
+    setShare((s) => ({ ...s, state: "making", copied: null }));
+    try {
+      const code = await shareJourney(snapshot());
+      writeJSON("bridge.shareCode", code);
+      setShare({ code, state: "idle", copied: null });
+      if (copyLink) copy(journeyCodeLink(code), "link");
+    } catch {
+      setShare((s) => ({ ...s, state: "error" }));
+      if (copyLink) copy(journeyLink(snapshot()), "long");
+    }
   }
 
   const prompt = upNext
@@ -267,14 +318,29 @@ export default function Pathway() {
 
   return (
     <main className="pw">
-      <div className="pw__brand night">
-        <BrandMark />
-      </div>
-
-      <button type="button" className="pw__me" onClick={() => setProfileOpen(true)} aria-label="Open my profile">
-        <span className="pw__me-avatar" aria-hidden="true">{(profile.name || "Y").charAt(0).toUpperCase()}</span>
-        <span className="pw__me-name">{profile.name || "My profile"}</span>
-      </button>
+      {/* Top bar: logo and profile at the top; once you scroll it shrinks into a centred
+          island that also shows the role, how familiar you are and what's next */}
+      <header className={`pw-top${compact ? " is-compact" : ""}`}>
+        <div className="pw-top__bar">
+          <div className="pw__brand night">
+            <BrandMark />
+          </div>
+          <div className="pw-top__status" aria-hidden={!compact}>
+            <span className="pw-top__role">{sentence(job.title)}</span>
+            <span className="pw-top__meter" aria-hidden="true"><span style={{ width: `${familiarity}%` }} /></span>
+            <span className="pw-top__pct num">{familiarity}%<span className="pw-top__pct-word"> familiar</span></span>
+            {upNext && (
+              <button type="button" className="pw-top__next" tabIndex={compact ? 0 : -1} onClick={toNext}>
+                Up next: {upNext.title}
+              </button>
+            )}
+          </div>
+          <button type="button" className="pw__me" onClick={() => setProfileOpen(true)} aria-label="Open my profile">
+            <span className="pw__me-avatar" aria-hidden="true">{(profile.name || "Y").charAt(0).toUpperCase()}</span>
+            <span className="pw__me-name">{profile.name || "My profile"}</span>
+          </button>
+        </div>
+      </header>
 
       {recal && <RecalBanner recal={recal} onClose={() => setRecal(null)} />}
 
@@ -308,13 +374,14 @@ export default function Pathway() {
           </div>
           <button type="button" className="pw__link" onClick={() => go("/results")}>← Back to my options</button>
         </div>
+        <GrowthStage familiarity={familiarity} />
       </section>
 
       <div className="pw-grid">
         {/* ---------- Main column ---------- */}
         <div className="pw-main">
           {upNext ? (
-            <section className="pw-card pw-next rise" style={{ "--i": 1 }} aria-label="Up next">
+            <section className="pw-card pw-next rise" style={{ "--i": 1 }} aria-label="Up next" ref={nextRef}>
               <p className="label-mono">{upNext.revise ? "Brush up" : "Up next"}</p>
               <h2 className="pw-next__title">{upNext.title}</h2>
               <p className="pw-next__bridge">
@@ -399,15 +466,20 @@ export default function Pathway() {
               )}
               <div className="pw-next__actions">
                 <button type="button" className="btn btn--primary" onClick={() => go("/results")}>See roles you can reach now</button>
-                <button type="button" className="btn btn--ghost" onClick={share}>{shared ? "Link copied" : "Share my journey"}</button>
+                <button type="button" className="btn btn--ghost" onClick={() => makeCode({ copyLink: true })}>
+                  {share.copied ? "Link copied" : "Share my journey"}
+                </button>
                 <button type="button" className="pw__link" onClick={() => setBurst((b) => b + 1)}>Celebrate again</button>
               </div>
             </section>
           )}
 
-          <section className="pw-card rise" style={{ "--i": 2 }} aria-label="Your path">
+          <section className="pw-card pw-card--path rise" style={{ "--i": 2 }} aria-label="Your path">
             <div className="pw-card__head">
-              <h3>Your path</h3>
+              <span className="pw-card__title">
+                <img className="pw-card__icon" src="/icons/path.webp" alt="" width="40" height="40" />
+                <h3>Your path</h3>
+              </span>
               <span className="pw-card__note">Closest to what you know first</span>
             </div>
             <ol className="pw-path">
@@ -515,10 +587,21 @@ export default function Pathway() {
 
         {/* ---------- Side column ---------- */}
         <aside className="pw-side">
-          <section className="pw-card rise" style={{ "--i": 2 }} aria-label="Your AI">
+          <section className="pw-card pw-card--ai rise" style={{ "--i": 2 }} aria-label="Your AI">
             <div className="pw-card__head">
-              <h3>Your AI</h3>
-              <span className={`pw-pill${provider ? " pw-pill--on" : ""}`}>{provider ? "Connected" : "Not connected"}</span>
+              <span className="pw-card__title">
+                <img className="pw-card__icon" src="/icons/ai.webp" alt="" width="40" height="40" />
+                <h3>Your AI</h3>
+              </span>
+              <span className="pw-ai-status">
+                {provider && (
+                  <span className="pw-ai-chip" style={provider.color ? { "--ai": provider.color } : undefined}>
+                    <AIIcon id={provider.id} size={14} />
+                    {provider.id === "other" ? "MCP assistant" : provider.name}
+                  </span>
+                )}
+                <span className={`pw-pill${provider ? " pw-pill--on" : ""}`}>{provider ? "Connected" : "Not connected"}</span>
+              </span>
             </div>
             {provider ? (
               <>
@@ -600,28 +683,117 @@ export default function Pathway() {
             </button>
           </section>
 
-          <section className="pw-card rise" style={{ "--i": 5 }} aria-label="Share my journey">
-            <h3>Share my journey</h3>
+          <section className="pw-card pw-card--share rise" style={{ "--i": 5 }} aria-label="Share my journey">
+            <span className="pw-card__title">
+              <img className="pw-card__icon" src="/icons/share.webp" alt="" width="40" height="40" />
+              <h3>Share my journey</h3>
+            </span>
             <p className="pw-card__text">
-              A read-only link for an employer or HR: your first name, chosen path, topics and skills. No scores. Only you decide who gets it.
+              A read-only page for an employer or HR, like a CV and more: your background, skills, interests and what you're learning here. No scores, no email or age. Give the code only to people you choose.
             </p>
-            <div className="pw-share">
-              <button type="button" className="btn btn--ghost btn--sm" onClick={share}>
-                {shared ? "Link copied" : "Copy share link"}
-              </button>
-              <a className="pw__link" href={shareLink()} target="_blank" rel="noreferrer">Preview</a>
-            </div>
+            {share.code ? (
+              <div className="pw-code">
+                <span className="pw-code__label">Your code</span>
+                <span className="pw-code__value num">{share.code}</span>
+                <div className="pw-share">
+                  <button type="button" className="btn btn--ghost btn--sm" onClick={() => copy(share.code, "code")}>
+                    {share.copied === "code" ? "Code copied" : "Copy code"}
+                  </button>
+                  <button type="button" className="btn btn--ghost btn--sm" onClick={() => copy(journeyCodeLink(share.code), "link")}>
+                    {share.copied === "link" ? "Link copied" : "Copy link"}
+                  </button>
+                  <a className="pw__link" href={journeyCodeLink(share.code)} target="_blank" rel="noreferrer">Preview</a>
+                </div>
+                <p className="pw-code__note">
+                  A snapshot of what you shared. Learned more since?{" "}
+                  <button type="button" className="pw__link" onClick={() => makeCode()} disabled={share.state === "making"}>
+                    {share.state === "making" ? "Updating…" : "Update my code"}
+                  </button>
+                </p>
+              </div>
+            ) : (
+              <div className="pw-share">
+                <button type="button" className="btn btn--ghost btn--sm" onClick={() => makeCode()} disabled={share.state === "making"}>
+                  {share.state === "making" ? "Making your code…" : "Get my share code"}
+                </button>
+                <a className="pw__link" href={journeyLink(snapshot())} target="_blank" rel="noreferrer">Preview</a>
+              </div>
+            )}
+            {share.state === "error" && (
+              <p className="pw-code__note pw-code__note--error" role="alert">
+                We couldn't make a code right now.{" "}
+                <button type="button" className="pw__link" onClick={() => copy(journeyLink(snapshot()), "long")}>
+                  {share.copied === "long" ? "Long link copied" : "Copy a long link instead"}
+                </button>
+              </p>
+            )}
           </section>
         </aside>
       </div>
 
-      {/* ---------- Your skills ---------- */}
-      <section className="pw-card pw-skills rise" style={{ "--i": 3 }} aria-label="Your skills">
-        <div className="pw-skills__head">
-          <div>
-            <h3>Your skills</h3>
-            <p className="pw-card__text">What you came in with, what you've learned here, and what's worth a look next.</p>
+      {/* ---------- Resources: every course and video search on this path ---------- */}
+      <section className={`pw-card pw-skills pw-resources rise${resourcesOpen ? " is-open" : ""}`} style={{ "--i": 3 }} aria-label="Resources">
+        <button
+          type="button"
+          className="pw-skills__toggle"
+          onClick={() => setResourcesOpen((v) => !v)}
+          aria-expanded={resourcesOpen}
+          aria-controls="pw-resources-body"
+        >
+          <span className="pw-skills__title">
+            <span className="pw-skills__h">Resources</span>
+            <span className="pw-card__text">{resourceSummary}</span>
+          </span>
+          <UnpackBox open={resourcesOpen} items={RESOURCES} folder="resources" packed="box-packed" empty="box-empty" />
+          <span className="pw-skills__chevron" aria-hidden="true" />
+        </button>
+        <div className="pw-skills__body" id="pw-resources-body" inert={resourcesOpen ? undefined : ""}>
+          <div className="pw-skills__inner">
+            <p className="pw-card__text pw-resources__intro">
+              Everything on your path in one place, in the same order: checked courses that fit your budget
+              {profile.budget === "Free only" ? " (free only)" : ""}, and a video search for every topic.
+              {courses && courses !== "error" && <> Courses checked {shortDate(courses.checked)} · <Link to="/data">how we pick them</Link></>}
+            </p>
+            <ol className="pw-resources__list">
+              {[...steps, ...revise].map((t, i) => (
+                <li key={t.id}>
+                  <div className="pw-resources__topic">
+                    <span className="pw-resources__num num">{i + 1}</span>
+                    <strong>{t.title}</strong>
+                    <span className={`pw-resources__tag pw-resources__tag--${progress[t.id] || "todo"}`}>
+                      {i >= steps.length ? "Brush up · " : ""}{STATUS_LABEL[progress[t.id] || "todo"]}
+                    </span>
+                  </div>
+                  <CourseList topic={t} courses={courses} budget={profile.budget} compact note={false} />
+                </li>
+              ))}
+            </ol>
           </div>
+        </div>
+      </section>
+
+      {/* ---------- Your skills ---------- */}
+      <section className={`pw-card pw-skills rise${skillsOpen ? " is-open" : ""}`} style={{ "--i": 3 }} aria-label="Your skills">
+        <button
+          type="button"
+          className="pw-skills__toggle"
+          onClick={() => setSkillsOpen((v) => !v)}
+          aria-expanded={skillsOpen}
+          aria-controls="pw-skills-body"
+        >
+          <span className="pw-skills__title">
+            <span className="pw-skills__h">Your skills</span>
+            <span className="pw-card__text">
+              {brought.length} brought · {learned.length} learned here · {extras.length} worth a look
+            </span>
+          </span>
+          <UnpackBox open={skillsOpen} items={TOOLS} folder="tools" packed="toolbox-full" empty="toolbox-empty" />
+          <span className="pw-skills__chevron" aria-hidden="true" />
+        </button>
+        <div className="pw-skills__body" id="pw-skills-body" inert={skillsOpen ? undefined : ""}>
+          <div className="pw-skills__inner">
+        <div className="pw-skills__head">
+          <p className="pw-card__text">What you came in with, what you've learned here, and what's worth a look next.</p>
           {job.peers && (
             <div className="pw-peers">
               <span className="pw-peers__value num">{job.peers.ahead_of}%</span>
@@ -663,6 +835,8 @@ export default function Pathway() {
               <p className="pw-empty">No extras for this role.</p>
             )}
             <p className="pw-empty">Optional skills for this role that would make you stand out.</p>
+          </div>
+        </div>
           </div>
         </div>
       </section>
@@ -710,7 +884,7 @@ const shortDate = (iso) => (iso ? new Date(iso).toLocaleDateString("en-GB", { da
 
 /* Checked courses for one topic (budget-filtered, ordered by learning style), always with a
    YouTube search beside them. If the catalogue can't be reached, plain search links instead. */
-function CourseList({ topic, courses, budget, compact = false }) {
+function CourseList({ topic, courses, budget, compact = false, note = true }) {
   const cls = `pw-courses${compact ? " pw-courses--compact" : ""}`;
   if (courses === "error") {
     return (
@@ -763,7 +937,7 @@ function CourseList({ topic, courses, budget, compact = false }) {
           </a>
         </li>
       </ul>
-      {courses && (
+      {courses && note && (
         <p className="pw-courses__note">
           {list.length === 0 && hidden > 0
             ? `${hidden} paid course${hidden > 1 ? "s fit" : " fits"} this topic, hidden because your budget is free only. `
@@ -964,5 +1138,61 @@ function Confetti() {
         />
       ))}
     </div>
+  );
+}
+
+/* Right side of the header: the growth stage for today's familiarity */
+function GrowthStage({ familiarity }) {
+  const i = STAGES.findLastIndex((st) => familiarity >= st.from);
+  const stage = STAGES[i];
+  return (
+    <div className="pw-stage" aria-label={`Growth stage: ${stage.label}`}>
+      <img key={stage.img} className="pw-stage__img" src={`/stages/${stage.img}.webp`} alt="" width="128" height="128" />
+      <p className="label-mono">Stage {i + 1} of {STAGES.length}</p>
+      <p className="pw-stage__label">{stage.label}</p>
+      <p className="pw-stage__text">{stage.text}</p>
+    </div>
+  );
+}
+
+/* A box that unpacks: closed, its things are inside (Your skills: tools in a toolbox;
+   Resources: a globe, video, papers in a shipping box); open, they arc out, the empty box
+   fades away and they spread over the whole strip. 3D icons from thiings.co; the empty toolbox and the packed box are our edits. */
+const TOOLS = [
+  // where each tool lands, from the box's opening (px), and its tilt
+  { img: "wrench", x: -236, y: -6, r: -32 },
+  { img: "screwdriver", x: -194, y: 34, r: 24 },
+  { img: "claw-hammer", x: -152, y: -10, r: -14 },
+  { img: "nail", x: -110, y: 30, r: 48 },
+  { img: "adjustable-wrench", x: -68, y: -8, r: 18 },
+  { img: "screw", x: -26, y: 34, r: -22 },
+  { img: "hammer", x: 16, y: -4, r: 10 },
+];
+
+const RESOURCES = [
+  { img: "globe", x: -236, y: -8, r: -10 },
+  { img: "book", x: -194, y: 32, r: 8 },
+  { img: "video", x: -152, y: -10, r: -12 },
+  { img: "document", x: -110, y: 30, r: 14 },
+  { img: "laptop", x: -68, y: -6, r: -6 },
+  { img: "certificate", x: -26, y: 32, r: 12 },
+  { img: "graduation", x: 16, y: -4, r: -8 },
+];
+
+function UnpackBox({ open, items, folder, packed, empty }) {
+  return (
+    <span className={`pw-toolbox${open ? " is-open" : ""}`} aria-hidden="true">
+      {items.map((t, i) => (
+        <span
+          key={t.img}
+          className="pw-tool"
+          style={{ "--tx": `${t.x}px`, "--ty": `${t.y}px`, "--rot": `${t.r}deg`, "--d": `${(open ? i : items.length - 1 - i) * 45}ms` }}
+        >
+          <img src={`/${folder}/${t.img}.webp`} alt="" width="40" height="40" />
+        </span>
+      ))}
+      <img className="pw-toolbox__box pw-toolbox__box--empty" src={`/${folder}/${empty}.webp`} alt="" width="96" height="96" />
+      <img className="pw-toolbox__box pw-toolbox__box--full" src={`/${folder}/${packed}.webp`} alt="" width="96" height="96" />
+    </span>
   );
 }

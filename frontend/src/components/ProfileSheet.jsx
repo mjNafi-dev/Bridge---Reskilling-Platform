@@ -53,18 +53,18 @@ export default function ProfileSheet({ open, onClose, profile, job, ai, onConnec
       onClick={(e) => e.target === ref.current && onClose()}
       aria-labelledby="sheet-title"
     >
-      <div className="sheet__inner">
-        <header className="sheet__head ui-modal__band night">
-          <span className="sheet__avatar" aria-hidden="true">{name.charAt(0).toUpperCase()}</span>
-          <div className="sheet__who">
-            <h2 id="sheet-title">{name}</h2>
-            <p>{account.email || "guest"} · {account.demo ? "Demo account" : "Guest account"}</p>
-          </div>
-          <button type="button" className="sheet__close" onClick={onClose} aria-label="Close">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
-          </button>
-        </header>
+      <header className="sheet__head ui-modal__band night">
+        <span className="sheet__avatar" aria-hidden="true">{name.charAt(0).toUpperCase()}</span>
+        <div className="sheet__who">
+          <h2 id="sheet-title">{name}</h2>
+          <p>{account.email || "guest"} · {account.demo ? "Demo account" : "Guest account"}</p>
+        </div>
+        <button type="button" className="sheet__close" onClick={onClose} aria-label="Close">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </header>
 
+      <div className="sheet__inner ui-modal__body">
         <div className="sheet__cards">
           <section className="sheet__card">
             <p className="label-mono">Pathway</p>

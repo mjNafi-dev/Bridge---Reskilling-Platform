@@ -14,7 +14,6 @@
 
 .sheet__inner { padding: var(--space-32); }
 .night .sheet__avatar { background: var(--paper); color: var(--ink); }
-.ui-modal__band + .sheet__cards { margin-top: 0; }
 
 .sheet__head { display: flex; align-items: center; gap: var(--space-16); }
 
@@ -85,6 +84,7 @@
 .sheet__about-head p { margin: 4px 0 var(--space-16); font: var(--text-body-small); color: var(--d3); }
 
 @media (max-width: 640px) {
-  .sheet__inner { --modal-pad-y: 24px; --modal-pad-x: 16px; padding: var(--space-24) var(--space-16); }
+  .sheet { --modal-pad-x: 16px; }
+  .sheet__inner { padding: var(--space-24) var(--space-16); }
   .sheet__cards { grid-template-columns: 1fr; }
 }

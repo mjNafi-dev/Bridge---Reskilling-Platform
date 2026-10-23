@@ -346,6 +346,7 @@
   border: 1px solid var(--l2);
   border-radius: var(--radius-md);
   background: var(--paper);
+  color: var(--ink); /* set explicitly: on a dark panel the inherited colour is white, i.e. white on white */
   font: var(--text-body-medium);
   transition: border-color var(--dur-fast) ease, box-shadow var(--dur-base) var(--ease-out);
 }

@@ -33,17 +33,17 @@ export default function JobDetails({ job, open, onClose, onPathway }) {
       onClick={(e) => e.target === ref.current && onClose()} // click on the backdrop closes it
       aria-labelledby="details-title"
     >
-      <div className="details__inner">
-        <header className="details__head ui-modal__band night">
-          <div>
-            <p className="label-mono">{job.category || "Role"}</p>
-            <h2 id="details-title">{sentence(job.title)}</h2>
-          </div>
-          <button type="button" className="details__close" onClick={onClose} aria-label="Close">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
-          </button>
-        </header>
+      <header className="details__head ui-modal__band night">
+        <div>
+          <p className="label-mono">{job.category || "Role"}</p>
+          <h2 id="details-title">{sentence(job.title)}</h2>
+        </div>
+        <button type="button" className="details__close" onClick={onClose} aria-label="Close">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </header>
 
+      <div className="details__inner ui-modal__body">
         {job.description && <p className="details__desc">{job.description}</p>}
 
         <section className="details__section">
