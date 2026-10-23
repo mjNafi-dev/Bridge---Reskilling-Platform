@@ -326,6 +326,28 @@
 
 .auth__switch a { color: var(--ink); font-weight: 600; }
 
+/* Way into the organisation side: set apart from the learner sign-in above it */
+.auth__org {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-12);
+  min-height: 56px;
+  margin-top: clamp(var(--space-24), 7vh, 80px);
+  padding: var(--space-12) var(--space-24);
+  border-radius: var(--radius-pill);
+  background: var(--l05);
+  color: var(--d3);
+  font: var(--text-body-small);
+  text-align: center;
+  text-decoration: none;
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.auth__org svg { flex-shrink: 0; color: var(--ink); }
+.auth__org strong { color: var(--ink); font-weight: 600; }
+.auth__org:hover { background: var(--l1); color: var(--d2); }
+
 /* ---------- Smaller screens ---------- */
 @media (max-width: 900px) {
   .auth {

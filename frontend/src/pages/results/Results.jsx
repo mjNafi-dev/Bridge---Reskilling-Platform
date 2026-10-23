@@ -5,7 +5,7 @@ import { fetchMatch } from "../../api.js";
 import TopicField, { TIERS } from "./TopicField.jsx";
 import { pickBubbles } from "./layout.js";
 import JobDetails, { causeList } from "./JobDetails.jsx";
-import ConnectAI from "../../components/ConnectAI.jsx";
+import ConnectAI, { readAI } from "../../components/ConnectAI.jsx";
 import { useGo } from "../../lib/go.js";
 import "./Results.css";
 
@@ -58,6 +58,10 @@ export default function Results() {
   const toastRef = useRef(null);
   const brandRef = useRef(null);
   const [geo, setGeo] = useState({ stage: { w: 0, h: 0, vh: 0 }, slot: { cx: 0, cy: 0, size: 0 }, avoid: [], area: null });
+  // The logo is a tab joined to the top of the loading toast (it slides up from behind it),
+  // then glides to the top-left once the results settle
+  const docked = phase === "settled" && !error;
+  const brandFrom = useRef(null);
 
   // 1. Ask the matcher
   useEffect(() => {
@@ -144,6 +148,23 @@ export default function Results() {
     return () => ro.disconnect();
   }, [measure, data]);
 
+  useLayoutEffect(() => {
+    const el = brandRef.current;
+    if (!el) return;
+    if (!docked) {
+      brandFrom.current = el.getBoundingClientRect();
+      return;
+    }
+    const from = brandFrom.current;
+    brandFrom.current = null;
+    if (!from || reduced) return;
+    const to = el.getBoundingClientRect();
+    el.animate(
+      [{ transform: `translate(${from.left - to.left}px, ${from.top - to.top}px)` }, { transform: "none" }],
+      { duration: 700, easing: "cubic-bezier(.2,.8,.2,1)" }
+    );
+  }, [docked, reduced, phase]); // re-measured each phase: at first the tab is still tucked behind the toast
+
   // 3. Switching jobs: slide cards between the middle and the sides (FLIP)
   const flipFrom = useRef(null);
   const select = useCallback((i) => {
@@ -210,9 +231,10 @@ export default function Results() {
     } catch {
       /* storage blocked */
     }
-    // Offer to connect a personal AI first; either way we land on the pathway
+    // Offer to connect a personal AI first (unless one is already connected); either way we land on the pathway
     setDetails(false);
-    setConnectOpen(true);
+    if (readAI()) go("/pathway");
+    else setConnectOpen(true);
   }
 
   const stepIndex = phase === "loading" ? 0 : phase === "chips" ? 1 : phase === "blobs" ? 2 : 3;
@@ -220,9 +242,11 @@ export default function Results() {
 
   return (
     <main className={`results${uiIn ? " results--in" : ""}`} ref={stageRef}>
-      <div className="results__brand night" ref={brandRef}>
-        <BrandMark />
-      </div>
+      {docked && (
+        <div className="results__brand night" ref={brandRef}>
+          <BrandMark />
+        </div>
+      )}
 
       {/* Loading toast */}
       <div
@@ -231,6 +255,11 @@ export default function Results() {
         role="status"
         aria-live="polite"
       >
+        {!docked && (
+          <div className="loader__tab" ref={brandRef}>
+            <BrandMark />
+          </div>
+        )}
         {error ? (
           <>
             <p className="loader__title">Something went wrong</p>

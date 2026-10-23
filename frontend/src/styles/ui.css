@@ -11,6 +11,23 @@ body {
   background-attachment: fixed;
 }
 
+/* The same grid on a canvas, whose dots lean towards the cursor (components/DotField.jsx).
+   The CSS grid above hides once the canvas is drawing. */
+.dot-field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.has-dot-field body { background-image: none; }
+
+@media print {
+  .dot-field { display: none; }
+}
+
 ::selection { background: var(--familiar-muted); color: var(--ink); }
 
 /* ---------- Buttons ---------- */
@@ -153,6 +170,15 @@ dialog.ui-modal[open]::backdrop {
   object-position: left top;
 }
 
+/* A side panel (or logo) with nothing to morph into on the next page, e.g. onboarding to
+   results: it slides off to the left and fades instead of hanging around */
+::view-transition-old(side-panel):only-child,
+::view-transition-old(brand):only-child {
+  animation: vt-slide-out 0.42s var(--ease-in-out) both;
+}
+
+@keyframes vt-slide-out { to { opacity: 0; transform: translateX(-96px); } }
+
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
   ::view-transition-old(*),
@@ -160,13 +186,32 @@ dialog.ui-modal[open]::backdrop {
   .rise, .pop { animation: none; }
 }
 
-/* Dark header band across the top of a popup (bleeds to the popup's edges).
-   Popups set --modal-pad-x / --modal-pad-y on their inner box if they pad differently. */
-.ui-modal__band {
-  margin: calc(-1 * var(--modal-pad-y, 32px)) calc(-1 * var(--modal-pad-x, 32px)) var(--space-24);
-  padding: var(--space-24) var(--modal-pad-x, 32px);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+/* Popup layout: an optional dark header band that stays put, and a body below it that
+   scrolls on its own. So the scrollbar starts under the band (clear of the rounded
+   corners) and pulling past the top never shows the popup's background behind the band.
+   Popups set --modal-pad-x on the dialog if they pad differently. */
+dialog.ui-modal[open] {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
+
+.ui-modal__band {
+  flex: none;
+  padding: var(--space-24) var(--modal-pad-x, 32px);
+}
+
+.ui-modal__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--l2) transparent;
+}
+
+.ui-modal__band + .ui-modal__body { padding-top: var(--space-24); }
+.ui-modal__body > :first-child { margin-top: 0; }
 
 .ui-modal__band .label-mono { color: var(--night-text); }
 .ui-modal__band p:not(.label-mono) { color: var(--night-text); }

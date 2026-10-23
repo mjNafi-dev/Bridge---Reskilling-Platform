@@ -530,13 +530,52 @@
   width: 264px;
   padding: var(--space-16) 20px 14px;
   border-radius: 16px;
-  background: var(--ink);
   color: var(--paper);
   text-align: center;
   box-shadow: var(--shadow-3);
   transform: translate(-50%, -50%);
   transition: opacity 0.4s ease, transform 0.4s ease;
+  animation: loader-in 0.5s var(--ease-out) 0.12s backwards; /* floats in from the middle */
 }
+
+/* The dark fill sits on its own layer so the logo tab can tuck in behind it */
+.loader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--ink);
+}
+
+@keyframes loader-in {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 20px)) scale(0.95); }
+}
+
+/* The logo, as a tab joined to the toast's top edge. Its bottom runs 12px behind the toast,
+   so it slides up out of it (and can overshoot a touch) without a gap showing. */
+.loader__tab {
+  position: absolute;
+  bottom: calc(100% - 12px);
+  left: 50%;
+  z-index: -2;
+  padding: 6px var(--space-16) calc(6px + 12px) var(--space-12);
+  border-radius: 12px 12px 0 0;
+  background: var(--l1);
+  color: var(--ink);
+  white-space: nowrap;
+  transform: translateX(-50%);
+  animation: loader-tab-in 0.42s cubic-bezier(0.3, 1.45, 0.5, 1) 0.55s backwards;
+}
+
+@keyframes loader-tab-in {
+  from { transform: translate(-50%, 100%); }
+}
+
+.loader__tab .brand { gap: 6px; view-transition-name: none; } /* no morph from the last page: it slides up instead */
+.loader__tab .brand__icon { width: 28px; height: 28px; background: transparent; color: var(--ink); }
+.loader__tab .brand__name { font: 600 18px/1 var(--font-display); }
+
 
 .loader--out {
   opacity: 0;

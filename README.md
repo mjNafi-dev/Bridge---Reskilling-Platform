@@ -52,8 +52,9 @@ Bridge starts from the person, not the job board. It reads their experience, mat
 - **UN SDG tags.** Every role shows which SDGs it serves and why; roles that serve the causes you pick get a small boost.
 - **My pathway.** Up next, a path ordered from familiar to new, optional brush-ups for topics you partly know, progress that carries over when you switch roles, and a celebration when you finish.
 - **Real courses for every topic.** A hand-checked catalogue of 164 courses (96 free) from official pages such as OpenLearn, MIT OpenCourseWare, Kaggle, Khan Academy, CS50, Cisco and Coursera, matched to ESCO skills by meaning. Your budget answer filters them ("Free only" hides paid ones) and your learning style orders them. Every topic also gets a YouTube search, which is the fallback when no course fits.
-- **Share my journey.** A read-only link for an employer: role, topics done, skills. No scores or rankings, and nothing stored on a server (the snapshot lives in the link).
-- **Organisation view.** For universities and HR teams: an anonymous heatmap of which skills members' likely next roles need, by department, with suggested workshops. Groups under 5 people are hidden.
+- **Share my journey (CV and beyond).** A read-only page for an employer: background like a CV (experience, education, courses, projects, self-rated skills, languages, interests) plus the role they're working towards and what they've learned on Bridge. The learner gets a short code (e.g. `K7M-2QX`) to give to people they choose; no scores, email or age. **Save as PDF** downloads a real PDF.
+- **Hiring projects.** HR describes who they're looking for (role, must-have skills and how well, languages, education, kind of work, hobbies that help), then adds candidates' codes, several at once. Each journey shows how it lines up with the brief and why ("Wireframing: has it, from *Create website wireframe*, done on Bridge"), with chips like *Best fit for your brief*. It compares by meaning with the same embeddings, never looks at name, age or country, and is a guide, not a decision.
+- **Organisation view.** Admins sign in to an anonymous heatmap of which skills members' likely next roles need, by department, with suggested workshops. Groups under 5 people are hidden.
 - **Data sources page.** Every source with its version, retrieval date and licence, and how each part of the score is built.
 
 ### What uses AI, and what doesn't
@@ -63,6 +64,7 @@ Bridge starts from the person, not the job board. It reads their experience, mat
 | Skill matching | Embeddings (BAAI/bge-small-en-v1.5). ESCO skills and job titles were embedded once on a **RunPod GPU**; the user's phrases are embedded on the server's CPU with the same model. |
 | Bridge score, demand, SDG tags, peer comparison | Transparent rules and maths over public data. No generative AI. |
 | Course suggestions | A hand-checked course list; what each course teaches is matched to ESCO skills with the same embeddings. No generative AI. |
+| Hiring brief fit | The brief's skills are matched by meaning to everything a candidate shared (same embeddings), with a shared-word-root rule for short names. The reasons are shown; the order is only a guide. No generative AI. |
 | CV reading | Rules by default. Optional AI mode uses Claude (via Replit AI Integrations) with structured output; anything it fills is shown with a "From your CV" badge for the user to check. |
 | "Learn with your own AI" popup | Demo only: shows how an MCP-connected assistant could explain topics with the user's interests. Nothing is connected for real. |
 
@@ -84,11 +86,13 @@ Bridge starts from the person, not the job board. It reads their experience, mat
 1. On the sign-up page, click **Try with a demo profile** and pick a made-up person, or create an account (any email; nothing is checked).
 2. In onboarding, on **CV upload**, click **try our sample CV** (a made-up graphic designer) and watch the next pages fill in.
 3. **Confirm & find my matches**: hover the bubbles, switch roles with the arrows, open **View more details**.
-4. **Select pathway**: see real courses under **Up next**, open a topic's **courses** toggle, mark topics Learning or Done, open **Brush up what you know**, try **Copy share link → Preview**.
-5. Back on the sign-up page: **University or HR team? → See the organisation view**, demo code `DEMO-UNI-2026`.
+4. **Select pathway**: see real courses under **Up next**, open a topic's **courses** toggle, mark topics Learning or Done, open **Brush up what you know**, then **Get my share code → Preview**.
+5. Back on the sign-up page: **University or HR team? Organisation view**.
+   - **Use the demo admin** (`admin@demo-uni.edu`, password `bridge-demo-2026`, synthetic) for the anonymous heatmap.
+   - Or **View candidates' journeys → Open the example project**: four made-up candidates against a junior UI designer brief. Use the arrows, **+** to add codes (try `DEMO-AINA, K7M-2QX`), and **Save as PDF**.
 6. **ESCO, O\*NET and ILO data** (sign-up page) opens the Data sources page.
 
-All people, CVs and the demo organisation are synthetic. Please don't upload a real CV to the demo.
+All people, CVs, candidates and the demo organisation are synthetic. Please don't upload a real CV to the demo.
 
 ---
 
@@ -163,16 +167,17 @@ The GPU job in [`runpod/embed_skills.py`](runpod/embed_skills.py) embedded 3,943
 │   │   ├── cv.py            # CV reading: text extraction, sections, rules, ESCO matching
 │   │   ├── cv_ai.py         # Optional Claude CV reading (off unless BRIDGE_CV_AI=1)
 │   │   ├── sdg.py           # UN SDG tags per role + the causes boost
-│   │   └── courses.py       # Course suggestions: budget filter, learning-style order
-│   ├── data/                # bridge.db, embeddings, courses.json + course_map.json, demo organisation
+│   │   ├── courses.py       # Course suggestions: budget filter, learning-style order
+│   │   └── hire.py          # Share codes for journeys + how a candidate fits a hiring brief
+│   ├── data/                # bridge.db, embeddings, courses, demo organisation, demo candidates
 │   ├── scripts/             # build_db, fetch_trends, build_course_map, make_org_demo, make_sample_cv
 │   └── requirements.txt
 ├── frontend/
 │   ├── public/cv/           # CV-step icons + the synthetic sample CV (PDF)
 │   └── src/
-│       ├── pages/           # Auth, onboarding, results, pathway, data, org, journey
-│       ├── components/      # Brand mark, node network, AI connect, profile sheet
-│       ├── lib/             # page transitions, share-link encoding
+│       ├── pages/           # Auth, onboarding, results, pathway, data, org, journey, hire
+│       ├── components/      # Brand mark, node network, dot grid, AI connect, profile sheet
+│       ├── lib/             # page transitions, journey snapshots + PDF, hiring projects
 │       └── styles/          # tokens.css, base.css, ui.css
 ├── runpod/                  # GPU embedding job + its input
 ├── scripts/                 # build.sh / start.sh for Replit
@@ -192,7 +197,11 @@ The GPU job in [`runpod/embed_skills.py`](runpod/embed_skills.py) embedded 3,943
 | `POST /api/cv` | CV file → onboarding answers (file never stored) |
 | `POST /api/courses` | Pathway topics + budget + learning style → up to 3 checked courses per topic |
 | `GET /api/data` | Sources, catalogue size, course catalogue, live snapshot, RunPod job details |
+| `POST /api/org/login` | Organisation admin sign-in (demo: one synthetic admin) → the organisation's code |
 | `GET /api/org/{code}` | Anonymous, combined numbers for an organisation (demo: `DEMO-UNI-2026`) |
+| `POST /api/journeys` | A "Share my journey" snapshot → a short code (the same snapshot always gets the same code) |
+| `POST /api/hire/candidates` | Codes (+ optional brief) → each shared journey, with how it fits the brief and why |
+| `GET /api/hire/example` | The made-up example hiring project |
 | `GET /api/sources` | Data sources with retrieval dates |
 
 ## Rebuilding the data
@@ -212,7 +221,8 @@ Run from the repo root. Everything comes from public sources; nothing is invente
 - Answers stay in the user's browser (demo: no server accounts). Creating an account starts fresh.
 - CVs are read once in memory for roles, skills and education, then discarded. Names and contact details are never read.
 - Organisations only see combined numbers; groups under 5 people are hidden.
-- Share links carry their snapshot after the `#`, which browsers never send to a server.
+- Share codes: a snapshot is saved on the server (`backend/data/journeys.db`, not in git) only when the learner asks for a code, and holds only what the share page shows. Anyone with the code can see it, so learners give it only to people they choose. The long link fallback carries its snapshot after the `#`, which browsers never send to a server.
+- Hiring projects live in the HR person's browser. The brief fit ignores name, age, country and anything personal.
 - Every demo person, CV and organisation is synthetic.
 
 ---
@@ -225,9 +235,9 @@ Run from the repo root. Everything comes from public sources; nothing is invente
 
 **Model:** [BAAI/bge-small-en-v1.5](https://huggingface.co/BAAI/bge-small-en-v1.5) (MIT).
 
-**Assets:** 3D icons (CV upload states) from [thiings.co](https://www.thiings.co), free to use, credited anyway. Fonts: [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) and [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) (Google Fonts, OFL), [Switzer](https://www.fontshare.com/fonts/switzer) (Fontshare). Book search: [Open Library](https://openlibrary.org/developers/api) API.
+**Assets:** 3D icons (CV upload states and the pathway's five growth stages, the toolbox and tools in Your skills, and the AI sparkle, share paper plane and path clipboard, and the Resources box with its globe, video, book, laptop, document, certificate and graduation cap; the empty toolbox, the packed box and the blue plane are our edits of theirs) from [thiings.co](https://www.thiings.co), free to use, credited anyway. Claude, Gemini and Model Context Protocol marks in the "Learn with your own AI" demo from [Simple Icons](https://simpleicons.org) (CC0); the marks belong to their owners and only show which assistant you'd connect. Fonts: [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) and [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) (Google Fonts, OFL), [Switzer](https://www.fontshare.com/fonts/switzer) (Fontshare). Book search: [Open Library](https://openlibrary.org/developers/api) API.
 
-**Libraries:** React, React Router, Vite, FastAPI, Uvicorn, NumPy, fastembed, pypdf, python-docx, Anthropic Python SDK.
+**Libraries:** React, React Router, Vite, [jsPDF](https://github.com/parallax/jsPDF) (MIT, journey PDFs), FastAPI, Uvicorn, NumPy, fastembed, pypdf, python-docx, Anthropic Python SDK.
 
 ## License
 

@@ -42,6 +42,7 @@ export default function Auth({ mode }) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [focused, setFocused] = useState(null); // "email" | "lock" | null: shapes the dot animation
+  const [hovered, setHovered] = useState(null); // same, while the pointer is over a field (focus wins)
   const [pickDemo, setPickDemo] = useState(false); // the demo-people popover is open
   const demoRef = useRef(null);
 
@@ -99,7 +100,7 @@ export default function Auth({ mode }) {
       <section className="auth__panel night">
         <BrandMark />
         <div className="auth__visual">
-          <NodeNetwork shape={focused} />
+          <NodeNetwork shape={focused || hovered} />
         </div>
         <div className="auth__panel-foot">
           <CyclingTagline className="auth__tagline" />
@@ -122,13 +123,15 @@ export default function Auth({ mode }) {
               onChange={(e) => setEmail(e.target.value)}
               onFocus={() => setFocused("email")}
               onBlur={() => setFocused(null)}
+              onMouseEnter={() => setHovered("email")}
+              onMouseLeave={() => setHovered(null)}
               required
             />
           </label>
 
           <label className="field rise" style={{ "--i": 3 }}>
             <span className="field__label">{copy.passwordLabel}</span>
-            <span className="field__password">
+            <span className="field__password" onMouseEnter={() => setHovered("lock")} onMouseLeave={() => setHovered(null)}>
               <input
                 type={showPassword ? "text" : "password"}
                 autoComplete={mode === "signup" ? "new-password" : "current-password"}
@@ -194,9 +197,10 @@ export default function Auth({ mode }) {
           <p className="auth__switch rise" style={{ "--i": 8 }}>
             {copy.switchText} <Link to={copy.switchTo}>{copy.switchLink}</Link>
           </p>
-          <p className="auth__switch auth__org rise" style={{ "--i": 9 }}>
-            University or HR team? <Link to="/org">See the organisation view</Link>
-          </p>
+          <Link to="/org" className="auth__org rise" style={{ "--i": 9 }}>
+            <BuildingIcon />
+            <span>University or HR team? <strong>Organisation view</strong></span>
+          </Link>
         </form>
       </section>
       </div>
@@ -209,6 +213,15 @@ function clearBridgeData() {
   Object.keys(localStorage)
     .filter((k) => k.startsWith("bridge."))
     .forEach((k) => localStorage.removeItem(k));
+}
+
+function BuildingIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 21V4h10v17M14 9h6v12M2 21h20" />
+      <path d="M7 8h4M7 12h4M7 16h4M17 13h0M17 17h0" />
+    </svg>
+  );
 }
 
 function EyeIcon({ open }) {
