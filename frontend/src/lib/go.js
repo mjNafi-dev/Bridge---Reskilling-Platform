@@ -24,6 +24,9 @@ export function useGo() {
         flushSync(() => navigate(to, options));
       };
       const transition = document.startViewTransition(update);
+      // A skipped transition rejects these; it's expected, so don't report it as an error
+      transition.ready?.catch(() => {});
+      transition.finished?.catch(() => {});
       // Safety net: if the browser hasn't started the transition soon (no frame drawn), just go
       setTimeout(() => {
         if (!done) {

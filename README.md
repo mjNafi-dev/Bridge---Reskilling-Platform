@@ -46,6 +46,7 @@ Bridge starts from the person, not the job board. It reads their experience, mat
 
 - **CV reading.** Upload a PDF, Word or text CV; Bridge pulls out roles, tasks, tools, education, skills, languages, courses and projects, and matches every skill to ESCO ("Photo retouching → edit photographs"). The file is read in memory and thrown away. Optional AI mode (Claude) for messier CVs.
 - **Explainable matching.** Five suggested roles, each with a Bridge score you can open up: familiarity, ease, demand and interest fit, with their weights. Bubbles show which of the role's topics you already know.
+- **The role you're eyeing.** Type a role in onboarding ("Video editor") and Bridge finds the closest of its roles by meaning, then always shows it next to your matches with its real rank ("#76 of 116"), even when it isn't a top match. Roles it doesn't cover are named, not guessed.
 - **Comfort question.** "How far are you willing to stretch?" moves weight between familiar roles and high-demand ones.
 - **Future demand with sources.** Live job postings, O\*NET Bright Outlook and the ILO 2025 GenAI exposure index, as two labelled scenarios (moderate vs fast AI change).
 - **UN SDG tags.** Every role shows which SDGs it serves and why; roles that serve the causes you pick get a small boost.

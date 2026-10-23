@@ -21,7 +21,7 @@ import numpy as np
 
 from .embeddings import get_embeddings
 from .sdg import CAUSE_BOOST, CAUSES, cause_goals, tag
-from .similarity import similarity
+from .similarity import similarity, words
 
 DB_PATH = Path(__file__).resolve().parents[1] / "data" / "bridge.db"
 
@@ -215,6 +215,32 @@ def is_current_role(occ, role_vecs, role_titles, emb):
     return any(similarity(t, n) >= 0.9 for t in role_titles for n in names)
 
 
+EYED_MIN = 0.80  # raw cosine: "Video editor" -> video and motion picture editor is 1.0; "doctor" (not in the catalogue) peaks ~0.70
+EYED_TIE = 0.01  # near-ties go to the role sharing more words ("product manager" -> product development manager)
+
+
+def find_role(text, cat, emb):
+    """The catalogue role a typed role means (onboarding's "A role you're already eyeing"), or None."""
+    text = (text or "").strip()
+    if not text:
+        return None
+    occs = cat["occupations"]
+    if emb is None:
+        best = max(occs.values(), key=lambda o: max(similarity(text, n) for n in [o["title"], *o["alt_labels"]]))
+        return best["uri"] if max(similarity(text, n) for n in [best["title"], *best["alt_labels"]]) >= 0.5 else None
+    v = emb.encode([text])[0]
+    scores = {u: float((emb.occ_vecs[u] @ v).max()) for u in occs if u in emb.occ_vecs}
+    if not scores or max(scores.values()) < EYED_MIN:
+        return None
+    top = max(scores.values())
+    close = [u for u, s in scores.items() if s >= top - EYED_TIE]
+    # main title first: "product manager" shares 2 words with product development manager's title,
+    # but only 1 with marketing manager's (whose other names include "product marketing manager")
+    in_title = lambda u: len(words(text) & words(occs[u]["title"]))
+    in_any = lambda u: max(len(words(text) & words(n)) for n in [occs[u]["title"], *occs[u]["alt_labels"]])
+    return max(close, key=lambda u: (in_title(u), in_any(u), scores[u]))
+
+
 def weights(comfort, has_demand, has_interest):
     c = min(max(comfort, 0.0), 1.0)
     w = {"F": 0.40 - 0.20 * c, "E": 0.20 - 0.10 * c, "D": 0.25 + 0.30 * c, "I": 0.15}
@@ -227,7 +253,8 @@ def weights(comfort, has_demand, has_interest):
 
 
 def match(profile, comfort=0.5, catalogue=None, pin=None):
-    """pin: a job uri to always return as `pinned` (the user's chosen pathway, for recalibration)."""
+    """pin: a job uri to always return as `pinned` (the user's chosen pathway, for recalibration).
+    The role the user is eyeing is always returned as `eyed`, with its real rank, even outside the top 5."""
     cat = catalogue or load_catalogue()
     evidence = user_evidence(profile)
     hours_per_week = as_int(profile.get("hoursPerWeek"), 5, 1, 167)
@@ -237,10 +264,13 @@ def match(profile, comfort=0.5, catalogue=None, pin=None):
     user_vecs = emb.encode([t for t, _, _ in evidence]) if emb else None
     role_vecs = emb.encode(role_titles) if emb and role_titles else None
     wanted = cause_goals(profile)
+    eyeing = (profile.get("eyeing") or "").strip()
+    eyed_uri = find_role(eyeing, cat, emb)
     results = []
 
     for occ in cat["occupations"].values():
-        if not occ["skills"] or is_current_role(occ, role_vecs, role_titles, emb):
+        # Skip jobs the user already does, unless it's the one they asked about
+        if not occ["skills"] or (occ["uri"] != eyed_uri and is_current_role(occ, role_vecs, role_titles, emb)):
             continue
         F, overlaps, gaps, topics = familiarity(occ, evidence, user_vecs, emb)
         hours = gap_hours(gaps)
@@ -300,12 +330,18 @@ def match(profile, comfort=0.5, catalogue=None, pin=None):
             break
 
     pinned = next((r for r in results if r["uri"] == pin), None) if pin else None
-    for r in picked + ([pinned] if pinned else []):
+    eyed_rank = next((i for i, r in enumerate(results) if r["uri"] == eyed_uri), None) if eyed_uri else None
+    eyed = results[eyed_rank] if eyed_rank is not None else None
+    if eyed:  # same object as in `picked` when it's already a top match
+        eyed["eyed"] = {"query": eyeing, "rank": eyed_rank + 1, "of": len(results)}
+    for r in {id(r): r for r in picked + [pinned, eyed] if r}.values():
         add_peer_rank(r, cat, emb)
 
     return {
         "results": picked,
         "pinned": pinned,
+        "eyed": eyed,
+        "eyed_unmatched": eyeing if eyeing and not eyed else None,  # typed a role we don't cover
         "comfort": comfort,
         "demand_available": bool(cat["demand"]),
         "similarity_method": f"embeddings ({emb.model_name})" if emb else "word overlap",

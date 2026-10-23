@@ -185,6 +185,43 @@
   background: var(--done-default);
 }
 
+/* The role you typed in onboarding ("A role you're already eyeing") */
+.job-card__kicker--eyed { color: var(--sky-strong); }
+.job-card__kicker--eyed::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sky-default);
+}
+
+.job-card__eyed {
+  margin-top: 2px;
+  font: var(--text-body-small);
+  color: var(--d3);
+}
+
+.results__eyed-note {
+  margin-top: var(--space-12);
+  font: var(--text-body-small);
+  color: var(--d3);
+}
+
+.option__eyed {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 0 8px;
+  border-radius: var(--radius-pill);
+  background: var(--sky-subtle);
+  color: var(--sky-strong);
+  font: var(--text-mono);
+  font-size: 10px;
+  line-height: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  vertical-align: 2px;
+}
+
 .job-card__title {
   margin-top: 2px;
   overflow: hidden;

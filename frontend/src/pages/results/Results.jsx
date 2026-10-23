@@ -77,7 +77,13 @@ export default function Results() {
     };
   }, [profile, attempt, reduced]);
 
-  const results = data?.results || [];
+  // The top matches, plus the role you're eyeing at the end when it isn't one of them
+  const results = useMemo(() => {
+    const top = data?.results || [];
+    const eyed = data?.eyed;
+    return eyed && !top.some((r) => r.uri === eyed.uri) ? [...top, eyed] : top;
+  }, [data]);
+  const topCount = data?.results?.length || 0;
   // The options sit in one line, best match in the middle, the rest alternating
   // outwards (2nd best right of it, 3rd left, 4th right...). Not circular: the ends stop.
   const line = useMemo(() => {
@@ -282,7 +288,12 @@ export default function Results() {
           </section>
 
           <section className="results__main">
-            <JobCard job={job} rank={line[active] + 1} total={n} />
+            <JobCard job={job} rank={line[active] + 1} total={topCount} />
+            {data.eyed_unmatched && (
+              <p className="results__eyed-note">
+                “{data.eyed_unmatched}” isn’t one of the roles Bridge covers yet, so it isn’t shown. These are the closest fits to what you know.
+              </p>
+            )}
             <div className="results__actions">
               <button type="button" className="btn btn--ghost" onClick={() => setDetails(true)}>
                 View more details
@@ -405,8 +416,8 @@ function JobCard({ job, rank, total }) {
     <article className="job-card" data-flip={job.uri}>
       <div className="job-card__top">
         <div className="job-card__head">
-          <p className={`job-card__kicker${rank === 1 ? " job-card__kicker--best" : ""}`}>
-            {rank === 1 ? "Best match" : `Option ${rank} of ${total}`}
+          <p className={`job-card__kicker${rank === 1 ? " job-card__kicker--best" : job.eyed ? " job-card__kicker--eyed" : ""}`}>
+            {rank === 1 ? (job.eyed ? "Best match · the role you’re eyeing" : "Best match") : job.eyed ? "The role you’re eyeing" : `Option ${rank} of ${total}`}
             <span className="hint hint--below job-card__score-info" tabIndex={0} aria-label="How the Bridge score is built">
               <InfoIcon />
               <span className="hint__bubble hint__bubble--wide" role="tooltip">
@@ -427,6 +438,12 @@ function JobCard({ job, rank, total }) {
             </span>
           </p>
           <h1 className="job-card__title" title={sentence(job.title)}>{sentence(job.title)}</h1>
+          {job.eyed && (
+            <p className="job-card__eyed">
+              #{job.eyed.rank} of {job.eyed.of} roles by Bridge score
+              {job.eyed.query.trim().toLowerCase() !== job.title.toLowerCase() && ` · closest match to “${job.eyed.query.trim()}”`}
+            </p>
+          )}
         </div>
         <ScoreRing value={job.score} />
       </div>
@@ -515,7 +532,10 @@ function OptionList({ side, items, results, onPick }) {
         {items.map(({ rank, pos }) => (
           <li key={results[rank].uri}>
             <button type="button" className="option" data-flip={results[rank].uri} onClick={() => onPick(pos)} title={sentence(results[rank].title)}>
-              <span className="option__title">{sentence(results[rank].title)}</span>
+              <span className="option__title">
+                {results[rank].eyed && <span className="option__eyed">You’re eyeing</span>}
+                {sentence(results[rank].title)}
+              </span>
               <span className="option__score num">{results[rank].score}%</span>
               <span className="option__bar" aria-hidden="true"><span style={{ width: `${results[rank].score}%` }} /></span>
             </button>
