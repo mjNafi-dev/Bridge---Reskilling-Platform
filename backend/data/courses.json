@@ -1,5 +1,5 @@
 {
- "checked": "2026-10-22",
+ "checked": "2026-10-23",
  "about": "Hand-picked courses from official provider pages. Each link, title, level and length was checked on the date above (by status and title where a site allows it, otherwise by reading the page). Hours are the provider's own figure, rounded; 'hoursEstimate' marks Bridge's estimate where the provider gives none. 'paid' means a subscription or fee for the full course (Coursera offers a free trial and financial aid). Prices change.",
  "courses": [
   {
@@ -2216,7 +2216,9 @@
     "maintain financial records",
     "double-entry bookkeeping",
     "trial balance",
-    "profit and loss account"
+    "profit and loss account",
+    "prepare financial statements",
+    "identify accounting errors"
    ]
   },
   {
@@ -2435,7 +2437,11 @@
     "managerial accounting",
     "interpret financial statements",
     "accounting techniques",
-    "cost accounting"
+    "cost accounting",
+    "financial statements",
+    "prepare financial statements",
+    "depreciation",
+    "calculate production costs"
    ],
    "hoursEstimate": true
   },
@@ -2496,7 +2502,10 @@
     "marketing mix",
     "pricing strategies",
     "customer segmentation",
-    "branding"
+    "branding",
+    "marketing principles",
+    "brand marketing techniques",
+    "define measurable marketing objectives"
    ],
    "hoursEstimate": true
   },
@@ -2659,6 +2668,523 @@
     "marketing automation"
    ],
    "hoursEstimate": true
+  },
+  {
+   "id": "mit-product-design",
+   "title": "Product Design and Development (15.783J)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/15-783j-product-design-and-development-spring-2006/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "develop new products",
+    "product development process",
+    "define technical requirements",
+    "design customer experiences",
+    "product life-cycle",
+    "calculate design costs",
+    "concept design"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "atlassian-pm",
+   "title": "Product management guide",
+   "provider": "Atlassian",
+   "url": "https://www.atlassian.com/agile/product-management",
+   "cost": "free",
+   "price": "Free",
+   "hours": 3,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "product management",
+    "plan product management",
+    "product roadmap",
+    "prioritise product features",
+    "write product requirements"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-customer",
+   "title": "Listening to the Customer (15.821)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/15-821-listening-to-the-customer-fall-2002/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 30,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "market research",
+    "perform market research",
+    "analyse data about clients",
+    "identify customer requirements",
+    "draw conclusions from market research results",
+    "customer interviews"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "ol-fundamentals-accounting",
+   "title": "Fundamentals of accounting",
+   "provider": "OpenLearn (The Open University)",
+   "url": "https://www.open.edu/openlearn/money-business/fundamentals-accounting/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 8,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "accounting",
+    "bookkeeping",
+    "double-entry bookkeeping",
+    "accounting entries",
+    "accounting techniques"
+   ]
+  },
+  {
+   "id": "ol-company-accounts",
+   "title": "Companies and financial accounting",
+   "provider": "OpenLearn (The Open University)",
+   "url": "https://www.open.edu/openlearn/money-business/companies-and-financial-accounting/content-section-0",
+   "cost": "free",
+   "price": "Free",
+   "hours": 6,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "financial statements",
+    "prepare financial statements",
+    "company accounts",
+    "share and loan finance",
+    "financial accounting"
+   ]
+  },
+  {
+   "id": "mit-micro",
+   "title": "Principles of Microeconomics (14.01)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/14-01-principles-of-microeconomics-fall-2023/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 60,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "microeconomics",
+    "economics",
+    "supply and demand",
+    "market structures",
+    "consider economic criteria in decision making"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-macro",
+   "title": "Principles of Macroeconomics (14.02)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/14-02-principles-of-macroeconomics-spring-2023/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 60,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "macroeconomics",
+    "economics",
+    "inflation and unemployment",
+    "monetary policy",
+    "economic growth"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "google-mlcc",
+   "title": "Machine Learning Crash Course",
+   "provider": "Google",
+   "url": "https://developers.google.com/machine-learning/crash-course",
+   "cost": "free",
+   "price": "Free",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "machine learning",
+    "linear regression",
+    "classification models",
+    "neural networks",
+    "prepare data for machine learning"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "google-recsys",
+   "title": "Recommendation Systems",
+   "provider": "Google",
+   "url": "https://developers.google.com/machine-learning/recommendation",
+   "cost": "free",
+   "price": "Free",
+   "hours": 4,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "build recommender systems",
+    "recommender systems",
+    "collaborative filtering",
+    "matrix factorisation"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "cmu-databases",
+   "title": "Intro to Database Systems (CMU 15-445)",
+   "provider": "Carnegie Mellon University",
+   "url": "https://15445.courses.cs.cmu.edu/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 60,
+   "level": "Intermediate",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "database management systems",
+    "design database scheme",
+    "normalise data",
+    "data models",
+    "relational databases",
+    "query processing"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "hf-llm",
+   "title": "LLM Course (natural language processing)",
+   "provider": "Hugging Face",
+   "url": "https://huggingface.co/learn/llm-course",
+   "cost": "free",
+   "price": "Free",
+   "hours": 30,
+   "level": "Intermediate",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "natural language processing",
+    "information extraction",
+    "text classification",
+    "information categorisation",
+    "large language models",
+    "transformers"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "kaggle-feature-eng",
+   "title": "Feature Engineering",
+   "provider": "Kaggle",
+   "url": "https://www.kaggle.com/learn/feature-engineering",
+   "cost": "free",
+   "price": "Free",
+   "hours": 5,
+   "level": "Intermediate",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "feature engineering",
+    "data mining",
+    "normalise data",
+    "process data"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "kaggle-intermediate-ml",
+   "title": "Intermediate Machine Learning",
+   "provider": "Kaggle",
+   "url": "https://www.kaggle.com/learn/intermediate-machine-learning",
+   "cost": "free",
+   "price": "Free",
+   "hours": 4,
+   "level": "Intermediate",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "machine learning",
+    "handle missing values",
+    "machine learning pipelines",
+    "model validation",
+    "gradient boosting"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "kaggle-advanced-sql",
+   "title": "Advanced SQL",
+   "provider": "Kaggle",
+   "url": "https://www.kaggle.com/learn/advanced-sql",
+   "cost": "free",
+   "price": "Free",
+   "hours": 4,
+   "level": "Intermediate",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "SQL",
+    "query languages",
+    "analytic functions",
+    "nested data",
+    "query optimisation"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-6-0002",
+   "title": "Introduction to Computational Thinking and Data Science (6.0002)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/6-0002-introduction-to-computational-thinking-and-data-science-fall-2016/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Intermediate",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "data science",
+    "computational thinking",
+    "clustering",
+    "statistical simulation",
+    "perform data mining"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-stats",
+   "title": "Statistical Thinking and Data Analysis (15.075J)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/15-075j-statistical-thinking-and-data-analysis-fall-2011/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "statistics",
+    "apply statistical analysis techniques",
+    "regression analysis",
+    "hypothesis testing",
+    "interpret current data"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-biology",
+   "title": "Fundamentals of Biology (7.01SC)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/7-01sc-fundamentals-of-biology-fall-2011/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 50,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "biology",
+    "molecular biology",
+    "genetics",
+    "biochemistry",
+    "cell biology"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-chemistry",
+   "title": "Principles of Chemical Science (5.111SC)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/5-111sc-principles-of-chemical-science-fall-2014/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 50,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "chemistry",
+    "chemical bonding",
+    "chemical reactions",
+    "chemical thermodynamics"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "labxchange",
+   "title": "LabXchange science library and lab simulations",
+   "provider": "LabXchange",
+   "url": "https://www.labxchange.org/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "laboratory techniques",
+    "use laboratory equipment",
+    "perform laboratory tests",
+    "virtual lab simulations",
+    "molecular biology",
+    "apply scientific methods"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "mit-pv",
+   "title": "Fundamentals of Photovoltaics (2.627)",
+   "provider": "MIT OpenCourseWare",
+   "url": "https://ocw.mit.edu/courses/2-627-fundamentals-of-photovoltaics-fall-2013/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 40,
+   "level": "Intermediate",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "solar energy",
+    "photovoltaic systems",
+    "solar cells",
+    "renewable energy technologies"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "osha-fall",
+   "title": "Fall protection (official guide)",
+   "provider": "OSHA (US Department of Labor)",
+   "url": "https://www.osha.gov/fall-protection",
+   "cost": "free",
+   "price": "Free",
+   "hours": 2,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "follow safety procedures when working at heights",
+    "fall protection",
+    "ladder safety",
+    "scaffold safety"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "osha-loto",
+   "title": "Control of hazardous energy: lockout/tagout (official guide)",
+   "provider": "OSHA (US Department of Labor)",
+   "url": "https://www.osha.gov/control-hazardous-energy",
+   "cost": "free",
+   "price": "Free",
+   "hours": 2,
+   "level": "Beginner",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "secure working area",
+    "lockout tagout",
+    "control hazardous energy during maintenance",
+    "machine safety"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "drawabox",
+   "title": "Drawabox: drawing fundamentals",
+   "provider": "Drawabox",
+   "url": "https://drawabox.com/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 50,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": true,
+   "teaches": [
+    "create sketches",
+    "drawing fundamentals",
+    "draw in perspective",
+    "create original drawings",
+    "use traditional illustration techniques"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "ctrlpaint",
+   "title": "Ctrl+Paint free video library",
+   "provider": "Ctrl+Paint",
+   "url": "https://www.ctrlpaint.com/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 15,
+   "level": "Beginner",
+   "format": "video",
+   "community": false,
+   "teaches": [
+    "digital painting",
+    "use digital illustration techniques",
+    "create digital images",
+    "colour theory",
+    "digital sketching"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "moodle-academy",
+   "title": "Moodle Academy",
+   "provider": "Moodle",
+   "url": "https://moodle.academy/",
+   "cost": "free",
+   "price": "Free",
+   "hours": 10,
+   "level": "Beginner",
+   "format": "hands-on",
+   "community": false,
+   "teaches": [
+    "learning management systems",
+    "Moodle",
+    "design web-based courses",
+    "build online courses",
+    "e-learning"
+   ],
+   "hoursEstimate": true
+  },
+  {
+   "id": "ol-teach-online",
+   "title": "Take your teaching online",
+   "provider": "OpenLearn (The Open University)",
+   "url": "https://www.open.edu/openlearn/education-development/education/take-your-teaching-online/content-section-overview",
+   "cost": "free",
+   "price": "Free",
+   "hours": 24,
+   "level": "Intermediate",
+   "format": "reading",
+   "community": false,
+   "teaches": [
+    "online teaching",
+    "design web-based courses",
+    "apply teaching strategies",
+    "inclusive online education",
+    "e-learning"
+   ]
   }
  ]
 }
