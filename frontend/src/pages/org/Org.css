@@ -6,30 +6,129 @@
 
 .ds-stat__value--small { font: var(--text-headline); }
 
-/* ---------- Code entry ---------- */
-.org-code__card { max-width: 720px; }
-
-.org-code__form {
+/* ---------- Sign-in page: two panels, the one in focus is open ---------- */
+.gate {
+  width: 100%;
+  max-width: 440px;
   display: flex;
-  gap: var(--space-8);
-  margin-top: var(--space-16);
+  flex-direction: column;
+  gap: var(--space-16);
 }
 
-.org-code__form .input { flex: 1; max-width: 320px; text-transform: uppercase; }
+.gate-panel { display: flex; flex-direction: column; gap: var(--space-16); }
+.gate-panel .auth__title { margin-bottom: 0; }
 
-.org-code__demo {
-  align-self: flex-start;
+.gate-form,
+.gate-hire { display: flex; flex-direction: column; gap: var(--space-16); }
+.gate-form .btn,
+.gate-hire > .btn { width: 100%; }
+.gate-form .btn--primary { margin-top: var(--space-8); }
+
+.gate-note { font: var(--text-body-small); color: var(--d3); }
+.gate-hire__intro { font: var(--text-body-medium); color: var(--d2); }
+
+/* The closed panel: a bar that opens it */
+.gate-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  width: 100%;
+  padding: var(--space-12) var(--space-16) var(--space-12) var(--space-12);
+  border: 1px solid var(--l1);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-base) var(--ease-out);
+}
+
+.gate-bar:hover { border-color: var(--ink); box-shadow: var(--shadow-2); }
+
+.gate-bar__icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--night);
+  color: var(--paper);
+}
+
+.gate-bar__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.gate-bar__text strong { font: var(--text-title-small); font-size: 16px; color: var(--ink); }
+.gate-bar__text span { font: var(--text-body-small); color: var(--d3); }
+.gate-bar > svg { flex-shrink: 0; color: var(--d3); transition: transform var(--dur-fast) var(--ease-out), color var(--dur-fast) ease; }
+.gate-bar:hover > svg { transform: translateX(2px); color: var(--ink); }
+
+/* Hiring projects saved in this browser */
+.gate-projects {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-height: 248px;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+.gate-projects li { position: relative; }
+
+.gate-project {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-12) 48px var(--space-12) var(--space-16);
+  border: 1px solid var(--l1);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease;
+}
+
+.gate-project:hover { border-color: var(--ink); }
+.gate-project strong { font: var(--text-title-small); font-size: 15px; }
+.gate-project span { font: var(--text-body-small); color: var(--d3); }
+
+.gate-project__remove {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
   border: 0;
-  padding: 0;
-  background: none;
-  color: var(--night-text);
-  font: var(--text-body-small);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--d3);
+  font-size: 20px;
+  line-height: 1;
   cursor: pointer;
 }
 
-.org-code__demo:hover { color: var(--paper); }
+.gate-project__remove:hover { background: var(--l05); color: var(--danger); }
+
+/* "Only have a code?" */
+.gate-quick {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin-top: var(--space-8);
+  padding-top: var(--space-16);
+  border-top: 1px dashed var(--l2);
+}
+
+.gate-quick__row { display: flex; gap: var(--space-8); }
+.gate-quick__row .input { flex: 1; min-width: 0; text-transform: uppercase; }
+.gate-quick__row .input::placeholder { text-transform: none; }
+
+/* Switching panels: the open one grows out of its bar (View Transitions) */
+::view-transition-group(gate-admin),
+::view-transition-group(gate-hire) {
+  animation-duration: 0.45s;
+  animation-timing-function: var(--ease-in-out);
+}
 
 /* ---------- Heatmap ---------- */
 .org-heat__head {
@@ -227,7 +326,5 @@
 }
 
 @media (max-width: 640px) {
-  .org-code__form { flex-direction: column; }
-  .org-code__form .input { max-width: none; }
   .org-heat { grid-template-columns: 140px repeat(var(--cols), 64px); }
 }

@@ -1,0 +1,154 @@
+{
+  "about": "SYNTHETIC candidates for the hiring demo (made up, not real people). Each is a 'Share my journey' snapshot, the same shape the app saves for real candidates. Pathway topics are real ESCO skills for user interface designer.",
+  "project": {
+    "title": "Junior UI designer (example)",
+    "role": "User interface designer",
+    "industry": "IT & software",
+    "experience": "Some experience (1–2 years)",
+    "skills": [
+      { "name": "Wireframing", "level": 2 },
+      { "name": "Visual design", "level": 2 },
+      { "name": "User research", "level": 1 },
+      { "name": "HTML and CSS", "level": 1 },
+      { "name": "Accessibility standards", "level": 1 },
+      { "name": "Typography", "level": 2 }
+    ],
+    "niceToHave": ["Prototyping", "Photo editing"],
+    "languages": ["English", "Bahasa Melayu"],
+    "eduLevel": "Diploma",
+    "workTypes": ["Creative", "Analytical"],
+    "hobbies": ["Sketching", "Photography"],
+    "causes": ["Education"],
+    "codes": ["DEMO-AINA", "DEMO-MEI", "DEMO-HAFIZ", "DEMO-PRIYA"]
+  },
+  "journeys": {
+    "DEMO-AINA": {
+      "v": 2,
+      "name": "Aina",
+      "country": "Malaysia",
+      "situation": "Employed",
+      "role": "User interface designer",
+      "date": "2026-10-20",
+      "hours": 8,
+      "done": ["Create website wireframe", "Develop design concept", "Translate requirement concepts into visual design"],
+      "learning": ["Use markup languages", "Software interaction design"],
+      "total": 9,
+      "strong": ["Design graphics", "Graphics editor software", "Draw design sketches"],
+      "education": { "level": "Diploma", "field": "Graphic design", "type": "College", "year": "2019" },
+      "roles": [
+        {
+          "title": "Graphic designer",
+          "industry": "Creative & media",
+          "years": "4",
+          "tasks": ["Designed social media posters", "Retouched product photos", "Built brand colour palettes"],
+          "tools": ["Photoshop", "Illustrator", "Lightroom", "Canva"]
+        }
+      ],
+      "skills": [
+        { "name": "Photo retouching", "level": 3 },
+        { "name": "Colour correction", "level": 2 },
+        { "name": "Layout & composition", "level": 3 },
+        { "name": "Typography", "level": 2 },
+        { "name": "Basic photography", "level": 1 }
+      ],
+      "languages": ["English", "Bahasa Melayu"],
+      "courses": [{ "name": "Adobe Lightroom Essentials", "provider": "LinkedIn Learning", "year": "2021" }],
+      "enjoys": ["Creative", "Analytical"],
+      "causes": ["Education"],
+      "interests": { "hobbies": ["Photography walks"], "sports": ["Football"], "genres": ["Mystery", "Sci-fi"] }
+    },
+    "DEMO-MEI": {
+      "v": 2,
+      "name": "Mei Ling",
+      "country": "Malaysia",
+      "situation": "Employed",
+      "role": "User interface designer",
+      "date": "2026-10-18",
+      "hours": 6,
+      "done": ["Utilise methodologies for user centered design", "Assess users' interaction with ICT applications", "Interact with users to gather requirements", "Create website wireframe"],
+      "learning": ["Design user interface"],
+      "total": 10,
+      "strong": ["Manage online content", "Build business relationships"],
+      "education": { "level": "Bachelor's degree", "field": "Marketing", "type": "University", "year": "2022" },
+      "roles": [
+        {
+          "title": "Marketing executive",
+          "industry": "Retail & e-commerce",
+          "years": "2",
+          "tasks": ["Ran customer surveys and interviews", "Planned social media campaigns", "Wrote product page copy"],
+          "tools": ["Canva", "Google Analytics", "Google Forms"]
+        }
+      ],
+      "skills": [
+        { "name": "Copywriting", "level": 2 },
+        { "name": "Customer interviews", "level": 2 },
+        { "name": "Social media analytics", "level": 1 },
+        { "name": "Canva", "level": 2 }
+      ],
+      "languages": ["English", "Mandarin", "Bahasa Melayu"],
+      "courses": [{ "name": "Foundations of User Experience (UX) Design", "provider": "Coursera", "year": "2026" }],
+      "enjoys": ["Helping people", "Creative"],
+      "causes": ["Fair opportunities"],
+      "interests": { "hobbies": ["Sketching", "Board games"], "genres": ["Drama"] }
+    },
+    "DEMO-HAFIZ": {
+      "v": 2,
+      "name": "Hafiz",
+      "country": "Malaysia",
+      "situation": "Employed",
+      "role": "User interface designer",
+      "date": "2026-10-21",
+      "hours": 5,
+      "done": ["Use markup languages", "Web programming", "ICT accessibility standards", "World Wide Web Consortium standards", "Test system accessibility for users with special needs"],
+      "learning": ["Draw design sketches", "Software UI design patterns"],
+      "total": 11,
+      "strong": ["Task algorithmisation", "Define technical requirements"],
+      "education": { "level": "Diploma", "field": "Information technology", "type": "TVET / polytechnic", "year": "2020" },
+      "roles": [
+        {
+          "title": "Front-end developer",
+          "industry": "IT & software",
+          "years": "3",
+          "tasks": ["Built responsive web pages from designs", "Fixed accessibility issues found in audits", "Reviewed code with the team"],
+          "tools": ["HTML", "CSS", "JavaScript", "React", "Git"]
+        }
+      ],
+      "skills": [
+        { "name": "HTML and CSS", "level": 3 },
+        { "name": "JavaScript", "level": 2 },
+        { "name": "React", "level": 2 },
+        { "name": "Web accessibility", "level": 2 }
+      ],
+      "languages": ["Bahasa Melayu", "English"],
+      "projects": [{ "what": "Rebuilt the mosque committee's website", "role": "Volunteer, design and code", "skills": ["Web design", "Accessibility"] }],
+      "enjoys": ["Analytical", "Hands-on"],
+      "causes": ["Better cities"],
+      "interests": { "hobbies": ["Cycling", "Photography"], "sports": ["Futsal"] }
+    },
+    "DEMO-PRIYA": {
+      "v": 2,
+      "name": "Priya",
+      "country": "Malaysia",
+      "situation": "Student",
+      "role": "User interface designer",
+      "date": "2026-10-22",
+      "hours": 12,
+      "done": ["Draw design sketches", "Develop creative ideas"],
+      "learning": ["Create website wireframe", "Design user interface", "Human-computer interaction"],
+      "total": 12,
+      "strong": ["Design graphics"],
+      "education": { "level": "Bachelor's degree", "field": "Multimedia design", "type": "University", "year": "2027" },
+      "noExperience": true,
+      "skills": [
+        { "name": "Illustration", "level": 2 },
+        { "name": "Figma", "level": 1 },
+        { "name": "Animation", "level": 1 }
+      ],
+      "languages": ["English", "Tamil", "Bahasa Melayu"],
+      "projects": [{ "what": "Redesigned the campus events app (class project)", "role": "Led the user tests and the new screens", "skills": ["Figma", "Wireframing", "User testing"] }],
+      "enjoys": ["Creative"],
+      "causes": ["Education"],
+      "interests": { "hobbies": ["Sketching", "Anime"], "genres": ["Fantasy"] }
+    }
+  }
+}

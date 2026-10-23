@@ -13,6 +13,8 @@ dist/
 .env.local
 
 # Local data / logs
+# Shared journey codes (people's own snapshots, made at runtime)
+backend/data/journeys.db
 *.log
 *.sqlite-journal
 

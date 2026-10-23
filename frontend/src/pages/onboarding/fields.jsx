@@ -123,7 +123,7 @@ export function Field({ field, value, onChange, errors = {}, errorKey, fromCv })
       return <FieldShell {...shell}><Repeat field={field} value={value ?? []} onChange={onChange} errors={errors} /></FieldShell>;
 
     case "skills":
-      return <FieldShell {...shell}><SkillList value={value ?? []} onChange={onChange} /></FieldShell>;
+      return <FieldShell {...shell}><SkillList value={value ?? []} onChange={onChange} brief={field.brief} /></FieldShell>;
 
     case "books":
       return <FieldShell {...shell} hint="Search powered by Open Library."><BookSearch value={value ?? []} onChange={onChange} /></FieldShell>;
@@ -234,7 +234,8 @@ function Repeat({ field, value, onChange, errors }) {
 }
 
 /* ---------- Skills with a confidence level each ---------- */
-function SkillList({ value, onChange }) {
+// brief: a hiring brief's must-haves (the level needed, no "last used")
+function SkillList({ value, onChange, brief }) {
   const [draft, setDraft] = useState("");
   function add() {
     const name = draft.trim();
@@ -250,7 +251,7 @@ function SkillList({ value, onChange }) {
         <input
           className="input"
           value={draft}
-          placeholder="Type a skill, e.g. Photo retouching"
+          placeholder={brief ? "Type a skill, e.g. Wireframing" : "Type a skill, e.g. Photo retouching"}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), add())}
         />
@@ -265,13 +266,19 @@ function SkillList({ value, onChange }) {
                   {s.name}
                   {s.esco && s.esco.toLowerCase() !== s.name.toLowerCase() && <span className="skill-row__esco" title="The matching skill in the official ESCO list">ESCO: {s.esco}</span>}
                 </span>
-                <span className="skill-row__used-label">Last used</span>
-                <select className="input input--select input--sm" value={s.lastUsed} onChange={(e) => update(i, { lastUsed: e.target.value })} aria-label={`When you last used ${s.name}`}>
-                  {["This year", "1–3 years ago", "3+ years ago"].map((o) => <option key={o}>{o}</option>)}
-                </select>
+                {brief ? (
+                  <span className="skill-row__used-label">Level needed</span>
+                ) : (
+                  <>
+                    <span className="skill-row__used-label">Last used</span>
+                    <select className="input input--select input--sm" value={s.lastUsed} onChange={(e) => update(i, { lastUsed: e.target.value })} aria-label={`When you last used ${s.name}`}>
+                      {["This year", "1–3 years ago", "3+ years ago"].map((o) => <option key={o}>{o}</option>)}
+                    </select>
+                  </>
+                )}
                 <button type="button" className="icon-btn" aria-label={`Remove ${s.name}`} onClick={() => onChange(value.filter((_, j) => j !== i))}>×</button>
               </div>
-              <div className="levels" role="radiogroup" aria-label={`How confident are you with ${s.name}?`}>
+              <div className="levels" role="radiogroup" aria-label={brief ? `How well they need to know ${s.name}` : `How confident are you with ${s.name}?`}>
                 {SKILL_LEVELS.map((lv, li) => (
                   <button type="button" key={lv} className={`level ${s.level === li ? "is-on" : ""}`} aria-pressed={s.level === li} onClick={() => update(i, { level: li })}>
                     {lv}

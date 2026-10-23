@@ -5,6 +5,8 @@ If the React app has been built (frontend/dist), this server also serves it, so 
 process is the whole app (that's how it runs on Replit).
 """
 
+import hmac
+import threading
 from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -12,8 +14,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from . import courses, cv_ai
+from . import courses, cv_ai, hire
 from .cv import MAX_BYTES, CvError, read_cv
+from .embeddings import get_embeddings
 from .matching import load_catalogue, match
 
 app = FastAPI(title="Bridge API", version="0.1.0")
@@ -29,6 +32,16 @@ app.add_middleware(
 CATALOGUE = load_catalogue()  # loaded once at startup
 
 
+def _warm_up():
+    """Load the embedding model in the background, so the first match or hiring brief doesn't wait ~5 s."""
+    emb = get_embeddings()
+    if emb is not None:
+        emb.encode(["warm up"])
+
+
+threading.Thread(target=_warm_up, daemon=True).start()
+
+
 class MatchRequest(BaseModel):
     profile: dict
     comfort: float = 0.5  # 0 = stay close to what I know, 1 = open to brand-new
@@ -39,6 +52,25 @@ class CoursesRequest(BaseModel):
     topics: list[str] = Field(max_length=300)  # pathway topic names (ESCO skill titles)
     budget: str | None = None  # onboarding answer: Free only / Low-cost / HRD Corp claimable / Any
     learnStyle: list[str] = []  # onboarding answer: Videos / Reading / Hands-on practice / Learning with others
+
+
+class JourneyRequest(BaseModel):
+    snapshot: dict  # what "Share my journey" shows (lib/journey.js buildJourney)
+
+
+class CandidatesRequest(BaseModel):
+    codes: list[str] = Field(max_length=hire.MAX_CODES)
+    brief: dict | None = None  # the hiring project's brief; without one, journeys come back without a fit
+
+
+class OrgLogin(BaseModel):
+    email: str = Field(max_length=200)
+    password: str = Field(max_length=200)
+
+
+# SYNTHETIC demo admin for the made-up university, shown on the sign-in page so judges can
+# get in. Real organisations would get proper accounts (hashed passwords, per-person logins).
+DEMO_ADMINS = {"admin@demo-uni.edu": ("bridge-demo-2026", "DEMO-UNI-2026")}
 
 
 @app.get("/api/health")
@@ -96,6 +128,36 @@ def org_view(code: str):
     if code.strip().upper() != data["org"]["code"]:
         raise HTTPException(status_code=404, detail="No organisation with that code.")
     return data
+
+
+@app.post("/api/org/login")
+def org_login(req: OrgLogin):
+    """Organisation admin sign-in (demo: one synthetic admin). Returns the organisation's code."""
+    account = DEMO_ADMINS.get(req.email.strip().lower())
+    if not account or not hmac.compare_digest(req.password.encode(), account[0].encode()):
+        raise HTTPException(status_code=401, detail="That email and password don't match an organisation account.")
+    return {"code": account[1], "email": req.email.strip().lower()}
+
+
+@app.post("/api/journeys")
+def share_journey(req: JourneyRequest):
+    """Save a "Share my journey" snapshot under a short code that HR can type in."""
+    try:
+        return {"code": hire.save(req.snapshot)}
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+
+@app.post("/api/hire/candidates")
+def hire_candidates(req: CandidatesRequest):
+    """Shared journeys for a list of codes, each with how it lines up with the brief (and why)."""
+    return hire.candidates(hire.split_codes(" ".join(req.codes)), req.brief)
+
+
+@app.get("/api/hire/example")
+def hire_example():
+    """The made-up example project: a brief plus four synthetic candidates' codes."""
+    return hire.demo_project()
 
 
 @app.post("/api/match")

@@ -1,0 +1,28 @@
+/* Hiring: the brief (onboarding's shell, ../onboarding/Onboarding.css) and a project's empty state */
+
+.ob__back-link {
+  color: var(--night-text);
+  text-decoration: underline;
+  text-decoration-color: var(--night-line);
+  text-underline-offset: 3px;
+  transition: color var(--dur-fast) ease;
+}
+
+.ob__back-link:hover { color: var(--paper); text-decoration-color: currentColor; }
+
+/* A project with no candidates yet */
+.hire-empty .ds-head__sub { max-width: 620px; }
+
+.hire-empty__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  margin-top: var(--space-8);
+}
+
+.hire-empty__demo { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+.hire-empty__demo:hover { background: var(--l1); }
+.hire-empty__link { color: var(--night-text); font: var(--text-body-small); text-underline-offset: 3px; }
+.hire-empty__link:hover { color: var(--paper); }
+.hire-empty__error { font: var(--text-body-small); color: #F2A79E; }

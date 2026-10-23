@@ -25,6 +25,15 @@ const SHAPES = {
     { closed: true, pts: arc(0, 55, 20, 0, 2 * Math.PI, 16).slice(0, -1) },
     { closed: false, pts: [[0, 75], [0, 112]] },
   ],
+  // ID card (the hiring side of the organisation page): photo, shoulders and text lines
+  card: [
+    { closed: true, pts: [[-150, -100], [150, -100], [150, 100], [-150, 100]] },
+    { closed: true, pts: arc(-70, -25, 30, 0, 2 * Math.PI, 16).slice(0, -1) },
+    { closed: false, pts: arc(-70, 65, 50, Math.PI, 2 * Math.PI, 12) },
+    { closed: false, pts: [[10, -35], [110, -35]] },
+    { closed: false, pts: [[10, 5], [110, 5]] },
+    { closed: false, pts: [[10, 45], [75, 45]] },
+  ],
 };
 
 function pathLength(path) {

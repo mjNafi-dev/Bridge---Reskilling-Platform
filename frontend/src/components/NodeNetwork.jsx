@@ -10,7 +10,7 @@ import { buildShape } from "./nodeShapes.js";
   It loops between two shapes:
     1. a loose network (dots linked to their nearest neighbours)
     2. a burst (every dot linked to one centre = the skill you're heading to)
-  When a `shape` is passed ("email" or "lock"), the dots fly into that icon's
+  When a `shape` is passed ("email", "lock" or "card"), the dots fly into that icon's
   outline and the icon sways in 3D (so it stays readable) until the shape is cleared.
   Positions are written straight onto the SVG elements every frame (no React
   re-render). With "reduce motion" on, it shows a still burst.
@@ -115,7 +115,7 @@ function mixAt(time) {
 }
 
 // Icon outlines, one target point per dot
-const ICONS = { email: buildShape("email", COUNT), lock: buildShape("lock", COUNT) };
+const ICONS = { email: buildShape("email", COUNT), lock: buildShape("lock", COUNT), card: buildShape("card", COUNT) };
 const MAX_ICON_LINKS = Math.max(ICONS.email.links.length, ICONS.lock.links.length);
 const ICON_DOT_R = 4.5;
 
