@@ -2,6 +2,14 @@
 
 **Every skill starts from one you have.**
 
+### 🌐 [Try the live app: bridge-reskill.replit.app](https://bridge-reskill.replit.app)
+
+[![Open the live app](https://img.shields.io/badge/Live_app-bridge--reskill.replit.app-2E7D32?style=for-the-badge)](https://bridge-reskill.replit.app)
+[![Watch the pitch video](https://img.shields.io/badge/Pitch_video-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/B9df0uaN18E)
+[![Pitch deck](https://img.shields.io/badge/Pitch_deck-PDF-555555?style=for-the-badge)](submission/Bridge%20Pitch%20Deck.pdf)
+
+No sign-up needed: click **Try with a demo profile** on the first page. All demo people and CVs are made up.
+
 Bridge shows people which skill is worth learning next for the AI era, and how much of it they already know. It reads what you've done (or your CV), matches you to roles using official skills data, and turns the gap into a short, personal learning path that starts from what's familiar.
 
 Built for SDC Hackathon 2026, Domain 1: Aiversecity Future-Ready Workforce.
@@ -28,7 +36,7 @@ Built for SDC Hackathon 2026, Domain 1: Aiversecity Future-Ready Workforce.
 | Live demo | https://bridge-reskill.replit.app |
 | RunPod | GPU pod `bridge-skill-embeddings` (ID `f2w43seqazno9r`, 1× NVIDIA A40). Proof: [`submission/RunPod Proof of Use.pdf`](submission/RunPod%20Proof%20of%20Use.pdf) |
 | Slide deck | [`submission/Bridge Pitch Deck.pdf`](submission/Bridge%20Pitch%20Deck.pdf) |
-| Pitch video | https://youtu.be/YjN-WN_jt8E |
+| Pitch video | https://youtu.be/B9df0uaN18E |
 
 ---
 
