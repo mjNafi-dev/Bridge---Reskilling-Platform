@@ -54,7 +54,7 @@ Bridge starts from the person, not the job board. It reads their experience, mat
 - **Real courses for every topic.** A hand-checked catalogue of 164 courses (96 free) from official pages such as OpenLearn, MIT OpenCourseWare, Kaggle, Khan Academy, CS50, Cisco and Coursera, matched to ESCO skills by meaning. Your budget answer filters them ("Free only" hides paid ones) and your learning style orders them. Every topic also gets a YouTube search, which is the fallback when no course fits.
 - **Share my journey (CV and beyond).** A read-only page for an employer: background like a CV (experience, education, courses, projects, self-rated skills, languages, interests) plus the role they're working towards and what they've learned on Bridge. The learner gets a short code (e.g. `K7M-2QX`) to give to people they choose; no scores, email or age. **Save as PDF** downloads a real PDF.
 - **Hiring projects.** HR describes who they're looking for (role, must-have skills and how well, languages, education, kind of work, hobbies that help), then adds candidates' codes, several at once. Each journey shows how it lines up with the brief and why ("Wireframing: has it, from *Create website wireframe*, done on Bridge"), with chips like *Best fit for your brief*. It compares by meaning with the same embeddings, never looks at name, age or country, and is a guide, not a decision.
-- **Organisation view.** Admins sign in to an anonymous heatmap of which skills members' likely next roles need, by department, with suggested workshops. Groups under 5 people are hidden.
+- **University growth dashboard.** Admins sign in and pick a programme (e.g. Bachelor of Information Technology). They see how students have grown over the semester, each module's progress (week 1 against now, weakest first, with where to focus), a students × modules heatmap, and a sortable table of every student with their own view. Mastery is how much of a module's ESCO skills a student has shown, measured like the matcher. Students see this by name only because they agreed to it when joining with their university's code.
 - **Data sources page.** Every source with its version, retrieval date and licence, and how each part of the score is built.
 
 ### What uses AI, and what doesn't
@@ -88,7 +88,7 @@ Bridge starts from the person, not the job board. It reads their experience, mat
 3. **Confirm & find my matches**: hover the bubbles, switch roles with the arrows, open **View more details**.
 4. **Select pathway**: see real courses under **Up next**, open a topic's **courses** toggle, mark topics Learning or Done, open **Brush up what you know**, then **Get my share code → Preview**.
 5. Back on the sign-up page: **University or HR team? Organisation view**.
-   - **Use the demo admin** (`admin@demo-uni.edu`, password `bridge-demo-2026`, synthetic) for the anonymous heatmap.
+   - **Use the demo admin** (`admin@demo-uni.edu`, password `bridge-demo-2026`, synthetic) for the growth dashboard: switch programmes on the left, filter by year, open a student.
    - Or **View candidates' journeys → Open the example project**: four made-up candidates against a junior UI designer brief. Use the arrows, **+** to add codes (try `DEMO-AINA, K7M-2QX`), and **Save as PDF**.
 6. **ESCO, O\*NET and ILO data** (sign-up page) opens the Data sources page.
 
@@ -197,8 +197,8 @@ The GPU job in [`runpod/embed_skills.py`](runpod/embed_skills.py) embedded 3,943
 | `POST /api/cv` | CV file → onboarding answers (file never stored) |
 | `POST /api/courses` | Pathway topics + budget + learning style → up to 3 checked courses per topic |
 | `GET /api/data` | Sources, catalogue size, course catalogue, live snapshot, RunPod job details |
-| `POST /api/org/login` | Organisation admin sign-in (demo: one synthetic admin) → the organisation's code |
-| `GET /api/org/{code}` | Anonymous, combined numbers for an organisation (demo: `DEMO-UNI-2026`) |
+| `POST /api/org/login` | Organisation admin sign-in (demo: one synthetic admin) → the organisation's code and a session token |
+| `GET /api/org/{code}` | A university's growth dashboard: programmes, modules, students' progress (needs the admin's sign-in token; demo: `DEMO-UNI-2026`) |
 | `POST /api/journeys` | A "Share my journey" snapshot → a short code (the same snapshot always gets the same code) |
 | `POST /api/hire/candidates` | Codes (+ optional brief) → each shared journey, with how it fits the brief and why |
 | `GET /api/hire/example` | The made-up example hiring project |
@@ -210,17 +210,17 @@ Run from the repo root. Everything comes from public sources; nothing is invente
 
 | Script | What it does |
 | --- | --- |
-| `python backend/scripts/build_db.py` | Rebuilds `bridge.db` from the ESCO API, the ESCO–O\*NET crosswalk and O\*NET interest types |
-| `python backend/scripts/fetch_trends.py` | New dated demand snapshot: live postings, O\*NET Bright Outlook, ILO GenAI exposure (needs `openpyxl`) |
+| `python backend/scripts/build_db.py` | Rebuilds `bridge.db` from the ESCO API, the ESCO–O\*NET crosswalk (an O\*NET job with the same name wins over the match type) and O\*NET interest types |
+| `python backend/scripts/fetch_trends.py` | New dated demand snapshot: live postings (titles cleaned and common German job words translated, each ad counted once towards its closest role), O\*NET Bright Outlook, ILO GenAI exposure (needs `openpyxl`) |
 | `python backend/scripts/build_course_map.py` | After editing `courses.json`: re-matches courses to ESCO skills (`--check` also tests every link) |
-| `python backend/scripts/make_org_demo.py` | Regenerates the synthetic Demo University |
+| `python backend/scripts/make_org_demo.py` | Regenerates the synthetic Demo University: 4 programmes, 126 made-up students, 12 weeks of progress scored with the real matcher |
 | `python backend/scripts/make_sample_cv.py` | Regenerates the synthetic sample CV PDF (needs `fpdf2`) |
 
 ## Data and privacy
 
 - Answers stay in the user's browser (demo: no server accounts). Creating an account starts fresh.
 - CVs are read once in memory for roles, skills and education, then discarded. Names and contact details are never read.
-- Organisations only see combined numbers; groups under 5 people are hidden.
+- A university sees a student's progress by name (programme, module mastery, best-match role, learning time) only if the student joins with its code and ticks the consent. The data needs the admin's sign-in.
 - Share codes: a snapshot is saved on the server (`backend/data/journeys.db`, not in git) only when the learner asks for a code, and holds only what the share page shows. Anyone with the code can see it, so learners give it only to people they choose. The long link fallback carries its snapshot after the `#`, which browsers never send to a server.
 - Hiring projects live in the HR person's browser. The brief fit ignores name, age, country and anything personal.
 - Every demo person, CV and organisation is synthetic.

@@ -36,10 +36,10 @@ export const STEPS = [
         options: ["Student", "Employed", "Between jobs", "On a career break", "Freelancer"],
       },
       { key: "orgCode", label: "Organisation join code", type: "text", placeholder: "e.g. DEMO-UNI-2026", hint: "Got a code from your HR team or university? Add it to join their group." },
-      { key: "department", label: "Department or programme", type: "text", when: (p) => !!p.orgCode, placeholder: "e.g. Marketing" },
+      { key: "department", label: "Your programme or department", type: "text", when: (p) => !!p.orgCode, placeholder: "e.g. Bachelor of Accounting" },
       {
         key: "orgConsent", type: "checkbox", required: true, when: (p) => !!p.orgCode,
-        label: "I agree that my organisation sees anonymous, combined numbers only (for example \"12 people would benefit from data skills\"). Never my individual answers.",
+        label: "I agree that my university or organisation's staff can see my progress on Bridge by name: my programme, how I'm doing in each module, my best-match role and how much I'm learning. They never see my CV file.",
       },
     ],
   },

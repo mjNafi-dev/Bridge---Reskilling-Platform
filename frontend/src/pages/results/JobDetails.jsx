@@ -13,6 +13,19 @@ const PART = {
   I: ["Interest fit", "Match with the kinds of work you enjoy"],
 };
 const SOURCE = { postings: "Live job postings", onet_bright: "O*NET Bright Outlook", ilo_genai: "ILO GenAI exposure index (2025)" };
+// The ILO's exposure groups, in plain words
+const EXPOSURE = {
+  "Not Exposed": "very little",
+  "Minimal Exposure": "a little",
+  "Exposed: Gradient 1": "somewhat",
+  "Exposed: Gradient 2": "moderately",
+  "Exposed: Gradient 3": "a lot",
+  "Exposed: Gradient 4": "very much",
+};
+const fmtDate = (iso) => {
+  const d = new Date(`${iso}T00:00:00`);
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+};
 
 export default function JobDetails({ job, open, onClose, onPathway }) {
   const ref = useRef(null);
@@ -92,18 +105,47 @@ export default function JobDetails({ job, open, onClose, onPathway }) {
         </div>
 
         <section className="details__section">
-          <h3>Future demand</h3>
+          <div className="demand__head">
+            <h3>Future demand</h3>
+            {d && (
+              <span className="hint hint--below hint--start" tabIndex={0} aria-label="What these numbers mean">
+                <InfoIcon />
+                <span className="hint__bubble demand__tip" role="tooltip">
+                  <strong>What these numbers mean</strong>
+                  How likely this job is to keep hiring over the next few years, scored from 0 to 100. Three public signals go into it:
+                  <span className="breakdown-row"><span>Expected growth in the US (O*NET)</span><span className="num">50%</span></span>
+                  <span className="breakdown-row"><span>Job ads like it today</span><span className="num">30%</span></span>
+                  <span className="breakdown-row"><span>How little AI could change it (ILO)</span><span className="num">20%</span></span>
+                  <span className="demand__tip-note">If AI change is fast, the AI part counts for 30%. Demand is one part of the Bridge score.</span>
+                </span>
+              </span>
+            )}
+            {d && <span className="demand__better"><ArrowUpIcon /> Higher is better</span>}
+          </div>
           {d ? (
             <>
               <div className="scenarios">
-                <div><span className="num">{d.moderate}</span><span>If AI change is moderate</span></div>
-                <div><span className="num">{d.fast}</span><span>If AI change is fast</span></div>
-                {d.postings_today != null && <div><span className="num">{d.postings_today}</span><span>Matching postings in today’s sample</span></div>}
+                <div>
+                  <span><span className="num">{d.moderate}</span><span className="scenarios__of">/100</span></span>
+                  <span>If AI changes work at a moderate pace</span>
+                </div>
+                <div>
+                  <span><span className="num">{d.fast}</span><span className="scenarios__of">/100</span></span>
+                  <span>If AI changes work fast</span>
+                </div>
+                {d.postings_today != null && (
+                  <div>
+                    <span><span className="num">{d.postings_today}</span><span className="scenarios__of">{d.postings_today === 1 ? "job ad" : "job ads"}</span></span>
+                    <span>
+                      Match this job today{d.postings_sample ? `, out of ${d.postings_sample.toLocaleString("en-GB")} we looked at` : ""} (mostly European job boards)
+                    </span>
+                  </div>
+                )}
               </div>
               <p className="details__muted">
-                {d.growth_flags?.length ? `O*NET flags: ${d.growth_flags.join(", ")}. ` : ""}
-                {d.ai_exposure_category ? `GenAI exposure: ${d.ai_exposure_category}. ` : ""}
-                Scores out of 100, an estimate as of {d.as_of}. Sources: {d.sources.filter(Boolean).map((s) => SOURCE[s] || s).join(", ")}.
+                {d.growth_flags?.length ? `The US expects ${d.growth_flags.map((f) => f.toLowerCase()).join(" and ")} (O*NET). ` : "No growth flag in the US outlook (O*NET). "}
+                {EXPOSURE[d.ai_exposure_category] ? `Generative AI could change this work ${EXPOSURE[d.ai_exposure_category]} (ILO, 2025). ` : ""}
+                An estimate as of {fmtDate(d.as_of)}. Sources: {d.sources.filter(Boolean).map((s) => SOURCE[s] || s).join(", ")}.
               </p>
             </>
           ) : (
@@ -139,3 +181,11 @@ export default function JobDetails({ job, open, onClose, onPathway }) {
     </dialog>
   );
 }
+
+const icon = (children, size = 16) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {children}
+  </svg>
+);
+const InfoIcon = () => icon(<><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></>);
+const ArrowUpIcon = () => icon(<path d="M12 19V5M6 11l6-6 6 6" />, 14);

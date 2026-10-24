@@ -79,9 +79,13 @@ def load_catalogue(db_path=DB_PATH):
     if db.execute("SELECT name FROM sqlite_master WHERE name='demand'").fetchone():
         for r in db.execute("SELECT * FROM demand"):
             demand[r["occupation_uri"]] = dict(r)
+    sample = None  # how many job ads the latest snapshot looked at
+    if db.execute("SELECT name FROM sqlite_master WHERE name='trend_snapshots'").fetchone():
+        row = db.execute("SELECT postings_total FROM trend_snapshots ORDER BY fetched_at DESC LIMIT 1").fetchone()
+        sample = row[0] if row else None
     sources = [dict(r) for r in db.execute("SELECT * FROM sources")]
     db.close()
-    return {"occupations": occupations, "demand": demand, "sources": sources}
+    return {"occupations": occupations, "demand": demand, "sources": sources, "postings_sample": sample}
 
 
 def as_int(value, default, lo, hi):
@@ -308,6 +312,7 @@ def match(profile, comfort=0.5, catalogue=None, pin=None):
                 "balanced": round(D * 100),
                 "growth_flags": json.loads(d.get("growth_flags") or "[]"),  # O*NET Bright Outlook
                 "postings_today": d.get("postings"),  # live postings matched in today's snapshot
+                "postings_sample": cat.get("postings_sample"),  # ...out of this many looked at
                 "ai_exposure": None if d.get("exposure") is None else round(d["exposure"], 2),  # ILO 2025, 0..1
                 "ai_exposure_category": d.get("exposure_category"),
                 "sources": (d.get("source_id") or "").split(","),

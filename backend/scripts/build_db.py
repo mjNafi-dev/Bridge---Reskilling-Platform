@@ -16,6 +16,7 @@ Run from the repo root:   python backend/scripts/build_db.py
 
 import csv
 import json
+import re
 import sqlite3
 import sys
 import time
@@ -111,7 +112,15 @@ def fetch_occupations(seeds):
     return occupations
 
 
+def same_job(a, b):
+    """'software developer' and 'Software Developers' name the same job."""
+    return re.sub(r"(es|s)$", "", a.strip().lower()) == re.sub(r"(es|s)$", "", b.strip().lower())
+
+
 def load_crosswalk():
+    """ESCO occupation -> (O*NET code, rank, match type). An O*NET job with the same name wins
+    (ESCO "software developer" is "Software Developers", not "Computer Programmers", even
+    though the crosswalk rates that one closer); otherwise the closest match type."""
     text = fetch(CROSSWALK_URL, RAW / "esco_onet_crosswalk.csv", as_json=False)
     rows = list(csv.reader(text.splitlines()))
     start = next(i for i, r in enumerate(rows) if r and r[0] == "O*NET Id")
@@ -119,8 +128,8 @@ def load_crosswalk():
     for r in rows[start + 1:]:
         if len(r) < 7:
             continue
-        onet_id, _, _, esco_uri, _, _, match = r[:7]
-        rank = MATCH_RANK.get(match.strip(), 9)
+        onet_id, onet_title, _, esco_uri, esco_title, _, match = r[:7]
+        rank = -1 if same_job(onet_title, esco_title) else MATCH_RANK.get(match.strip(), 9)
         if esco_uri not in best or rank < best[esco_uri][1]:
             best[esco_uri] = (onet_id.strip(), rank, match.strip())
     return best

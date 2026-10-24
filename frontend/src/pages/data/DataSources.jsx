@@ -13,7 +13,7 @@ const USED_FOR = {
   esco: "The roles, their skills, and which skills each role needs (essential or optional).",
   esco_onet: "Links each ESCO role to its O*NET twin, so O*NET data can be attached.",
   onet: "Interest types (Holland RIASEC) per role, for the Interest fit part of the score.",
-  postings: "Today's demand signal: how many live job postings match each role.",
+  postings: "Today's demand signal: how many live job ads match each role. Titles are cleaned first (\"Senior Accountant (m/w/d)\" → accountant, common German job words translated), and each ad counts once, towards its closest role.",
   onet_bright: "Roles flagged for fast growth or many openings over the next decade.",
   ilo_genai: "How exposed each role is to generative AI, for the moderate and fast scenarios.",
 };
@@ -173,7 +173,7 @@ export default function DataSources() {
             <li>Your answers stay in this browser. There are no accounts in this demo.</li>
             <li>A CV is read once on the server for roles, skills and education, then thrown away. Names and contact details are never read.</li>
             <li>CV reading uses rules{data?.cv_ai ? ", with AI switched on on this server" : ""}. No AI is used for matching or scores.</li>
-            <li>Organisations only ever see anonymous, combined numbers.</li>
+            <li>A university or organisation sees a student's progress by name only if the student joins it with their code and agrees to it.</li>
           </ul>
         </div>
       </section>

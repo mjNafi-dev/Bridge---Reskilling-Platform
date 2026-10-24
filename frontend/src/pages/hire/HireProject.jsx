@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { fetchCandidates, fetchExampleProject } from "../../api.js";
 import { readProject, sameCode, saveProject } from "../../lib/hire.js";
 import { JourneyViewer } from "../journey/Journey.jsx";
@@ -53,6 +53,11 @@ export default function HireProject() {
     return { missing: res.missing, added: fresh.map((c) => c.code) };
   }
 
+  function remove(entry) {
+    setFound((f) => f.filter((c) => !sameCode(c.code, entry.code)));
+    setProject(saveProject({ ...project, codes: project.codes.filter((c) => !sameCode(c, entry.code)) }));
+  }
+
   async function addExamples() {
     setExampleError(false);
     try {
@@ -68,11 +73,10 @@ export default function HireProject() {
       <p className="label-mono">{project.brief.role || "Hiring project"}</p>
       <h1 className="ds-head__title">Add your first candidates</h1>
       <p className="ds-head__sub">
-        Ask each candidate for their code: they make one under “Share my journey” on their Bridge dashboard. Then add it with the + button at the top. Several at once? Separate them with commas or spaces.
+        Ask each candidate for their code: they make one under “Share my journey” on their Bridge dashboard. Then add it with “Add by code”. Several at once? Separate them with commas or spaces.
       </p>
       <div className="hire-empty__actions">
         <button type="button" className="btn hire-empty__demo" onClick={addExamples}>Add the made-up example candidates</button>
-        <Link className="hire-empty__link" to={`/hire/${project.id}/brief`}>Edit the brief</Link>
       </div>
       {exampleError && <p className="hire-empty__error" role="alert">We couldn't load the example candidates right now. Try again in a moment.</p>}
     </section>
@@ -84,6 +88,7 @@ export default function HireProject() {
       status={status}
       missing={missing}
       onAdd={add}
+      onRemove={remove}
       onRetry={() => setAttempt((a) => a + 1)}
       project={project}
       empty={empty}

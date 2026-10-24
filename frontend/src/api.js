@@ -54,9 +54,10 @@ export async function fetchCourses(topics, budget, learnStyle) {
   return res.json();
 }
 
-// Anonymous, combined numbers for an organisation (Org heatmap page)
-export async function fetchOrg(code) {
-  const res = await fetch(`/api/org/${encodeURIComponent(code)}`);
+// An organisation's dashboard (programmes, modules, students' progress); needs the admin's sign-in token
+export async function fetchOrg(code, token) {
+  const res = await fetch(`/api/org/${encodeURIComponent(code)}`, { headers: { Authorization: `Bearer ${token || ""}` } });
+  if (res.status === 401) throw Object.assign(new Error("Your sign-in has ended. Please sign in again."), { signedOut: true });
   if (!res.ok) throw new Error(res.status === 404 ? "No organisation with that code." : `Org view failed (${res.status})`);
   return res.json();
 }

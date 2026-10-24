@@ -102,7 +102,7 @@ export const DEMO_PROFILES = [
       projects: [{ what: "Treasurer of the accounting society", role: "Managed the budget and wrote monthly reports", skills: ["Budgeting"] }],
       languages: ["Bahasa Melayu", "English"],
       workTypes: ["Organising", "Analytical"], goal: "Get a new job", comfort: 25,
-      causes: ["Local businesses & jobs"], hoursPerWeek: 10, orgCode: "DEMO-UNI-2026", department: "Accounting & Finance", orgConsent: true,
+      causes: ["Local businesses & jobs"], hoursPerWeek: 10, orgCode: "DEMO-UNI-2026", department: "Bachelor of Accounting", orgConsent: true,
       genres: ["Mystery"], hobbies: ["Baking"],
     },
   },

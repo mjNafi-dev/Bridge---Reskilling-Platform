@@ -23,6 +23,4 @@
 
 .hire-empty__demo { background: var(--paper); color: var(--ink); border-color: var(--paper); }
 .hire-empty__demo:hover { background: var(--l1); }
-.hire-empty__link { color: var(--night-text); font: var(--text-body-small); text-underline-offset: 3px; }
-.hire-empty__link:hover { color: var(--paper); }
 .hire-empty__error { font: var(--text-body-small); color: #F2A79E; }

@@ -4,9 +4,12 @@ Re-run any time to refresh (each run is a new dated snapshot).
 
 Signals (all public, all cited in the app with their date)
   1. Live job postings (refreshed every run)
-       Remotive public API (remote jobs worldwide) + Arbeitnow public API (Europe).
-       Each posting title is matched to our occupations by meaning (same embeddings
-       as matching). Only counts are stored, never the postings themselves.
+       Remotive public API (remote jobs worldwide; its free feed now returns only a
+       handful) + Arbeitnow public API (Europe, many German titles).
+       Titles are cleaned first ("Senior Accountant (m/w/d)" -> "Accountant", common
+       German job words translated, "Buchhalter" -> "accountant"), then each posting
+       counts once, towards the occupation it means most (same embeddings as matching),
+       if it's close enough. Only counts are stored, never the postings themselves.
   2. Projected growth: O*NET "Bright Outlook" list (US Dept of Labor): Rapid Growth /
        Numerous Job Openings / New & Emerging. Linked via the ESCO-O*NET crosswalk.
   3. AI exposure: ILO 2025 refined Global Index of Occupational Exposure to
@@ -26,6 +29,7 @@ import csv
 import io
 import json
 import math
+import re
 import sqlite3
 import sys
 import time
@@ -45,11 +49,52 @@ DB_PATH = DATA / "bridge.db"
 
 REMOTIVE_URL = "https://remotive.com/api/remote-jobs"
 ARBEITNOW_URL = "https://www.arbeitnow.com/api/job-board-api?page={}"
-ARBEITNOW_PAGES = 5
+ARBEITNOW_PAGES = 10
 BRIGHT_URL = "https://www.onetonline.org/find/bright/All_Bright_Outlook_Occupations.csv?b=0&fmt=csv"
 ILO_URL = "https://raw.githubusercontent.com/pgmyrek/2025_GenAI_scores_ISCO08/main/Final_Scores_ISCO08_Gmyrek_et_al_2025.xlsx"
 
-TITLE_MATCH = 0.86  # cosine needed for a posting title to count towards an occupation
+TITLE_MATCH = 0.84  # cosine a cleaned posting title needs to its closest occupation to count
+
+# Noise in posting titles that hides the job itself: gender tags, seniority, contract, place
+TITLE_NOISE = re.compile(
+    r"\((?:[mwfdhx*]\s*/\s*){1,3}[mwfdhx*]\)|\((?:all genders?|alle geschlechter|gn\*?|w/m/d|m/w/d|m/f/d|d/f/m|h/f|f/h)\)|"
+    r"\b(?:senior|junior|lead|staff|principal|head of|werkstudent(?:in)?|praktikant(?:in)?|praktikum|internship|intern|"
+    r"trainee|stagiair(?:e)?|stage|working student|teilzeit|vollzeit|remote|homeoffice|hybrid|gesucht|ab sofort)\b",
+    re.I,
+)
+
+# Common German job words -> English, so the English embedding model can read them.
+# Longest first; compounds work too ("Finanzbuchhalter" contains "buchhalter").
+# Also English titles the model misreads ("Account Executive" is sales, not accounting).
+DE_JOBS = [
+    ("account executive", "sales representative"), ("account manager", "sales account manager"),
+    ("steuerfachangestellte", "tax clerk"), ("softwareentwickler", "software developer"),
+    ("projektmanager", "project manager"), ("projektleiter", "project manager"),
+    ("kundenservice", "customer service"), ("kundensupport", "customer support"), ("kundenbetreuer", "customer service"),
+    ("lagermitarbeiter", "warehouse worker"), ("lagerarbeiter", "warehouse worker"), ("lagerist", "warehouse worker"),
+    ("pflegefachkraft", "nurse"), ("krankenpfleger", "nurse"), ("pflegekraft", "nurse"),
+    ("servicetechniker", "service technician"), ("fachinformatiker", "IT specialist"),
+    ("systemadministrator", "system administrator"), ("personalreferent", "human resources officer"),
+    ("sachbearbeiter", "clerk"), ("steuerberater", "tax advisor"), ("buchhalter", "accountant"),
+    ("buchhaltung", "accounting"), ("entwickler", "developer"), ("vertrieb", "sales"), ("elektroniker", "electronics technician"),
+    ("elektriker", "electrician"), ("ingenieur", "engineer"), ("einkäufer", "purchaser"), ("erzieher", "childcare worker"),
+    ("mitarbeiter", ""), ("leiter", "manager"),
+]
+
+
+def clean_title(title):
+    """'Senior Accountant (m/w/d) | Berlin' -> 'Accountant'; 'Buchhalter (m/w/d)' -> 'accountant'."""
+    t = re.split(r"\s[|–—-]\s|\|", title)[0]  # drop " | place", " - team"
+    t = TITLE_NOISE.sub(" ", t)
+    t = re.sub(r"\([^)]*\)", " ", t)  # anything else in brackets
+    t = re.sub(r"\s+in\s+[A-ZÄÖÜ][\wäöüß-]+.*$", "", t)  # "... in Regensburg"
+    low = t.lower()
+    for de, en in DE_JOBS:
+        low = re.sub(rf"\w*{de}(?:in|innen|en|er|r)?\b", f" {en} " if en else " ", low)
+    t = re.sub(r"[/:,!]+", " ", low)
+    t = re.sub(r"(?:\s(?:als|in|und|oder|mit|für|for|and|&))+\s*$", "", " " + t)  # dangling joiners
+    return re.sub(r"\s+", " ", t).strip() or "job"
+
 
 GROWTH_SCORE = {"Rapid Growth": 1.0, "New & Emerging": 0.85, "Numerous Job Openings": 0.8}
 NO_FLAG, NO_DATA = 0.4, 0.5
@@ -80,14 +125,15 @@ def fetch_postings():
     return titles
 
 
-def count_postings(titles, emb):
-    """How many posting titles match each occupation (by meaning)."""
-    vecs = emb.encode([t for _, t in titles])
-    counts = {}
-    occ_ids = list(emb.occ_vecs)
-    for uri in occ_ids:
-        best = (vecs @ emb.occ_vecs[uri].T).max(axis=1)
-        counts[uri] = int((best >= TITLE_MATCH).sum())
+def count_postings(titles, emb, occ_uris):
+    """How many postings mean each occupation: every posting counts once, towards its closest one."""
+    vecs = emb.encode([clean_title(t) for _, t in titles])
+    uris = [u for u in occ_uris if u in emb.occ_vecs]
+    sims = np.stack([(vecs @ emb.occ_vecs[u].T).max(axis=1) for u in uris], axis=1)
+    best, score = sims.argmax(axis=1), sims.max(axis=1)
+    counts = {u: 0 for u in uris}
+    for i in np.flatnonzero(score >= TITLE_MATCH):
+        counts[uris[best[i]]] += 1
     return counts
 
 
@@ -143,7 +189,9 @@ def main():
     titles = fetch_postings()
     print(f"  {len(titles)} postings ({sum(1 for s, _ in titles if s == 'remotive')} Remotive, "
           f"{sum(1 for s, _ in titles if s == 'arbeitnow')} Arbeitnow)")
-    counts = count_postings(titles, emb)
+    occ_uris = [r[0] for r in sqlite3.connect(DB_PATH).execute("SELECT uri FROM occupations")]
+    counts = count_postings(titles, emb, occ_uris)
+    print(f"  {sum(counts.values())} postings matched one of our {len(occ_uris)} jobs; {sum(1 for n in counts.values() if n)} jobs have at least one")
     bright = load_bright()
     ilo = load_ilo()
     print(f"  O*NET Bright Outlook: {len(bright)} occupations | ILO exposure: {len(ilo)} ISCO occupations")

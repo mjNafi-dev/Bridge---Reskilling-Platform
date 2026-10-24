@@ -1,0 +1,176 @@
+/* Dashboard frame, shared by the university dashboard and the candidate journeys.
+   A dark panel floats on the left like the sign-up and onboarding panels (a rounded card
+   with a gap all round, held in view while the page scrolls); the page sits on the right. */
+
+.dash {
+  display: grid;
+  grid-template-columns: 288px minmax(0, 1fr);
+  align-items: start;
+  min-height: 100vh;
+  padding-left: var(--space-16);
+}
+
+/* The page doesn't bounce past its ends on desktop, so the panel never comes loose */
+@media (min-width: 901px) {
+  html:has(.dash) { overscroll-behavior-y: none; }
+}
+
+.dash-main {
+  min-width: 0;
+  padding: var(--space-32) clamp(var(--space-16), 3vw, 48px) var(--space-64);
+}
+
+/* ---------- The floating panel ---------- */
+.dash-side {
+  position: sticky;
+  top: var(--space-16);
+  height: calc(100vh - 2 * var(--space-16));
+  margin: var(--space-16) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  padding: var(--space-24);
+  border-radius: var(--radius-xl);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--night-line) transparent;
+}
+
+.dash-side .brand__icon { width: 36px; height: 36px; }
+
+.dash-side__title { font: var(--text-title-large); color: var(--paper); }
+.dash-side__sub { font: var(--text-body-small); color: var(--night-text); }
+
+.dash-side__badge {
+  display: inline-block;
+  margin-top: var(--space-8);
+  padding: 2px 8px;
+  border: 1px solid var(--night-line);
+  border-radius: var(--radius-sm);
+  font: var(--text-body-small);
+  font-size: 12px;
+  color: var(--night-text);
+}
+
+.dash-side__group { display: flex; flex-direction: column; gap: 4px; }
+
+.dash-side__label {
+  margin-bottom: 4px;
+  font: var(--text-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--night-text);
+}
+
+/* A list to pick from (programmes, candidates): the chosen one turns paper-white */
+.dash-items { display: flex; flex-direction: column; gap: 4px; list-style: none; }
+
+.dash-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  width: 100%;
+  padding: var(--space-8);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--paper);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) ease;
+}
+
+.dash-item:hover { background: var(--night-raised); }
+.dash-item.is-on { background: var(--paper); color: var(--ink); }
+
+.dash-item__badge {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--night-raised);
+  font: var(--text-mono);
+  font-weight: 600;
+}
+
+.dash-item.is-on .dash-item__badge { background: var(--ink); color: var(--paper); }
+.dash-item__text { display: flex; flex-direction: column; min-width: 0; }
+.dash-item__name { font: var(--text-title-small); }
+.dash-item__meta { font: var(--text-body-small); font-size: 12px; color: var(--night-text); }
+.dash-item.is-on .dash-item__meta { color: var(--d3); }
+
+.dash-side__links a {
+  padding: 6px var(--space-8);
+  border-radius: var(--radius-sm);
+  color: var(--night-text);
+  font: var(--text-body-small);
+  text-decoration: none;
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.dash-side__links a:hover { background: var(--night-raised); color: var(--paper); }
+
+.dash-side__foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding-top: var(--space-16);
+  border-top: 1px solid var(--night-line);
+}
+
+.dash-side__avatar {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font: var(--text-title-small);
+}
+
+.dash-side__who { flex: 1; min-width: 0; display: flex; flex-direction: column; font: var(--text-body-small); font-size: 12px; }
+.dash-side__who span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--paper); }
+.dash-side__who span + span { color: var(--night-text); }
+
+/* Small outlined button on the panel */
+.dash-side__btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--night-line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--paper);
+  font: var(--text-body-small);
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+
+.dash-side__btn:hover { background: var(--night-raised); }
+
+/* ---------- Smaller screens: the panel sits on top, lists scroll sideways ---------- */
+@media (max-width: 900px) {
+  .dash { grid-template-columns: 1fr; padding-left: 0; }
+  .dash-side { position: static; height: auto; margin: var(--space-16) var(--space-16) 0; gap: var(--space-16); padding: var(--space-16); }
+  .dash-items { flex-direction: row; overflow-x: auto; padding-bottom: 4px; }
+  .dash-items li { flex-shrink: 0; }
+  .dash-item { width: auto; }
+  .dash-item__name { white-space: nowrap; }
+  .dash-side__links { display: none; }
+  .dash-side__foot { margin-top: 0; }
+}
+
+@media print {
+  .dash { display: block; padding: 0; }
+  .dash-side { display: none; }
+}

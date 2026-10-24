@@ -496,7 +496,7 @@ function JobCard({ job, rank, total }) {
           <span>{demandLabel(job)}</span>
           <span className="hint__bubble" role="tooltip">
             {job.demand
-              ? `Future demand: ${job.demand.moderate}/100 if AI change is moderate, ${job.demand.fast}/100 if it's fast. Estimate from job postings, O*NET and ILO data.`
+              ? `Future demand: ${job.demand.moderate}/100 if AI change is moderate, ${job.demand.fast}/100 if it's fast (higher is better). Estimate from job ads, O*NET and ILO data.`
               : "No demand data for this job yet."}
           </span>
         </li>

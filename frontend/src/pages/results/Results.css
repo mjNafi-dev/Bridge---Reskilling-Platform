@@ -810,6 +810,35 @@
 }
 
 .scenarios .num { font: 600 28px/1.1 var(--font-display); color: var(--ink); }
+.scenarios__of { margin-left: 4px; font: var(--text-body-small); color: var(--d3); }
+
+/* Future demand: the heading with its (i) and which way is good */
+.demand__head { display: flex; align-items: center; gap: var(--space-8); margin-bottom: var(--space-12); }
+.demand__head h3 { margin-bottom: 0; }
+.demand__head .hint { color: var(--d3); cursor: help; outline: none; }
+.demand__head .hint:hover, .demand__head .hint:focus-visible { color: var(--ink); }
+.demand__tip { width: 300px; }
+.demand__tip .breakdown-row { margin-top: 6px; }
+.demand__tip-note { display: block; margin-top: 8px; color: var(--l2); }
+
+.demand__better {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--done-subtle);
+  color: var(--done-strong);
+  font: var(--text-body-small);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* A bubble that opens from the left edge of its icon instead of centred on it */
+.hint--start .hint__bubble { left: -12px; transform: translate(0, 4px); }
+.hint--start:hover .hint__bubble,
+.hint--start:focus-visible .hint__bubble { transform: none; }
 
 .details__foot {
   display: flex;

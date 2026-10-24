@@ -1,22 +1,26 @@
 /* Onboarding: narrow dark step panel on the left (the sign-up panel, shrunk), form on the right */
 
-/* Same frame as sign-up: capped at 1280px and centred with 64px gutters, panel height capped */
+/* Same frame as the dashboards (styles/dash.css): the panel floats at the left edge with a
+   16px gap all round, the form is centred in the rest */
 .ob {
   min-height: 100vh;
-  max-width: calc(1280px + 2 * var(--space-64));
-  margin: 0 auto;
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-columns: 288px minmax(0, 1fr);
   align-items: start;
-  gap: clamp(48px, 6vw, 96px);
-  padding: 0 var(--space-64);
+  gap: var(--space-16);
+  padding-left: var(--space-16);
+}
+
+@media (min-width: 901px) {
+  html:has(.ob) { overscroll-behavior-y: none; }
 }
 
 /* ---------- Left panel (dark, the sign-up panel shrunk) ---------- */
 .ob__panel {
-  position: sticky; /* stays in view (vertically centred) while the page scrolls */
-  top: max(48px, calc((100vh - 820px) / 2));
-  height: min(820px, calc(100vh - 96px));
+  position: sticky; /* stays in view while the page scrolls */
+  top: var(--space-16);
+  height: calc(100vh - 2 * var(--space-16));
+  margin: var(--space-16) 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-24);
@@ -194,7 +198,7 @@
   max-width: 640px;
   margin: 0 auto;
   /* Starts level with the logo in the panel: panel top + its 32px padding */
-  padding: calc(max(48px, (100vh - 820px) / 2) + var(--space-32)) var(--space-16) var(--space-64);
+  padding: calc(var(--space-16) + var(--space-32)) var(--space-16) var(--space-64);
 }
 
 /* Each step slides in from the side you're heading towards; its pieces rise in a stagger */
@@ -1161,6 +1165,7 @@
   .ob__panel {
     position: static;
     height: auto;
+    margin: 0;
     padding: var(--space-16);
     gap: var(--space-12);
   }

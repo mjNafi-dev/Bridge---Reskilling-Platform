@@ -5,11 +5,13 @@ If the React app has been built (frontend/dist), this server also serves it, so 
 process is the whole app (that's how it runs on Replit).
 """
 
+import hashlib
 import hmac
+import secrets
 import threading
 from pathlib import Path
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Header, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
@@ -71,6 +73,12 @@ class OrgLogin(BaseModel):
 # SYNTHETIC demo admin for the made-up university, shown on the sign-in page so judges can
 # get in. Real organisations would get proper accounts (hashed passwords, per-person logins).
 DEMO_ADMINS = {"admin@demo-uni.edu": ("bridge-demo-2026", "DEMO-UNI-2026")}
+# Signs admin sessions. New on every start, so a restart signs everyone out (fine for a demo).
+SESSION_KEY = secrets.token_bytes(32)
+
+
+def org_token(code):
+    return hmac.new(SESSION_KEY, code.encode(), hashlib.sha256).hexdigest()
 
 
 @app.get("/api/health")
@@ -117,9 +125,14 @@ def data_overview():
 
 
 @app.get("/api/org/{code}")
-def org_view(code: str):
-    """Anonymous, combined numbers for an organisation. Demo: one SYNTHETIC organisation (scripts/make_org_demo.py)."""
+def org_view(code: str, authorization: str | None = Header(default=None)):
+    """An organisation's dashboard data: programmes, modules and students' progress by name, so it
+    needs the admin's sign-in. Demo: one SYNTHETIC university (scripts/make_org_demo.py)."""
     import json
+
+    token = (authorization or "").removeprefix("Bearer ").strip()
+    if not hmac.compare_digest(token, org_token(code.strip().upper())):
+        raise HTTPException(status_code=401, detail="Please sign in again.")
 
     path = Path(__file__).resolve().parents[1] / "data" / "org_demo.json"
     if not path.exists():
@@ -136,7 +149,7 @@ def org_login(req: OrgLogin):
     account = DEMO_ADMINS.get(req.email.strip().lower())
     if not account or not hmac.compare_digest(req.password.encode(), account[0].encode()):
         raise HTTPException(status_code=401, detail="That email and password don't match an organisation account.")
-    return {"code": account[1], "email": req.email.strip().lower()}
+    return {"code": account[1], "email": req.email.strip().lower(), "token": org_token(account[1])}
 
 
 @app.post("/api/journeys")
