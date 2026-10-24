@@ -169,7 +169,7 @@ export function JourneyViewer({ candidates, status, missing = [], onAdd, onRemov
   return (
     <div className="dash jv">
       <aside className="dash-side night">
-        <BrandMark />
+        <BrandMark to="/org?panel=hire" />
         <div>
           <p className="dash-side__title">{project ? project.brief.title || "Untitled project" : "Shared journeys"}</p>
           <p className="dash-side__sub">{project ? "Hiring project" : "Shared with you by their owners, read-only"}</p>
@@ -274,7 +274,7 @@ function BriefSummary({ project }) {
           {rows.map(([k, v]) => (
             <div key={k}>
               <dt>{k}</dt>
-              <dd>{v}</dd>
+              <dd>{keepBracket(v)}</dd>
             </div>
           ))}
         </dl>
@@ -283,6 +283,10 @@ function BriefSummary({ project }) {
     </div>
   );
 }
+
+// "Some experience (1–2 years)": the bracket stays on one line instead of breaking at the dash
+const keepBracket = (v) =>
+  String(v).split(/(\([^)]*\))/).map((part, i) => (part.startsWith("(") ? <span key={i} style={{ whiteSpace: "nowrap" }}>{part}</span> : part));
 
 /* Chips that compare candidates (relative ones only when there are two or more) */
 function fitChips(list, hasBrief) {

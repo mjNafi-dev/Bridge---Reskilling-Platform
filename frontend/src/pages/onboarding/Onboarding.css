@@ -9,6 +9,7 @@
   align-items: start;
   gap: var(--space-16);
   padding-left: var(--space-16);
+  overflow-x: clip; /* a step sliding in from the side never widens the page (clip keeps the panel sticky) */
 }
 
 @media (min-width: 901px) {

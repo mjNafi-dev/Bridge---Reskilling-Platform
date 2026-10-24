@@ -35,7 +35,12 @@
   border-radius: var(--radius-md);
   background: var(--paper);
   color: var(--ink);
+  transition: background var(--dur-fast) ease;
 }
+
+/* The logo is a home link on every page */
+a.brand { align-self: flex-start; color: inherit; text-decoration: none; border-radius: var(--radius-md); }
+a.brand:focus-visible { outline-color: currentColor; outline-offset: 4px; }
 
 .brand__name {
   font: var(--text-headline);
@@ -51,6 +56,7 @@
 }
 
 .night .brand__icon { background: rgba(255, 255, 255, 0.1); color: var(--paper); }
+.night a.brand:hover .brand__icon { background: rgba(255, 255, 255, 0.18); }
 
 /* ---------- Left panel ---------- */
 .auth__panel {
@@ -88,6 +94,7 @@
   max-width: 15ch;
   font: 600 clamp(36px, 3.6vw, 56px) / 1.04 var(--font-display);
   letter-spacing: -0.03em;
+  text-wrap: balance;
 }
 
 .auth__facts {
@@ -234,7 +241,8 @@
   bottom: calc(100% + 8px);
   left: 50%;
   width: 220px;
-  transform: translate(-50%, 4px);
+  --x: -50%;
+  transform: translate(var(--x), 4px);
   padding: var(--space-8) var(--space-12);
   border-radius: var(--radius-sm);
   background: var(--ink);
@@ -250,8 +258,12 @@
 .social:hover .social__note,
 .social:focus-visible .social__note {
   opacity: 1;
-  transform: translate(-50%, 0);
+  transform: translate(var(--x), 0);
 }
+
+/* The outer notes line up with the row's edges, so they never stick out past a phone screen */
+.social:first-child .social__note { left: 0; --x: 0; }
+.social:last-child .social__note { left: auto; right: 0; --x: 0; }
 
 /* Demo profile: the quickest way in for judges, so it gets a little colour */
 .auth__demo {

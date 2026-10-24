@@ -71,6 +71,7 @@
 
 .ds-section { margin-top: 48px; }
 .ds-section__title { font: var(--text-headline); margin-bottom: var(--space-16); }
+.ds-section__lead { max-width: 760px; margin: calc(-1 * var(--space-8)) 0 var(--space-16); color: var(--d2); font: var(--text-body-medium); }
 
 .ds-grid {
   display: grid;

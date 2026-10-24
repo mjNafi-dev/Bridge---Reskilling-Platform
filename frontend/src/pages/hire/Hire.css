@@ -1,15 +1,5 @@
 /* Hiring: the brief (onboarding's shell, ../onboarding/Onboarding.css) and a project's empty state */
 
-.ob__back-link {
-  color: var(--night-text);
-  text-decoration: underline;
-  text-decoration-color: var(--night-line);
-  text-underline-offset: 3px;
-  transition: color var(--dur-fast) ease;
-}
-
-.ob__back-link:hover { color: var(--paper); text-decoration-color: currentColor; }
-
 /* A project with no candidates yet */
 .hire-empty .ds-head__sub { max-width: 620px; }
 

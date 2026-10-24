@@ -779,9 +779,9 @@
 .bar-row__value { text-align: right; font: var(--text-title-small); }
 
 .pairs { display: flex; flex-direction: column; gap: var(--space-8); list-style: none; font: var(--text-body-small); }
-.pairs li { display: flex; flex-wrap: wrap; gap: 6px; }
+/* One line of text that wraps word by word, so the arrow never ends a line on its own */
 .pairs__from { font-weight: 600; }
-.pairs__arrow { color: var(--mid); }
+.pairs__arrow { margin: 0 6px; color: var(--mid); }
 
 .learn-tags { display: flex; flex-wrap: wrap; gap: var(--space-8); list-style: none; }
 
@@ -888,4 +888,7 @@
   .details__cols,
   .scenarios { grid-template-columns: 1fr; }
   .bar-row { grid-template-columns: 1fr 80px 32px; }
+  /* The chips' notes centre on the whole row, so they stay on screen */
+  .job-card__meta { position: relative; }
+  .job-card__meta .hint { position: static; }
 }

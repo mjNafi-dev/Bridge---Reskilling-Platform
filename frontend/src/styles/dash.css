@@ -111,6 +111,7 @@
 }
 
 .dash-side__links a:hover { background: var(--night-raised); color: var(--paper); }
+.dash-side__links a.is-on { background: var(--night-raised); color: var(--paper); }
 
 .dash-side__foot {
   margin-top: auto;

@@ -59,7 +59,8 @@ export default function ReviewStep({ profile, steps, onEdit, note = true }) {
                       </div>
                     );
                   }
-                  const text = f.type === "comfort" ? comfortStop(v ?? f.default).title : show(v);
+                  const shown = f.type === "comfort" ? comfortStop(v ?? f.default).title : show(v);
+                  const text = shown && f.unit ? `${shown} ${f.unit}` : shown; // "6 h / week", not a bare 6
                   if (!text && !f.required) return null;
                   return (
                     <div className="review__row" key={f.key}>

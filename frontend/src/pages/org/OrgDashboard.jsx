@@ -22,6 +22,10 @@ const overall = (s) => s.weekly[s.weekly.length - 1];
 const growth = (s) => overall(s) - s.weekly[0];
 const sentence = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "");
 const firstName = (name) => name.split(" ")[0];
+// Long words in narrow heatmap headers break with a hyphen ("Thermo-dynamics") instead of
+// running into the next column: soft hyphens before common endings
+const softHyphens = (name) =>
+  name.replace(/(?<=\w{4})(dynamics|facturing|mentals|ming|neering|opment|tenance|nology|matics)\b/g, "\u00AD$1");
 
 function quantile(values, q) {
   if (!values.length) return 0;
@@ -83,6 +87,26 @@ export default function OrgDashboard({ code, admin }) {
     if (row && on && row.scrollWidth > row.clientWidth) row.scrollTo({ left: on.getBoundingClientRect().left - row.getBoundingClientRect().left + row.scrollLeft - 16 });
   }, [prog?.id]);
 
+  // "On this page": the section you're reading lights up (the last one whose top has passed
+  // near the top of the screen, or the last section once you reach the bottom)
+  const [section, setSection] = useState(SECTIONS[0].id);
+  useEffect(() => {
+    if (!prog) return;
+    const onScroll = () => {
+      const atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+      const passed = SECTIONS.filter((x) => (document.getElementById(x.id)?.getBoundingClientRect().top ?? Infinity) <= 140);
+      setSection(atEnd ? SECTIONS[SECTIONS.length - 1].id : (passed[passed.length - 1] || SECTIONS[0]).id);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [prog?.id, year]);
+
+  function jump(e, id) {
+    e.preventDefault();
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   function signOut() {
     saveAdmin(null);
     navigate("/org");
@@ -98,7 +122,7 @@ export default function OrgDashboard({ code, admin }) {
     return (
       <main className="od-error">
         <div className="od-error__card night">
-          <BrandMark />
+          <BrandMark to="/org" />
           <h1>{error}</h1>
           <p>Sign in again, or check with your university's Bridge admin.</p>
           <button type="button" className="btn btn--ghost" onClick={signOut}>Back to sign-in</button>
@@ -113,7 +137,7 @@ export default function OrgDashboard({ code, admin }) {
   return (
     <div className="dash">
       <aside className="dash-side night">
-        <BrandMark />
+        <BrandMark to={`/org/${code}`} />
         <div className="dash-side__ctx">
           <p className="dash-side__title">{org.name}</p>
           <p className="dash-side__sub">{org.unit}</p>
@@ -140,7 +164,9 @@ export default function OrgDashboard({ code, admin }) {
         <nav aria-label="On this page" className="dash-side__group dash-side__links">
           <p className="dash-side__label">On this page</p>
           {SECTIONS.map((s) => (
-            <a key={s.id} href={`#${s.id}`}>{s.label}</a>
+            <a key={s.id} href={`#${s.id}`} className={section === s.id ? "is-on" : undefined} aria-current={section === s.id ? "location" : undefined} onClick={(e) => jump(e, s.id)}>
+              {s.label}
+            </a>
           ))}
         </nav>
 
@@ -393,7 +419,7 @@ function Heading({ students }) {
   const rows = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
   const max = Math.max(...rows.map(([, c]) => c));
   return (
-    <Card title="Where they're heading" sub="Each student's best-match role on Bridge right now">
+    <Card title="Where they're heading" sub="Each student's best-fit job, from the modules they're strongest in">
       <ul className="od-bars">
         {rows.map(([role, c]) => (
           <li key={role}>
@@ -504,7 +530,7 @@ function Heatmap({ prog, students, onOpen }) {
           <thead>
             <tr>
               <th scope="col" className="od-heat__corner">Student</th>
-              {prog.modules.map((mod) => <th key={mod.name} scope="col">{mod.name}</th>)}
+              {prog.modules.map((mod) => <th key={mod.name} scope="col">{softHyphens(mod.name)}</th>)}
               <th scope="col">Overall</th>
             </tr>
           </thead>
@@ -686,7 +712,7 @@ function StudentSheet({ student, prog, median, onClose }) {
               <div><span className="od-kpi__label">Last active</span><strong className="od-sheet__small">{lastActive(s.active_days_ago)}</strong></div>
             </div>
             <p className="od-sheet__heading">
-              Best match right now: <strong>{sentence(s.heading.role)}</strong>, {s.heading.familiarity}% familiar.
+              Best fit right now: <strong>{sentence(s.heading.role)}</strong>, from {s.heading.because.join(" and ")} ({s.heading.familiarity}% ready).
             </p>
 
             <h3 className="od-sheet__h">Growth</h3>

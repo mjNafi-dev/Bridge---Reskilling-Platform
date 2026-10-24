@@ -2,11 +2,19 @@
 Builds the SYNTHETIC demo university for the organisation dashboard (data/org_demo.json).
 
 "Demo University" is made up, and so is every student in it. Each programme has modules,
-and each module is a set of real ESCO skills. Every student gets a made-up starting
-profile (skills, coursework, a project or internship) and twelve weeks of learning on
-Bridge: each week they start or finish some module topics, at their own pace. A module's
-mastery is how much of its skills the student covers, measured with the same embeddings
-and coverage threshold as the matcher; their likely next role comes from the real matcher.
+and each module is a set of real ESCO skills (checked against bridge.db).
+
+Every student gets an overall ability, how much drive they have, and a knack for each
+module (some come easier than others; the programme's hard modules are harder for
+everyone). Week 1 mastery follows from those and their year of study; after that, each
+week closes part of the gap to the top, so progress is quick early and slows later, like
+real learning curves. Mastery here is a made-up score; the live product measures it from
+what a student marks done on Bridge, like the matcher.
+
+A student's best fit is the job whose key modules they're strongest in compared with their
+classmates (each programme lists the jobs its graduates go into, with the modules that
+matter for each), so it always agrees with their module scores, and a student who shines
+in a hard module (say networks) can still head for the job it leads to.
 
 Students join with consent to their staff seeing their progress by name (onboarding).
 
@@ -15,27 +23,23 @@ Run from the repo root:   python backend/scripts/make_org_demo.py
 
 import json
 import random
-import sys
+import sqlite3
+from collections import Counter
 from datetime import date
 from pathlib import Path
 
-import numpy as np
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from app.embeddings import get_embeddings  # noqa: E402
-from app.matching import COVER_THRESHOLD, LEVEL_WEIGHT, load_catalogue, match  # noqa: E402
-
-OUT = Path(__file__).resolve().parents[1] / "data" / "org_demo.json"
+BACKEND = Path(__file__).resolve().parents[1]
+OUT = BACKEND / "data" / "org_demo.json"
 SEED = 2026
 WEEKS = 12  # weeks of the semester so far
 SEMESTER_WEEKS = 14
 ORG = {"name": "Demo University", "unit": "Faculty of Applied Sciences", "code": "DEMO-UNI-2026"}
 
-# Module -> real ESCO skill titles (looked up in bridge.db)
+# Modules -> real ESCO skill titles. Careers: ESCO job -> {module: weight}.
 PROGRAMMES = [
     {
-        "id": "bit", "hard": ["Computer networks", "Cyber security"], "name": "Bachelor of Information Technology", "short": "BIT", "n": 36,
-        "edu": ("Bachelor's degree", "Information technology", "University"), "work": ["Analytical", "Hands-on"],
+        "id": "bit", "name": "Bachelor of Information Technology", "short": "BIT", "n": 36, "level": 0,
+        "hard": ["Computer networks", "Cyber security"],
         "modules": {
             "Programming fundamentals": ["computer programming", "Python (computer programming)", "Java (computer programming)", "task algorithmisation"],
             "Database systems": ["design database scheme", "manage database", "database management systems", "operate relational database management system"],
@@ -45,12 +49,20 @@ PROGRAMMES = [
             "Data analytics": ["perform data analysis", "data quality assessment", "perform online data analysis"],
             "Cyber security": ["cyber security", "apply information security policies", "manage system security"],
         },
-        "pool": ["Python", "Java", "SQL", "HTML and CSS", "JavaScript", "Git", "Linux", "Excel", "Debugging", "Data structures", "Networking basics"],
-        "tasks": ["Built a web app for a class project", "Wrote SQL queries for a club database", "Set up a home network", "Fixed bugs in a group Java project"],
+        "careers": {
+            "software developer": {"Programming fundamentals": 3, "Software engineering": 2},
+            "web developer": {"Web development": 3, "Programming fundamentals": 2, "Database systems": 1},
+            "data analyst": {"Data analytics": 3, "Database systems": 2},
+            "data scientist": {"Data analytics": 3, "Programming fundamentals": 2, "Database systems": 1},
+            "database administrator": {"Database systems": 3, "Data analytics": 1},
+            "ICT network engineer": {"Computer networks": 3, "Cyber security": 1},
+            "ICT system administrator": {"Computer networks": 2, "Cyber security": 2, "Database systems": 1},
+            "ICT test analyst": {"Software engineering": 2, "Programming fundamentals": 1, "Web development": 1},
+        },
     },
     {
-        "id": "bacc", "hard": ["Taxation", "Auditing"], "name": "Bachelor of Accounting", "short": "BAcc", "n": 32,
-        "edu": ("Bachelor's degree", "Accounting", "University"), "work": ["Organising", "Analytical"],
+        "id": "bacc", "name": "Bachelor of Accounting", "short": "BAcc", "n": 32, "level": 3,
+        "hard": ["Taxation", "Auditing"],
         "modules": {
             "Financial accounting": ["accounting entries", "prepare financial statements", "prepare trial accounting balances", "international financial reporting standards"],
             "Management accounting": ["perform cost accounting activities", "cost management", "manage budgets", "budgetary principles"],
@@ -60,12 +72,18 @@ PROGRAMMES = [
             "Business law": ["business law", "contract law", "corporate law"],
             "Accounting systems": ["accounting techniques", "check accounting records", "identify accounting errors"],
         },
-        "pool": ["Bookkeeping", "Excel", "Financial reporting", "Budgeting", "Payroll", "Bank reconciliation", "Data entry", "Invoicing", "Accounts payable"],
-        "tasks": ["Reconciled the society's bank statements", "Prepared working papers in an audit internship", "Kept the books for a family shop", "Entered invoices for a small firm"],
+        "careers": {
+            "accountant": {"Financial accounting": 3, "Management accounting": 2, "Accounting systems": 1},
+            "financial auditor": {"Auditing": 3, "Financial accounting": 1, "Business law": 1},
+            "tax compliance officer": {"Taxation": 3, "Business law": 1},
+            "financial analyst": {"Financial analysis": 3, "Management accounting": 1},
+            "bookkeeper": {"Accounting systems": 3, "Financial accounting": 1},
+            "payroll clerk": {"Accounting systems": 2, "Business law": 1},
+        },
     },
     {
-        "id": "dgd", "hard": ["Motion graphics", "UI and UX design"], "name": "Diploma in Graphic Design", "short": "DGD", "n": 28,
-        "edu": ("Diploma", "Graphic design", "College"), "work": ["Creative"],
+        "id": "dgd", "name": "Diploma in Graphic Design", "short": "DGD", "n": 28, "level": 1,
+        "hard": ["Motion graphics", "UI and UX design"],
         "modules": {
             "Design fundamentals": ["design graphics", "draw design sketches", "determine image composition"],
             "Typography": ["typography", "examine advertisement layout", "translate requirement concepts into visual design"],
@@ -75,12 +93,19 @@ PROGRAMMES = [
             "UI and UX design": ["design user interface", "create website wireframe", "research website users"],
             "Photography": ["photography", "use photographic equipment", "colour grading"],
         },
-        "pool": ["Photoshop", "Illustrator", "Canva", "Sketching", "Poster design", "Instagram content", "Photo retouching", "Video editing", "Figma"],
-        "tasks": ["Designed posters for campus events", "Made a logo for a friend's cafe", "Edited short videos for TikTok", "Shot product photos for an online shop"],
+        "careers": {
+            "graphic designer": {"Design fundamentals": 2, "Typography": 2, "Branding": 2},
+            "user interface designer": {"UI and UX design": 3, "Typography": 1},
+            "animator": {"Motion graphics": 3, "Design fundamentals": 1},
+            "video and motion picture editor": {"Motion graphics": 2, "Digital imaging": 1, "Photography": 1},
+            "photographer": {"Photography": 3, "Digital imaging": 1},
+            "drawing artist": {"Design fundamentals": 3, "Digital imaging": 1},
+            "art director": {"Branding": 2, "Typography": 1, "Design fundamentals": 1},
+        },
     },
     {
-        "id": "bme", "hard": ["Thermodynamics", "Control systems"], "name": "Bachelor of Mechanical Engineering", "short": "BME", "n": 30,
-        "edu": ("Bachelor's degree", "Mechanical engineering", "University"), "work": ["Hands-on", "Analytical"],
+        "id": "bme", "name": "Bachelor of Mechanical Engineering", "short": "BME", "n": 30, "level": -1,
+        "hard": ["Thermodynamics", "Control systems"],
         "modules": {
             "Engineering drawing": ["technical drawings", "use technical drawing software", "use CAD software"],
             "Thermodynamics": ["thermodynamics", "engineering principles"],
@@ -90,8 +115,15 @@ PROGRAMMES = [
             "Maintenance engineering": ["perform machine maintenance", "manage maintenance operations", "maintenance and repair"],
             "Health and safety": ["apply health and safety standards", "health and safety regulations", "safety engineering"],
         },
-        "pool": ["AutoCAD", "SolidWorks", "MATLAB", "Technical drawing", "3D printing", "Workshop safety", "Machining", "Electrical wiring"],
-        "tasks": ["Drew parts in SolidWorks", "Helped maintain lab machines", "Built a small robot for a competition", "Checked quality on a production line"],
+        "careers": {
+            "mechatronics engineer": {"Control systems": 3, "Mechanics of materials": 1},
+            "automation engineer": {"Control systems": 2, "Manufacturing processes": 2},
+            "instrumentation engineer": {"Control systems": 2, "Thermodynamics": 2},
+            "industrial machinery mechanic": {"Maintenance engineering": 3, "Health and safety": 1},
+            "product quality controller": {"Manufacturing processes": 2, "Health and safety": 2},
+            "3D modeller": {"Engineering drawing": 3, "Mechanics of materials": 1},
+            "packing machinery engineer": {"Mechanics of materials": 2, "Manufacturing processes": 2},
+        },
     },
 ]
 
@@ -102,137 +134,102 @@ FIRST = ["Aiman", "Nurul", "Wei Jie", "Priya", "Hakim", "Mei Xin", "Arjun", "Sof
 LAST = ["Rahman", "Tan", "Lim", "Kumar", "Abdullah", "Wong", "Raj", "Ismail", "Lee", "Nair", "Hassan", "Chong", "Ong", "Pillai",
         "Yusof", "Ng", "Menon", "Aziz", "Teoh", "Subramaniam", "Hamid", "Chan", "Goh", "Krishnan", "Razak", "Low", "Fernandez", "Osman"]
 
-TOPIC_WEIGHT = {"learning": LEVEL_WEIGHT[1], "done": LEVEL_WEIGHT[2]}  # same as the matcher's learned topics
+CEILING = 95  # nobody masters everything in one semester
 
 
-class Vectors:
-    """Phrase embeddings, cached: the same phrases come up for many students."""
-
-    def __init__(self, emb):
-        self.emb = emb
-        self.cache = {}
-
-    def __call__(self, texts):
-        todo = [t for t in dict.fromkeys(texts) if t not in self.cache]
-        if todo:
-            self.cache.update(zip(todo, self.emb.encode(todo)))
-        return np.stack([self.cache[t] for t in texts])
+def clamp(x, lo, hi):
+    return max(lo, min(hi, x))
 
 
-def mastery(evidence, skill_matrix, vectors, emb):
-    """Per skill, 0..1: the best evidence's similarity × its weight, like the matcher's coverage."""
-    if not evidence:
-        return np.zeros(skill_matrix.shape[0])
-    texts = [t for t, _ in evidence]
-    w = np.array([wt for _, wt in evidence], dtype=np.float32).reshape(-1, 1)
-    sims = emb.rescale(vectors(texts) @ skill_matrix.T)
-    return np.minimum(1.0, (np.where(sims >= COVER_THRESHOLD, sims, 0.0) * w).max(axis=0))
-
-
-def student(rng, prog, names_used):
+def new_name(rng, used):
     while True:
         name = f"{rng.choice(FIRST)} {rng.choice(LAST)}"
-        if name not in names_used:
-            names_used.add(name)
-            break
-    year = rng.choices([1, 2, 3], weights=[4, 3, 3])[0]
-    skills = rng.sample(prog["pool"], k=rng.randint(3, 6))
-    base_level = min(3, year - 1 + rng.choice([0, 0, 1]))
-    profile_skills = [{"name": s, "level": max(0, min(3, base_level + rng.choice([-1, 0, 0, 1]))), "lastUsed": "This year"} for s in skills]
-    evidence = [(s["name"], LEVEL_WEIGHT[s["level"]]) for s in profile_skills]
-    roles = []
-    if rng.random() < 0.25 + 0.15 * year:
-        roles = [{"title": "Intern", "tasks": rng.sample(prog["tasks"], k=2), "tools": []}]
-        evidence += [(t, 0.75) for t in roles[0]["tasks"]]
-    pace = rng.choice([0.01, 0.03, 0.05, 0.07, 0.08, 0.1, 0.13])  # chance per topic per week to move on
-    return {
-        "name": name, "year": year, "pace": pace, "evidence": evidence, "roles": roles,
-        "skills": profile_skills, "hours": round(2 + pace * 70 + rng.uniform(-1, 1), 1),
-    }
+        if name not in used:
+            used.add(name)
+            return name
+
+
+def semester(rng, prog, year, ability, drive):
+    """Mastery per module for each week: a start from year, ability and knack, then a learning curve."""
+    names = list(prog["modules"])
+    start, rate = [], []
+    for m in names:
+        hard = m in prog["hard"]
+        knack = rng.gauss(0, 0.8)
+        s = 34 + prog["level"] + 6 * (year - 1) + 7 * ability + 6 * knack - (9 if hard else 0) + rng.gauss(0, 3)
+        start.append(clamp(s, 8, 72))
+        rate.append(max(0.004, drive * (1 + 0.25 * knack) * (0.7 if hard else 1.0)))
+    weeks = [start[:]]
+    now = start[:]
+    for _ in range(2, WEEKS + 1):
+        for i in range(len(now)):
+            if rng.random() < 0.85:  # most weeks they put some time into each module
+                now[i] += (CEILING - now[i]) * rate[i] * rng.uniform(0.5, 1.5)
+        weeks.append(now[:])
+    return [[round(x) for x in w] for w in weeks]
+
+
+def best_fit(prog, modules_now, cohort_mean):
+    """The job whose key modules this student is strongest in, next to classmates; how ready
+    they are for it (their weighted mastery of those modules) and which modules say so."""
+    score = dict(zip(prog["modules"], modules_now))
+    lead = {m: score[m] - cohort_mean[m] for m in score}
+    wmean = lambda key, val: sum(val[m] * w for m, w in key.items()) / sum(key.values())  # noqa: E731
+    job = max(prog["careers"], key=lambda j: wmean(prog["careers"][j], lead))
+    key = prog["careers"][job]
+    because = sorted(key, key=lambda m: -key[m] * (lead[m] + 50))[:2]
+    return {"role": job, "familiarity": round(wmean(key, score)), "because": because}
 
 
 def main():
     rng = random.Random(SEED)
-    cat = load_catalogue()
-    emb = get_embeddings()
-    vectors = Vectors(emb)
-    titles = {sk["title"]: sk["uri"] for o in cat["occupations"].values() for sk in o["skills"]}
-    import sqlite3
-
-    db = sqlite3.connect(Path(__file__).resolve().parents[1] / "data" / "bridge.db")
-    titles.update({t: u for u, t in db.execute("SELECT uri, title FROM skills")})
+    db = sqlite3.connect(BACKEND / "data" / "bridge.db")
+    esco_skills = {t for (t,) in db.execute("SELECT title FROM skills")}
+    esco_jobs = {t for (t,) in db.execute("SELECT title FROM occupations")}
     db.close()
 
     names_used = set()
     programmes = []
     for prog in PROGRAMMES:
-        modules = [{"name": m, "skills": sk} for m, sk in prog["modules"].items()]
-        topics = [(mi, t) for mi, m in enumerate(modules) for t in m["skills"]]
-        missing = [t for _, t in topics if t not in titles or titles[t] not in emb.skill_vec]
+        missing = [t for sk in prog["modules"].values() for t in sk if t not in esco_skills] + [j for j in prog["careers"] if j not in esco_jobs]
         if missing:
-            raise SystemExit(f"{prog['id']}: no ESCO vector for {missing}")
-        skill_matrix = np.stack([emb.skill_vec[titles[t]] for _, t in topics])
-        module_of = np.array([mi for mi, _ in topics])
-
-        def by_module(per_skill):
-            return [round(100 * float(per_skill[module_of == mi].mean())) for mi in range(len(modules))]
+            raise SystemExit(f"{prog['id']}: not in the ESCO catalogue: {missing}")
+        n_topics = sum(len(sk) for sk in prog["modules"].values())
 
         students = []
         for s_i in range(prog["n"]):
-            st = student(rng, prog, names_used)
-            # Coursework already done counts as topics known at the start (more for later years)
-            state = {}
-            for _, t in topics:
-                r = rng.random()
-                if r < 0.04 * st["year"]:
-                    state[t] = "done"
-                elif r < 0.1 * st["year"]:
-                    state[t] = "learning"
-            # Some modules come easier to a student than others; the hard ones are slower for everyone
-            knack = [rng.uniform(0.4, 1.6) * (0.45 if m["name"] in prog["hard"] else 1.0) for m in modules]
-            weekly, modules_week1 = [], None
-            for week in range(1, WEEKS + 1):
-                if week > 1:
-                    for mi, t in topics:
-                        if rng.random() < st["pace"] * knack[mi]:
-                            state[t] = {None: "learning", "learning": "done"}.get(state.get(t), state.get(t))
-                ev = st["evidence"] + [(t, TOPIC_WEIGHT[v]) for t, v in state.items()]
-                per_module = by_module(mastery(ev, skill_matrix, vectors, emb))
-                if week == 1:
-                    modules_week1 = per_module
-                weekly.append(round(sum(per_module) / len(per_module)))
-            now = per_module
-            profile = {
-                "skills": st["skills"], "roles": st["roles"],
-                "eduLevel": prog["edu"][0], "eduField": prog["edu"][1], "eduType": prog["edu"][2],
-                "workTypes": prog["work"], "hoursPerWeek": st["hours"],
-                "learned": [{"name": t, "level": 2 if v == "done" else 1} for t, v in state.items()],
-            }
-            top = match(profile, 0.5, cat)["results"][0]
-            recent = weekly[-1] - weekly[-5]
-            overall = weekly[-1]
-            status = "support" if overall < 35 or (overall < 50 and recent < 3) else "ahead" if overall >= 65 else "on-track"
+            year = rng.choices([1, 2, 3], weights=[4, 3, 3])[0]
+            ability = clamp(rng.gauss(0, 1), -2.2, 2.2)
+            drive = clamp(0.03 + 0.008 * ability + rng.gauss(0, 0.012), 0.004, 0.07)  # share of the gap closed a week
+            weeks = semester(rng, prog, year, ability, drive)
+            weekly = [round(sum(w) / len(w)) for w in weeks]
+            now, overall, recent = weeks[-1], weekly[-1], weekly[-1] - weekly[-5]
+            status = "support" if overall < 36 or (overall < 44 and recent < 3) else "ahead" if overall >= 65 else "on-track"
             students.append({
                 "id": f"{prog['id']}-{s_i + 1:03d}",
-                "name": st["name"],
-                "year": st["year"],
-                "hours": st["hours"],
-                "active_days_ago": 0 if st["pace"] >= 0.07 and rng.random() < 0.6 else rng.randint(1, 4 if st["pace"] >= 0.05 else 21),
-                "topics_done": sum(v == "done" for v in state.values()),
-                "topics_total": len(topics),
+                "name": new_name(rng, names_used),
+                "year": year,
+                "hours": round(clamp(1.5 + drive * 140 + rng.uniform(-1, 1), 1, 14), 1),
+                "active_days_ago": 0 if drive >= 0.035 and rng.random() < 0.6 else rng.randint(1, 5 if drive >= 0.02 else 21),
+                "topics_done": round(n_topics * clamp((overall - 12) / 85, 0, 1)),  # a few done even when struggling
+                "topics_total": n_topics,
                 "modules": now,
-                "modules_week1": modules_week1,
+                "modules_week1": weeks[0],
                 "weekly": weekly,
                 "status": status,
-                "heading": {"role": top["title"], "familiarity": top["familiarity"]},
             })
+        cohort_mean = {m: sum(s["modules"][i] for s in students) / len(students) for i, m in enumerate(prog["modules"])}
+        for s in students:
+            s["heading"] = best_fit(prog, s["modules"], cohort_mean)
         programmes.append({
             "id": prog["id"], "name": prog["name"], "short": prog["short"], "intake": "2026",
-            "modules": modules, "students": students,
+            "modules": [{"name": m, "skills": sk} for m, sk in prog["modules"].items()], "students": students,
         })
-        print(prog["short"], len(students), "students | mean now", round(np.mean([s["weekly"][-1] for s in students])),
-              "| week 1", round(np.mean([s["weekly"][0] for s in students])),
-              "| support", sum(s["status"] == "support" for s in students))
+        heads = Counter(s["heading"]["role"] for s in students)
+        print(f"{prog['short']:5} mean now {round(sum(s['weekly'][-1] for s in students) / len(students))}"
+              f" | week 1 {round(sum(s['weekly'][0] for s in students) / len(students))}"
+              f" | support {sum(s['status'] == 'support' for s in students)} | ahead {sum(s['status'] == 'ahead' for s in students)}"
+              f" | {dict(heads.most_common())}")
 
     out = {
         "org": {**ORG, "synthetic": True, "generated": date.today().isoformat(), "students": sum(len(p["students"]) for p in programmes),

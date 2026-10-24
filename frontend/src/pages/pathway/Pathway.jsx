@@ -323,7 +323,7 @@ export default function Pathway() {
       <header className={`pw-top${compact ? " is-compact" : ""}`}>
         <div className="pw-top__bar">
           <div className="pw__brand night">
-            <BrandMark />
+            <BrandMark to="/pathway" />
           </div>
           <div className="pw-top__status" aria-hidden={!compact}>
             <span className="pw-top__role">{sentence(job.title)}</span>

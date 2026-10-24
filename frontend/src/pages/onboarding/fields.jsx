@@ -403,8 +403,8 @@ function HoursSlider({ field, value, onChange }) {
 export const COMFORT_STOPS = [
   { value: 0, title: "Stay close to what I know", text: "Roles you're already near come first, even if demand for them is lower." },
   { value: 25, title: "Mostly familiar", text: "Mostly roles close to your skills, with a nod to where demand is heading." },
-  { value: 50, title: "A balance", text: "What you already know and where demand is growing count about equally." },
-  { value: 75, title: "Open to a stretch", text: "Growing roles come first, as long as you have something to build on." },
+  { value: 50, title: "A balance", text: "What you already know leads, with real weight on where demand is growing." },
+  { value: 75, title: "Open to a stretch", text: "Demand counts almost as much as what you know, so growing roles you can build towards move up." },
   { value: 100, title: "Brand-new is fine", text: "High-demand roles come first, even if they're a bigger leap." },
 ];
 

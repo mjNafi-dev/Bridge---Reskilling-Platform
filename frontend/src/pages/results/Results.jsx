@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import BrandMark from "../../components/BrandMark.jsx";
+import BrandMark, { learnerHome } from "../../components/BrandMark.jsx";
 import { fetchMatch } from "../../api.js";
 import TopicField, { TIERS } from "./TopicField.jsx";
 import { pickBubbles } from "./layout.js";
@@ -244,7 +244,7 @@ export default function Results() {
     <main className={`results${uiIn ? " results--in" : ""}`} ref={stageRef}>
       {docked && (
         <div className="results__brand night" ref={brandRef}>
-          <BrandMark />
+          <BrandMark to={learnerHome("/results")} />
         </div>
       )}
 
@@ -257,7 +257,7 @@ export default function Results() {
       >
         {!docked && (
           <div className="loader__tab" ref={brandRef}>
-            <BrandMark />
+            <BrandMark to={learnerHome("/results")} />
           </div>
         )}
         {error ? (

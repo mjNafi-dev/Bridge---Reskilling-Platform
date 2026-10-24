@@ -47,7 +47,7 @@ function OrgGate() {
     <main className="auth org-gate">
       <div className="auth__inner">
         <section className="auth__panel night">
-          <BrandMark />
+          <BrandMark to="/signup" />
           <div className="auth__visual">
             <NodeNetwork shape={panel === "hire" ? "card" : focused || hovered} />
           </div>

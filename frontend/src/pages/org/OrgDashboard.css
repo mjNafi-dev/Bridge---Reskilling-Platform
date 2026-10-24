@@ -59,7 +59,7 @@
 .od-kpi__of { font: var(--text-body-small); color: var(--d3); }
 .od-kpi__delta { font: var(--text-body-small); font-size: 12px; color: var(--d3); }
 .od-kpi__delta.is-up { color: var(--done-strong); font-weight: 600; }
-.od-kpi .od-spark { position: absolute; top: var(--space-16); right: var(--space-16); }
+.od-kpi .od-spark { position: absolute; top: 46px; right: var(--space-16); } /* level with the big number, clear of the label */
 
 /* ---------- Cards and layout ---------- */
 .od-grid { display: grid; gap: var(--space-16); align-items: start; }

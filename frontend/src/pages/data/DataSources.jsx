@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import BrandMark from "../../components/BrandMark.jsx";
+import BrandMark, { learnerHome } from "../../components/BrandMark.jsx";
+import { readAdmin } from "../../lib/hire.js";
 import { fetchDataOverview } from "../../api.js";
 import "./DataSources.css";
 
@@ -68,13 +69,16 @@ export default function DataSources() {
   }, []);
 
   const back = () => (window.history.length > 1 ? navigate(-1) : navigate("/"));
+  // The logo goes to your own home: the growth dashboard for a signed-in admin, else your pathway
+  const admin = readAdmin();
+  const home = admin?.code ? `/org/${admin.code}` : learnerHome();
   const c = data?.counts;
   const e = data?.embeddings;
 
   return (
     <main className="ds">
       <div className="ds__brand night">
-        <BrandMark />
+        <BrandMark to={home} />
       </div>
 
       <section className="ds-head night rise">
@@ -120,6 +124,9 @@ export default function DataSources() {
 
       <section className="ds-section">
         <h2 className="ds-section__title">How the Bridge score is built</h2>
+        <p className="ds-section__lead">
+          What you already know counts most. In the middle of "How far are you willing to stretch?" the score is familiarity 45%, demand 25%, ease 15% and interest fit 15%. Staying close moves weight to familiarity and ease (demand drops to 10%); going bold moves it to demand (40%, with familiarity at 35%). The five roles you see come from at least two kinds of work.
+        </p>
         <div className="ds-methods">
           {METHODS.map((m) => (
             <div key={m.title} className="ds-method">

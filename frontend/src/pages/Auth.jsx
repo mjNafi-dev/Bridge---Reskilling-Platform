@@ -98,7 +98,7 @@ export default function Auth({ mode }) {
     <main className="auth">
       <div className="auth__inner">
       <section className="auth__panel night">
-        <BrandMark />
+        <BrandMark to="/signup" />
         <div className="auth__visual">
           <NodeNetwork shape={focused || hovered} />
         </div>

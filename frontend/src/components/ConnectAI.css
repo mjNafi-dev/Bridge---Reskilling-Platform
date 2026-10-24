@@ -56,10 +56,11 @@
 .connect__provider:hover { border-color: var(--d3); }
 .connect__provider.is-picked { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
 
-/* Each AI's mark sits on a soft tile in its own colour */
+/* Each AI's mark: grey until it's picked, then its own colours.
+   --ai is the brand colour, --ai-tile the tile behind the mark when picked. */
 .connect__provider--claude { --ai: #d97757; }
-.connect__provider--chatgpt { --ai: var(--ink); }
-.connect__provider--gemini { --ai: #8e75b2; }
+.connect__provider--chatgpt { --ai: #10a37f; }
+.connect__provider--gemini { --ai: #8e75b2; --ai-tile: #efeaf8; }
 .connect__provider--other { --ai: var(--ink); }
 
 .connect__mark {
@@ -69,16 +70,24 @@
   height: 40px;
   margin-bottom: var(--space-8);
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--ai, var(--ink)) 12%, var(--paper));
-  color: var(--ai, var(--ink));
+  background: var(--l05);
+  color: var(--d2);
   transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
 }
 
-.connect__provider.is-picked .connect__mark { background: var(--ai); color: var(--paper); }
+.connect__mark svg { transition: filter var(--dur-fast) ease, opacity var(--dur-fast) ease; }
+.connect__provider:not(.is-picked) .connect__mark svg { filter: grayscale(1); opacity: 0.75; }
+.connect__provider:not(.is-picked):hover .connect__mark svg { opacity: 1; }
+
+/* Picked (and the big marks on the next steps): the brand tile, a white mark on it;
+   Gemini keeps its gradient on a pale tile */
+.connect__provider.is-picked .connect__mark,
+.connect__mark--xl { background: var(--ai-tile, var(--ai)); color: var(--paper); }
+
 .connect__name { font: var(--text-title-small); }
 .connect__note { font: var(--text-body-small); font-size: 13px; color: var(--d3); }
 
-.connect__mark--lg { width: 48px; height: 48px; margin: 0; background: var(--paper); }
+.connect__mark--lg { width: 48px; height: 48px; margin: 0; background: var(--paper); color: var(--ai); }
 .connect__mark--xl { width: 64px; height: 64px; margin: 0; border-radius: var(--radius-md); }
 
 /* Set-up step: the AI's mark next to the title */

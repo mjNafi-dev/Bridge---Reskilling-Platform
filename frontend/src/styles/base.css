@@ -33,9 +33,11 @@ h4 { font: var(--text-title-large); }
 p { max-width: 68ch; } /* comfortable line length */
 
 /* No lone word on a last line: headings and short labels wrap into even lines,
-   longer text avoids widows (browsers without support just wrap normally) */
-h1, h2, h3, h4, h5, h6, label, button, figcaption, dt { text-wrap: balance; }
-p, li, dd, blockquote, span { text-wrap: pretty; }
+   longer text avoids widows (browsers without support just wrap normally).
+   Only the style is set: the text-wrap shorthand would also switch wrapping back on,
+   undoing a parent's white-space: nowrap (e.g. a name and its subtitle in a table cell). */
+h1, h2, h3, h4, h5, h6, label, button, figcaption, dt { text-wrap-style: balance; }
+p, li, dd, blockquote, span { text-wrap-style: pretty; }
 
 small,
 .text-small { font: var(--text-body-small); color: var(--d3); }

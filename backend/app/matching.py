@@ -46,7 +46,7 @@ WORKTYPE_RIASEC = {
 PEER_LEVEL = 0.8  # a typical worker is comfortable with their own job's essential skills
 _peer_cache = {}  # target job uri -> familiarity of a typical worker from every other job
 
-MAX_PER_CATEGORY = 2
+MAX_PER_CATEGORY = 3  # only 5 broad categories, so 2 left out close matches (an accounting student lost financial analyst)
 TOP_N = 5
 
 
@@ -246,8 +246,10 @@ def find_role(text, cat, emb):
 
 
 def weights(comfort, has_demand, has_interest):
+    """What you already know leads: F 55% / D 10% at 'stay close', 45% / 25% in the middle,
+    35% / 40% at 'go bold'. Demand only outweighs familiarity for people who chose to stretch."""
     c = min(max(comfort, 0.0), 1.0)
-    w = {"F": 0.40 - 0.20 * c, "E": 0.20 - 0.10 * c, "D": 0.25 + 0.30 * c, "I": 0.15}
+    w = {"F": 0.55 - 0.20 * c, "E": 0.20 - 0.10 * c, "D": 0.10 + 0.30 * c, "I": 0.15}
     if not has_demand:
         w.pop("D")
     if not has_interest:
@@ -325,7 +327,7 @@ def match(profile, comfort=0.5, catalogue=None, pin=None):
 
     results.sort(key=lambda r: r["score"], reverse=True)
     picked, per_cat = [], {}
-    for r in results:  # keep variety: at most 2 per category
+    for r in results:  # keep variety: at most 3 per category
         key = r["category"] or "Other"
         if per_cat.get(key, 0) >= MAX_PER_CATEGORY:
             continue

@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useGo } from "../../lib/go.js";
-import BrandMark from "../../components/BrandMark.jsx";
+import BrandMark, { learnerHome } from "../../components/BrandMark.jsx";
 import { STEPS } from "./steps.js";
 import { Field, validateFields } from "./fields.jsx";
 import CvStep from "./CvStep.jsx";
@@ -129,7 +129,7 @@ export default function Onboarding() {
   return (
     <main className="ob">
       <aside className="ob__panel night">
-        <BrandMark />
+        <BrandMark to={editing ? "/pathway?updated=1" : learnerHome("/onboarding")} />
         <div className="ob__panel-head">
           <h1 className="ob__panel-title">{editing ? "Edit your profile" : "Build your profile"}</h1>
           <p className="ob__panel-sub">

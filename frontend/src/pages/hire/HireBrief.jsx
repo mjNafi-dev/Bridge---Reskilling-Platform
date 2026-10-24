@@ -7,6 +7,7 @@ import { ArrowIcon, CheckIcon } from "../onboarding/Onboarding.jsx";
 import { newProject, readProject, saveProject } from "../../lib/hire.js";
 import { BRIEF_STEPS } from "./briefSteps.js";
 import "../onboarding/Onboarding.css";
+import "../../styles/dash.css"; // the panel foot
 import "./Hire.css";
 
 /*
@@ -89,7 +90,7 @@ export default function HireBrief() {
   return (
     <main className="ob">
       <aside className="ob__panel night">
-        <BrandMark />
+        <BrandMark to="/org?panel=hire" />
         <div className="ob__panel-head">
           <h1 className="ob__panel-title">{editing ? "Edit the brief" : "New hiring project"}</h1>
           <p className="ob__panel-sub">Describe who you're looking for. Saved in this browser as you go.</p>
@@ -117,11 +118,11 @@ export default function HireBrief() {
           })}
         </ol>
 
-        <p className="ob__legend">
-          <Link to={editing ? `/hire/${project.id}` : "/org?panel=hire"} className="ob__back-link">
-            {editing ? "Back to the candidates" : "Back to hiring projects"}
+        <div className="dash-side__foot">
+          <Link to={editing ? `/hire/${project.id}` : "/org?panel=hire"} className="dash-side__btn">
+            <ArrowIcon dir="left" /> {editing ? "Back to the candidates" : "All projects"}
           </Link>
-        </p>
+        </div>
       </aside>
 
       <section className="ob__main">
