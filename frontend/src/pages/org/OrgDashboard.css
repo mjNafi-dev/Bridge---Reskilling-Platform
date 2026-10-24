@@ -398,6 +398,7 @@ ul.od-dumbbells { display: flex; flex-direction: column; list-style: none; }
 .od-sheet {
   width: min(720px, calc(100vw - 32px));
   max-height: 90vh;
+  max-height: 90dvh;
   margin: auto;
   padding: 0;
   border: 0;
@@ -494,4 +495,9 @@ ul.od-dumbbells { display: flex; flex-direction: column; list-style: none; }
   .od-dumbbells__axis, .od-dumbbells li { grid-template-columns: minmax(90px, 1fr) minmax(90px, 1.4fr) 64px; }
   .od-sheet__stats { grid-template-columns: 1fr 1fr; }
   .od-sheet__body { padding: var(--space-16); }
+  /* The status chip drops under the name instead of squeezing it */
+  .od-sheet__head { flex-wrap: wrap; row-gap: var(--space-8); }
+  .od-sheet__who { flex-basis: calc(100% - 44px - 40px - 2 * var(--space-12)); } /* fills the first line, so the chip always wraps */
+  .od-sheet__close { order: 1; }
+  .od-sheet__head .od-status { order: 2; margin-left: calc(44px + var(--space-12)); }
 }

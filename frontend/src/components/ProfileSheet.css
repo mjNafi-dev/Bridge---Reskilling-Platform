@@ -3,6 +3,7 @@
 .sheet {
   width: min(760px, calc(100vw - 32px));
   max-height: 88vh;
+  max-height: 88dvh;
   margin: auto;
   padding: 0;
   border: 0;

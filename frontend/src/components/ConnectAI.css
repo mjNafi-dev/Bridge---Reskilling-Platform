@@ -3,6 +3,7 @@
 .connect {
   width: min(640px, calc(100vw - 32px));
   max-height: 90vh;
+  max-height: 90dvh;
   margin: auto;
   padding: 0;
   border: 0;
@@ -101,7 +102,7 @@
   list-style: none;
 }
 
-.connect__steps > li { display: grid; grid-template-columns: 28px 1fr; gap: var(--space-12); }
+.connect__steps > li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: var(--space-12); } /* minmax: the long URL shortens instead of widening the popup */
 
 .connect__step-num {
   display: grid;
@@ -220,6 +221,8 @@
 .connect__done .btn { margin-top: var(--space-12); }
 
 @media (max-width: 640px) {
-  .connect__cols { grid-template-columns: 1fr; }
-  .connect__providers { grid-template-columns: repeat(2, 1fr); }
+  .connect__inner { padding: var(--space-24) var(--modal-pad-x); }
+  .connect__cols { grid-template-columns: 1fr; gap: var(--space-16); padding: var(--space-16); }
+  .connect__providers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .connect__done { padding: var(--space-8) 0; }
 }

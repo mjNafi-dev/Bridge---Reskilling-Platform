@@ -192,7 +192,7 @@ export default function ConnectAI({ open, onDone, interests = [], continueLabel 
               Works through MCP (Model Context Protocol), the open standard AI assistants use to connect to apps.
               This demo doesn't connect anything for real.
             </p>
-            <footer className="connect__foot">
+            <footer className="connect__foot ui-modal__foot">
               <button type="button" className="btn btn--ghost" onClick={close}>Maybe later</button>
               <button type="button" className="btn btn--primary" onClick={() => setState("setup")}>
                 Set up {provider.name}
@@ -249,7 +249,7 @@ export default function ConnectAI({ open, onDone, interests = [], continueLabel 
               </li>
             </ol>
 
-            <footer className="connect__foot">
+            <footer className="connect__foot ui-modal__foot">
               <button type="button" className="btn btn--ghost" onClick={() => setState("choose")} disabled={state === "testing"}>
                 Back
               </button>

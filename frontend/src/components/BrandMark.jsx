@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 
-// Bridge logo: a simple suspension-bridge mark + wordmark.
-// Placeholder until the final logo is designed.
+// Bridge logo: the bridge mark (same as public/logo.svg) + wordmark.
 // With `to` it links home (your dashboard, the projects list, the start page); on that
 // page already, it scrolls back to the top instead.
 export default function BrandMark({ to }) {
@@ -9,11 +8,8 @@ export default function BrandMark({ to }) {
   const mark = (
     <>
       <span className="brand__icon">
-        <svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M3 22h26" />
-          <path d="M9 22V9M23 22V9" />
-          <path d="M3 13c3 0 6-4 6-4s3 7 7 7 7-7 7-7 3 4 6 4" />
-          <path d="M13 16v6M19 16v6" />
+        <svg viewBox="0 0 34 22" width="26" height="17" fill="currentColor" aria-hidden="true">
+          <path d="M7.0004 0H9.4503V2.5345C12.1961 6.82444 14.6678 8.51538 16.8 8.51538C18.9322 8.51538 21.4039 6.82444 24.1497 2.5345V0H26.5996V2.54261L33.6 13.6704L31.5361 15.0139L26.5996 7.16538V19.1077H33.1327V21.6H0.467331V19.1077H7.0004V7.16538L2.06391 15.0139L0 13.6704L7.0004 2.54261V0ZM24.1497 6.72728C21.8779 9.4448 19.4395 11.0077 16.8 11.0077C14.1605 11.0077 11.7221 9.4448 9.4503 6.72728V19.1077H24.1497V6.72728Z" />
         </svg>
       </span>
       <span className="brand__name">Bridge</span>

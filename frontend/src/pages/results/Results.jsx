@@ -385,7 +385,7 @@ function Stat({ job, run }) {
       <p className="stat__lead">You’re already familiar with</p>
       <p className="stat__value num">{value}<small>%</small></p>
       <p className="stat__lead">of what this role needs</p>
-      <p className="stat__hint">Coloured bubbles are what you already know, grey ones are new. Hover one to see its topic.</p>
+      <p className="stat__hint">Coloured bubbles are what you already know, grey ones are new. <span className="if-pointer">Hover</span><span className="if-touch">Tap</span> one to see its topic.</p>
       <ul className="stat__legend">
         {TIERS.map((t) => (
           <li key={t.key}>

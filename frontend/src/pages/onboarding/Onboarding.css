@@ -1158,7 +1158,7 @@
   .ob {
     height: auto;
     min-height: 100vh;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-16);
     padding: var(--space-16);
   }
@@ -1192,10 +1192,25 @@
   .ob__content { padding: var(--space-24) 0 var(--space-48, 48px); }
 
   .ob__title { font-size: 28px; }
+  .ob__save { float: none; width: 100%; margin: 0 0 var(--space-16); } /* its own row, so the title keeps the full width */
 
-  .repeat__grid { grid-template-columns: 1fr; }
+  .repeat__grid { grid-template-columns: minmax(0, 1fr); }
+  /* :first-child too, or the desktop "span 2" wins and forces a second, off-screen column */
   .repeat__grid > div,
+  .repeat__grid > div:first-child,
   .span-2 { grid-column: auto; }
 
   .levels { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Phones: a skill's name gets its own line (with the remove button), "Last used" goes below */
+@media (max-width: 640px) {
+  .skill-row__top { flex-wrap: wrap; row-gap: var(--space-8); }
+  .skill-row__name { flex-basis: calc(100% - 48px); }
+  .skill-row__top .icon-btn { order: 1; }
+  .skill-row__used-label { order: 2; }
+  .skill-row__top select { order: 3; flex: 1; }
+  /* Back / Skip / Continue: when they don't fit on one line, Skip and Continue move down together, on the right */
+  .ob__nav { flex-wrap: wrap; }
+  .ob__nav-right { margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
 }

@@ -180,7 +180,7 @@ export default function CvStep({ profile, setProfile, onContinue, onBack }) {
               height="112"
             />
             <span className="drop__title">
-              {dragging ? "Let go to upload" : dragInWindow ? "Bring it over here" : error ? "Let's try that again" : <>Drop your CV here, or <u>browse</u></>}
+              {dragging ? "Let go to upload" : dragInWindow ? "Bring it over here" : error ? "Let's try that again" : <><span className="if-pointer">Drop your CV here, or <u>browse</u></span><span className="if-touch"><u>Choose your CV</u></span></>}
             </span>
             <span className="drop__meta">PDF, Word or text · up to {MAX_MB} MB</span>
             <input ref={inputRef} type="file" accept={ACCEPTED.join(",")} hidden onChange={(e) => handleFile(e.target.files[0])} />

@@ -6,6 +6,9 @@ import { comfortStop, validateFields } from "./fields.jsx";
   Missing required answers are flagged so nothing slips through.
 */
 
+// "15 years", "1 year": a bare number in a list of words reads as nothing
+const withSuffix = (text, suffix) => (text && suffix ? `${text} ${text === "1" ? suffix.replace(/s$/, "") : suffix}` : text);
+
 function show(value) {
   if (value === undefined || value === null || value === "") return null;
   if (Array.isArray(value)) return value.length ? value.join(", ") : null;
@@ -47,7 +50,7 @@ export default function ReviewStep({ profile, steps, onEdit, note = true }) {
                     return (v || []).map((item, j) => (
                       <div className="review__row" key={`${f.key}${j}`}>
                         <dt>{f.itemLabel} {j + 1} {cv}</dt>
-                        <dd>{f.subfields.map((sf) => show(item[sf.key])).filter(Boolean).join(" · ")}</dd>
+                        <dd>{f.subfields.map((sf) => withSuffix(show(item[sf.key]), sf.suffix)).filter(Boolean).join(" · ")}</dd>
                       </div>
                     ));
                   }

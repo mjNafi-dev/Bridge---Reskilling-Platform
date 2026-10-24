@@ -77,7 +77,7 @@ export const STEPS = [
         subfields: [
           { key: "title", label: "Job title", type: "text", required: true, placeholder: "e.g. Graphic designer" },
           { key: "industry", label: "Industry", type: "select", options: INDUSTRIES },
-          { key: "years", label: "Years in this role", type: "number", min: 0, max: 50, placeholder: "e.g. 3" },
+          { key: "years", label: "Years in this role", type: "number", min: 0, max: 50, placeholder: "e.g. 3", suffix: "years" },
           { key: "tasks", label: "Main tasks", type: "tags", required: true, placeholder: "Type a task, press Enter", hint: "e.g. Designed social media posters, Retouched product photos" },
           { key: "tools", label: "Tools & software", type: "tags", placeholder: "e.g. Photoshop, Excel" },
         ],

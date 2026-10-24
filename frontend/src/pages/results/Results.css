@@ -695,6 +695,7 @@
 .details {
   width: min(780px, calc(100vw - 32px));
   max-height: 88vh;
+  max-height: 88dvh;
   margin: auto;
   padding: 0;
   border: 0;
@@ -887,8 +888,12 @@
   .options li { width: 100%; }
   .details__cols,
   .scenarios { grid-template-columns: 1fr; }
+  .details__inner { padding: var(--space-24) var(--modal-pad-x, 20px); }
   .bar-row { grid-template-columns: 1fr 80px 32px; }
-  /* The chips' notes centre on the whole row, so they stay on screen */
+  /* The chips' notes centre on the whole row, and the demand note spans the section, so they stay on screen */
   .job-card__meta { position: relative; }
   .job-card__meta .hint { position: static; }
+  .demand__head { position: relative; }
+  .demand__head .hint { position: static; }
+  .demand__head .demand__tip { left: 0; width: 100%; }
 }

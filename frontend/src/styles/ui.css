@@ -217,6 +217,27 @@ dialog.ui-modal[open] {
 .ui-modal__band p:not(.label-mono) { color: var(--night-text); }
 .ui-modal__band strong { color: var(--paper); }
 
+/* Wording for mouse vs touch ("Hover one" / "Tap one", "Drop your CV" / "Choose your CV") */
+.if-touch { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  .if-pointer { display: none; }
+  .if-touch { display: inline; }
+}
+
+/* Phones: the popup fits the screen you can actually see (dvh leaves out the browser's own
+   bars), the whole popup scrolls so the dark band scrolls away instead of taking half the
+   screen, footer buttons stack full width, and the page behind stays still */
+@media (max-width: 640px) {
+  html:has(dialog.ui-modal[open]) { overflow: hidden; }
+  dialog.ui-modal { --modal-pad-x: 20px; width: calc(100vw - 24px); max-height: calc(100dvh - 24px); }
+  dialog.ui-modal[open] { overflow: hidden auto; overscroll-behavior: contain; } /* never sideways */
+  dialog.ui-modal .ui-modal__body { flex: none; overflow: visible; }
+  .ui-modal__band { padding-block: 20px; }
+  .ui-modal__band h2 { font-size: 26px; }
+  .ui-modal__foot { flex-direction: column-reverse; align-items: stretch; }
+  .ui-modal__foot .btn { width: 100%; }
+}
+
 /* Close buttons sitting on a dark band */
 .night .details__close,
 .night .sheet__close { background: rgba(255, 255, 255, 0.1); color: var(--paper); }

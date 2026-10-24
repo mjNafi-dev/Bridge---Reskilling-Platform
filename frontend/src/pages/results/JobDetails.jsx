@@ -173,7 +173,7 @@ export default function JobDetails({ job, open, onClose, onPathway }) {
           <Link to="/data">See all data sources</Link>
         </p>
 
-        <footer className="details__foot">
+        <footer className="details__foot ui-modal__foot">
           <button type="button" className="btn btn--ghost" onClick={onClose}>Back to options</button>
           <button type="button" className="btn btn--primary" onClick={onPathway}>Select pathway</button>
         </footer>

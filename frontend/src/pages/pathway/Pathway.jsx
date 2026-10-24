@@ -392,8 +392,11 @@ export default function Pathway() {
                 ) : upNext.buildsOn ? (
                   <>
                     <span className="pw-chip pw-chip--known">{upNext.buildsOn}</span>
-                    <span className="pw-next__link" aria-hidden="true" />
-                    <span className="pw-chip">{upNext.title}</span>
+                    {/* the arrow travels with the new topic, so a wrapped line starts with it */}
+                    <span className="pw-next__to">
+                      <span className="pw-next__link" aria-hidden="true" />
+                      <span className="pw-chip">{upNext.title}</span>
+                    </span>
                   </>
                 ) : upNext.refresher ? (
                   <span className="pw-next__new">You've touched on this before, so this one is a refresher.</span>
