@@ -1,0 +1,45 @@
+.suggest {
+  width: min(520px, calc(100vw - 32px));
+  max-height: 90vh;
+  max-height: 90dvh;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-3);
+}
+
+.suggest h2 { margin-top: var(--space-4); }
+.suggest__from { display: inline-flex; align-items: center; gap: 6px; }
+.suggest__body { padding: var(--space-24) var(--space-32) 0; color: var(--d2); }
+
+.suggest__changes {
+  list-style: none;
+  margin: var(--space-16) 0 var(--space-12);
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-md);
+  background: var(--familiar-subtle);
+  color: var(--familiar-fg);
+}
+.suggest__changes li { display: flex; align-items: center; gap: var(--space-8); }
+.suggest__changes li + li { margin-top: var(--space-8); }
+
+/* A small filled check, the same green as "done" */
+.suggest__tick {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--done-default)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5'/%3E%3C/svg%3E")
+    center / 12px no-repeat;
+}
+
+.suggest__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-12);
+  padding: var(--space-24) var(--space-32) var(--space-32);
+}

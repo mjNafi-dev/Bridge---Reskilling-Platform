@@ -5,6 +5,7 @@ import { useGo } from "../../lib/go.js";
 import { buildJourney, journeyCodeLink, journeyLink } from "../../lib/journey.js";
 import BrandMark from "../../components/BrandMark.jsx";
 import ConnectAI, { AIIcon, AI_PROVIDERS, readAI, saveAI } from "../../components/ConnectAI.jsx";
+import AISuggestion from "../../components/AISuggestion.jsx";
 import ProfileSheet from "../../components/ProfileSheet.jsx";
 import { knownTier, packTopics, pickBubbles } from "../results/layout.js";
 import { SKILL_LEVELS } from "../onboarding/steps.js";
@@ -74,7 +75,8 @@ export default function Pathway() {
   const [progress, setProgress] = useState(readProgress);
   const [ai, setAi] = useState(readAI);
   const [connectOpen, setConnectOpen] = useState(false);
-  const [suggestionDismissed, setSuggestionDismissed] = useState(false);
+  const [suggest, setSuggest] = useState(null); // the AI's suggestion: { id, mode: "popup" | "card" }
+  const openSuggestion = useRef(null); // set once the Up next topic is known (below the early return)
   const [askOpen, setAskOpen] = useState(false);
   const [weekHours, setWeekHours] = useState(() => readJSON("bridge.weekHours", 0));
   const [share, setShare] = useState(() => ({ code: readJSON("bridge.shareCode", null), state: "idle", copied: null })); // state: idle | making | error
@@ -159,6 +161,18 @@ export default function Pathway() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // DEMO: Alt+O stands in for the AI sending a suggestion after a chat (see AISuggestion.jsx)
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.altKey && e.code === "KeyO") {
+        e.preventDefault();
+        openSuggestion.current?.();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   if (!job) {
     return (
       <main className="pw pw--empty">
@@ -199,6 +213,17 @@ export default function Pathway() {
     const next = { ...progress, [id]: status };
     setProgress(next);
     saveProgress(next);
+  }
+
+  // The suggestion is always about the Up next topic, and only once an AI is connected
+  openSuggestion.current = () => {
+    if (provider && upNext && !isDone(upNext)) setSuggest({ id: upNext.id, mode: "popup" });
+  };
+  const suggested = suggest && [...steps, ...revise].find((s) => s.id === suggest.id && !isDone(s));
+  function acceptSuggestion() {
+    setStatus(suggested.id, "done");
+    logHour(1);
+    setSuggest(null);
   }
 
   const toNext = () => nextRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -611,16 +636,16 @@ export default function Pathway() {
                 <p className="pw-card__text">
                   {provider.name} can see your interests, pathway and progress. Examples will lean on {interest.toLowerCase()}.
                 </p>
-                {upNext && !suggestionDismissed && (progress[upNext.id] || "todo") === "todo" && (
+                {suggested && suggest.mode === "card" && (
                   <div className="pw-suggest">
                     <p>
-                      <strong>{provider.name} suggests:</strong> you've got the basics of {upNext.title.toLowerCase()} from your last chat. Mark it as learning?
+                      <strong>{provider.name} suggests:</strong> you've got {suggested.title.toLowerCase()} from your last chat. Mark it as done?
                     </p>
                     <div className="pw-suggest__actions">
-                      <button type="button" className="btn btn--primary btn--sm" onClick={() => setStatus(upNext.id, "learning")}>
+                      <button type="button" className="btn btn--primary btn--sm" onClick={acceptSuggestion}>
                         Accept
                       </button>
-                      <button type="button" className="btn btn--ghost btn--sm" onClick={() => setSuggestionDismissed(true)}>
+                      <button type="button" className="btn btn--ghost btn--sm" onClick={() => setSuggest(null)}>
                         Not yet
                       </button>
                     </div>
@@ -867,6 +892,14 @@ export default function Pathway() {
           setProfileOpen(false);
           setConnectOpen(true);
         }}
+      />
+
+      <AISuggestion
+        provider={provider}
+        topic={suggested && suggest.mode === "popup" ? suggested : null}
+        interest={interest}
+        onAccept={acceptSuggestion}
+        onClose={() => setSuggest((v) => v && { ...v, mode: "card" })}
       />
 
       <ConnectAI
