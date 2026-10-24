@@ -308,7 +308,7 @@ function BookSearch({ value, onChange }) {
       try {
         const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=5&fields=title,author_name`);
         const data = await res.json();
-        setResults((data.docs || []).map((d) => `${d.title}${d.author_name ? ` — ${d.author_name[0]}` : ""}`));
+        setResults((data.docs || []).map((d) => `${d.title}${d.author_name ? ` by ${d.author_name[0]}` : ""}`));
       } catch {
         setResults([]);
       }

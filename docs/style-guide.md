@@ -42,7 +42,7 @@ The 3-state topic checklist: **empty outline** = unfamiliar · **amber outline**
 
 ## Motion
 
-Seamless and calm (CSS/SVG, no heavy 3D, no glows). Tokens: `--ease-out` (arriving), `--ease-in-out` (travelling), `--dur-fast` 150ms, `--dur-base` 260ms, `--dur-slow` 520ms.
+Smooth and calm (CSS/SVG, no heavy 3D, no glows). Tokens: `--ease-out` (arriving), `--ease-in-out` (travelling), `--dur-fast` 150ms, `--dur-base` 260ms, `--dur-slow` 520ms.
 - **Page transitions** (View Transitions API, `lib/go.js`): pages cross-fade and shared pieces morph. The sign-up panel shrinks into the onboarding panel (`side-panel`), the logo stays put (`brand`), the job title flies from the results card into the dashboard header (`job-title`).
 - **Entrances:** `.rise` floats pieces up in a stagger (`--i`); onboarding steps slide in from the side you're heading towards; dashboard bubbles pop in one by one.
 - **Feedback:** `.pop` on status and chip changes; buttons press in and their arrows nudge forward; option cards lean towards the middle; the onboarding "current step" pill slides between rows.

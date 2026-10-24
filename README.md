@@ -27,8 +27,8 @@ Built for SDC Hackathon 2026, Domain 1: Aiversecity Future-Ready Workforce.
 | Replit project | https://replit.com/@stewpeed-dev/Bridge-Reskilling-Platform |
 | Live demo | https://bridge-reskill.replit.app |
 | RunPod | GPU pod `bridge-skill-embeddings` (ID `f2w43seqazno9r`, 1× NVIDIA A40). Proof: [`submission/RunPod Proof of Use.pdf`](submission/RunPod%20Proof%20of%20Use.pdf) |
-| Slide deck | ⚠️ to add |
-| Pitch video | ⚠️ to add (YouTube) |
+| Slide deck | [`submission/Bridge Pitch Deck.pdf`](submission/Bridge%20Pitch%20Deck.pdf) |
+| Pitch video | https://youtu.be/YjN-WN_jt8E |
 
 ---
 
@@ -46,7 +46,7 @@ Bridge starts from the person, not the job board. It reads their experience, mat
 
 - **CV reading.** Upload a PDF, Word or text CV; Bridge pulls out roles, tasks, tools, education, skills, languages, courses and projects, and matches every skill to ESCO ("Photo retouching → edit photographs"). The file is read in memory and thrown away. Optional AI mode (Claude) for messier CVs.
 - **Explainable matching.** Five suggested roles, each with a Bridge score you can open up: familiarity, ease, demand and interest fit, with their weights. Bubbles show which of the role's topics you already know.
-- **The role you're eyeing.** Type a role in onboarding ("Video editor") and Bridge finds the closest of its roles by meaning, then always shows it next to your matches with its real rank ("#76 of 116"), even when it isn't a top match. Roles it doesn't cover are named, not guessed.
+- **The role you're eyeing.** Type a role in onboarding ("Video editor") and Bridge finds the closest of its roles by meaning, then always shows it next to your matches with its real rank ("#76 of 117"), even when it isn't a top match. Roles it doesn't cover are named, not guessed.
 - **Comfort question.** "How far are you willing to stretch?" moves weight between familiar roles and high-demand ones. What you already know leads (familiarity 45%, demand 25% in the middle); demand only outweighs it for people who choose to stretch. The five roles come from at least two categories (at most 3 from one).
 - **Future demand with sources.** Live job postings, O\*NET Bright Outlook and the ILO 2025 GenAI exposure index, as two labelled scenarios (moderate vs fast AI change).
 - **UN SDG tags.** Every role shows which SDGs it serves and why; roles that serve the causes you pick get a small boost.
@@ -139,7 +139,13 @@ Off by default. To turn it on, set these environment variables (Replit Secrets, 
 
 If AI mode fails for any reason, Bridge falls back to the rules. Never commit keys.
 
-## Deploy on Replit
+## How we use Replit
+
+- **Hosting:** the live demo runs on Replit Deployments. One server serves both the API and the built React app.
+- **Development:** the project was imported from GitHub into Replit, where it was run, tested and published.
+- **Secrets:** any API key goes in Replit Secrets, never in the code.
+
+To deploy it yourself:
 
 1. Import this GitHub repository into Replit.
 2. **Run** uses `.replit` → `scripts/start.sh`: installs Python packages, builds the React app, pre-downloads the embedding model, then starts the server on port 8000.
@@ -148,7 +154,7 @@ If AI mode fails for any reason, Bridge falls back to the rules. Never commit ke
 
 Proof of use goes in `submission/Replit Proof of Use.pdf`.
 
-## RunPod
+## How we use RunPod
 
 The GPU job in [`runpod/embed_skills.py`](runpod/embed_skills.py) embedded 3,943 ESCO skills and job titles with BAAI/bge-small-en-v1.5 on one NVIDIA A40 (6.23 s of compute). Its output (`backend/data/embeddings/`) is committed, so the app runs without a GPU. Proof: [`submission/RunPod Proof of Use.pdf`](submission/RunPod%20Proof%20of%20Use.pdf).
 
@@ -181,7 +187,7 @@ The GPU job in [`runpod/embed_skills.py`](runpod/embed_skills.py) embedded 3,943
 │       └── styles/          # tokens.css, base.css, ui.css
 ├── runpod/                  # GPU embedding job + its input
 ├── scripts/                 # build.sh / start.sh for Replit
-├── submission/              # Proof PDFs and their screenshots
+├── submission/              # PRD, Tech Declaration, pitch deck, proof PDFs
 ├── docs/style-guide.md
 ├── .replit
 ├── .env.example
@@ -238,6 +244,38 @@ Run from the repo root. Everything comes from public sources; nothing is invente
 **Assets:** 3D icons (CV upload states and the pathway's five growth stages, the toolbox and tools in Your skills, and the AI sparkle, share paper plane and path clipboard, and the Resources box with its globe, video, book, laptop, document, certificate and graduation cap; the empty toolbox, the packed box and the blue plane are our edits of theirs) from [thiings.co](https://www.thiings.co), free to use, credited anyway. Claude, ChatGPT (OpenAI), Gemini and Model Context Protocol marks in the "Learn with your own AI" demo from [Simple Icons](https://simpleicons.org) (CC0); the marks belong to their owners and only show which assistant you'd connect. Fonts: [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) and [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) (Google Fonts, OFL), [Switzer](https://www.fontshare.com/fonts/switzer) (Fontshare). Book search: [Open Library](https://openlibrary.org/developers/api) API.
 
 **Libraries:** React, React Router, Vite, [jsPDF](https://github.com/parallax/jsPDF) (MIT, journey PDFs), FastAPI, Uvicorn, NumPy, fastembed, pypdf, python-docx, Anthropic Python SDK.
+
+## Challenges and learnings
+
+- **Making the match explainable.** A chatbot could suggest roles, but it can't show why, and it can make up jobs. We kept generative AI out of the scoring and used embeddings plus plain maths, so every number on screen can be opened up and traced back to a source.
+- **Messy job data.** Many live postings came in German or with extra text in the title ("Designer | Berlin"). We clean the titles and translate common German job words before counting them towards a role.
+- **Replit setup.** Replit's package registry blocked the Pillow version our embedding library wanted, so we pinned an older one (`replit-constraints.txt`). Early in the week, Replit credits also couldn't be redeemed, so we built locally first and moved to Replit once it worked.
+- **Keeping the GPU step small.** The ESCO embeddings only need to be made once, so we ran them on RunPod and committed the output. The live app then runs on a normal CPU.
+
+## Future improvements
+
+- [ ] Bahasa Melayu and Chinese versions of the app
+- [ ] Malaysian data: local job postings and HRD Corp claimable courses
+- [ ] Re-plan a learner's pathway on its own when new trend data arrives
+- [ ] Real accounts, so progress follows the user across devices
+- [ ] Badges for finished topics and pathways
+
+## Team
+
+| Name | Role | GitHub |
+| --- | --- | --- |
+| Mahir Jabid Nafi | Team lead, design, frontend, backend, data | [@mjNafi-dev](https://github.com/mjNafi-dev) |
+
+## Submission checklist
+
+- [x] Team name, domain and SDG track filled in
+- [x] Slide deck link added
+- [x] Pitch video link added
+- [x] Replit used, with proof of use in `submission/`
+- [x] RunPod used, with proof of use in `submission/`
+- [x] Submission template completed in `submission/`
+- [x] "Run locally" steps checked
+- [x] No API keys or secrets in the repository
 
 ## License
 
