@@ -1,5 +1,5 @@
 """
-Builds "RunPod Proof of Use.pdf" from the screenshots in submission/screenshots/.
+Builds "RunPod Proof of Use.pdf" and "Replit Proof of Use.pdf" from the screenshots in submission/screenshots/.
 Run from the repo root:   python submission/make_proof_pdf.py
 Needs Pillow (pip install pillow).
 """
@@ -68,6 +68,39 @@ def cover(meta):
     return page
 
 
+def replit_cover():
+    page = Image.new("RGB", (W, H), "white")
+    d = ImageDraw.Draw(page)
+    d.text((MARGIN, MARGIN), "Replit Proof of Use", font=font(64, True), fill="#111111")
+    d.text((MARGIN, MARGIN + 90), "Bridge · SDC Hackathon 2026 · Domain 1", font=font(30), fill="#6B6B70")
+    lines = [
+        ("Live deployment", "https://bridge-reskill.replit.app (status: Live, public)"),
+        ("Replit project", "https://replit.com/@stewpeed-dev/Bridge-Reskilling-Platform"),
+        ("Deployment type", "Reserved VM, 0.5 vCPU / 2 GiB RAM, region Asia"),
+        ("Hosting so far", "33.55 compute hours (usage page, Oct 22 - Nov 21 period)"),
+        ("Replit AI", "Replit Agent used while building ($0.36); Replit AI Integrations configured, not used"),
+        ("Account", "Team's own Replit account (Stewpeed, visible on every page)"),
+    ]
+    y = MARGIN + 200
+    for label, value in lines:
+        d.text((MARGIN, y), label, font=font(28, True), fill="#111111")
+        d.text((MARGIN + 380, y), value, font=font(28), fill="#3A3A3C")
+        y += 58
+
+    y += 30
+    d.text((MARGIN, y), "How we use Replit", font=font(34, True), fill="#111111")
+    y += 60
+    how = [
+        "Replit hosts the whole app: one FastAPI server serves the API and the built React app",
+        "(.replit runs scripts/start.sh). Every judge-facing link in the README points at this deployment,",
+        "and the logs on page 5 show real requests to the matching, pathway and course endpoints.",
+    ]
+    for line in how:
+        d.text((MARGIN, y), line, font=font(26), fill="#3A3A3C")
+        y += 40
+    return page
+
+
 def shot_page(path, caption):
     page = Image.new("RGB", (W, H), "white")
     d = ImageDraw.Draw(page)
@@ -87,6 +120,17 @@ pages = [
     shot_page(SHOTS / "runpod-3-pods-list.png", "Pods list: bridge-skill-embeddings, ID f2w43seqazno9r, A40 x1, $0.59/hr"),
     shot_page(SHOTS / "runpod-4-pods-list-account.png", "Pods list with the team's account menu open"),
 ]
-out = HERE / "RunPod Proof of Use.pdf"
-pages[0].save(out, save_all=True, append_images=pages[1:], resolution=150)
-print(f"Saved {out.name} ({len(pages)} pages)")
+
+
+replit_pages = [
+    replit_cover(),
+    shot_page(SHOTS / "replit-1-publishing-overview.png", "Publishing overview: Live, bridge-reskill.replit.app, publish history"),
+    shot_page(SHOTS / "replit-2-usage-overview.png", "Account usage: spend this period, split by AI and hosting"),
+    shot_page(SHOTS / "replit-3-usage-per-resource.png", "Usage per resource: 33.55 h Reserved VM deployment, Agent AI"),
+    shot_page(SHOTS / "replit-4-deployment-logs.png", "Deployment logs: real requests to /api/match, /pathway, /api/courses"),
+]
+
+for name, doc in (("RunPod Proof of Use.pdf", pages), ("Replit Proof of Use.pdf", replit_pages)):
+    out = HERE / name
+    doc[0].save(out, save_all=True, append_images=doc[1:], resolution=150)
+    print(f"Saved {out.name} ({len(doc)} pages)")
