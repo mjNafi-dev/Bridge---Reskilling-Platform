@@ -15,7 +15,8 @@ const retryImg = "/cv/retry.png";
   CV upload: optional, only pre-fills later questions.
   Stages: idle → uploading (progress bar) → reading (step-by-step checklist) → done.
   The server reads the file (backend/app/cv.py): roles, education, skills matched to ESCO,
-  languages, courses, projects, hobbies. Every filled field gets a "From your CV" badge.
+  languages, courses, projects, hobbies, plus name, country and age range for About you.
+  Every filled field gets a "From your CV" badge.
   The sample CV is a SYNTHETIC person (backend/scripts/make_sample_cv.py).
 */
 
@@ -187,8 +188,8 @@ export default function CvStep({ profile, setProfile, onContinue, onBack }) {
           </div>
           {error && <p className="f__err" role="alert">{error}</p>}
           <p className="cv__demo-note">
-            We read your file once for your roles, skills and education, then throw it away. We never keep the file or
-            read your name and contact details. This is a hackathon demo, so please use a made-up CV, or{" "}
+            We read your file once for your name, country, roles, skills and education, then throw it away. We never
+            keep the file or read your email, phone or address. This is a hackathon demo, so please use a made-up CV, or{" "}
             <button type="button" className="link-btn" onClick={trySample}>try our sample CV</button>{" "}
             (<a className="link-btn" href={SAMPLE_URL} download>download it</a> to see what it says).
           </p>
@@ -274,6 +275,9 @@ function CvSummary({ profile }) {
   const tools = new Set(roles.flatMap((r) => r.tools || [])).size;
   const matched = skills.filter((s) => s.esco).length;
   const education = [profile.eduLevel, profile.eduField].filter(Boolean).join(" in ");
+  const about = [
+    ["name", "your name"], ["country", "country"], ["ageRange", "age range"],
+  ].filter(([k]) => profile.cvFilled?.includes(k) && profile[k]).map(([, label]) => label);
   const extras = [
     profile.languages?.length && plural(profile.languages.length, "language"),
     profile.courses?.length && plural(profile.courses.length, "course"),
@@ -295,6 +299,7 @@ function CvSummary({ profile }) {
     <>
       <p className="cv-done__title">Done. We filled in:</p>
       <ul className="cv-done__list">
+        {about.length > 0 && <li>About you: {about.join(", ")}</li>}
         {education && <li>Education: {education}</li>}
         {roles.length > 0 && <li>{plural(roles.length, "role")} with {plural(tasks, "task")}{tools ? ` and ${plural(tools, "tool")}` : ""}</li>}
         {skills.length > 0 && <li>{plural(skills.length, "skill")}{matched ? `, ${matched} matched to the official ESCO skills list` : ""}</li>}

@@ -219,7 +219,7 @@ Run from the repo root. Everything comes from public sources; nothing is invente
 ## Data and privacy
 
 - Answers stay in the user's browser (demo: no server accounts). Creating an account starts fresh.
-- CVs are read once in memory for roles, skills and education, then discarded. Names and contact details are never read.
+- CVs are read once in memory for name, country (and age range, if a birth year is there), roles, skills and education, then discarded. Email, phone and address are never read.
 - A university sees a student's progress by name (programme, module mastery, best-match role, learning time) only if the student joins with its code and ticks the consent. The data needs the admin's sign-in.
 - Share codes: a snapshot is saved on the server (`backend/data/journeys.db`, not in git) only when the learner asks for a code, and holds only what the share page shows. Anyone with the code can see it, so learners give it only to people they choose. The long link fallback carries its snapshot after the `#`, which browsers never send to a server.
 - Hiring projects live in the HR person's browser. The brief fit ignores name, age, country and anything personal.

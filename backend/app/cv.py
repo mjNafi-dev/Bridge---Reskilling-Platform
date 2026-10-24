@@ -4,7 +4,8 @@ CV reading: turns an uploaded CV (PDF, Word or text) into onboarding answers.
 1. Text out of the file (pypdf / python-docx). The file is read in memory and never saved.
 2. Split the text into sections by their headings (Experience, Education, Skills...).
 3. Rules pull out roles (title, years, tasks, tools), education, skills, languages,
-   courses, projects and hobbies. Name, email, phone and address are never read.
+   courses, projects and hobbies. Name, country and age range (from a birth year) pre-fill
+   About you; email, phone and street address are never read.
 4. Every skill is matched to the official ESCO skill list by meaning (same embeddings
    as matching), so "Photo retouching" lines up with ESCO's "edit photographs".
 
@@ -609,6 +610,112 @@ def read_rules(text):
     }
 
 
+# ---------------------------------------------------------------- 3b. About-you pre-fill
+
+# Same English names as the onboarding country list (frontend steps.js, from Intl.DisplayNames)
+COUNTRIES = (
+    'Afghanistan|Albania|Algeria|Andorra|Angola|Antigua & Barbuda|Argentina|Armenia|Australia|Austria|Aze'
+    'rbaijan|Bahamas|Bahrain|Bangladesh|Barbados|Belarus|Belgium|Belize|Benin|Bhutan|Bolivia|Bosnia &'
+    'Herzegovina|Botswana|Brazil|Brunei|Bulgaria|Burkina Faso|Burundi|Cape'
+    'Verde|Cambodia|Cameroon|Canada|Central African Republic|Chad|Chile|China|Colombia|Comoros|Congo -'
+    'Brazzaville|Congo - Kinshasa|Costa Rica|Côte'
+    'd’Ivoire|Croatia|Cuba|Cyprus|Czechia|Denmark|Djibouti|Dominica|Dominican Republic|Ecuador|Egypt|El'
+    'Salvador|Equatorial Guinea|Eritrea|Estonia|Eswatini|Ethiopia|Fiji|Finland|France|Gabon|Gambia|Georgi'
+    'a|Germany|Ghana|Greece|Grenada|Guatemala|Guinea|Guinea-Bissau|Guyana|Haiti|Honduras|Hong Kong SAR Ch'
+    'ina|Hungary|Iceland|India|Indonesia|Iran|Iraq|Ireland|Israel|Italy|Jamaica|Japan|Jordan|Kazakhstan|K'
+    'enya|Kiribati|Kuwait|Kyrgyzstan|Laos|Latvia|Lebanon|Lesotho|Liberia|Libya|Liechtenstein|Lithuania|Lu'
+    'xembourg|Macao SAR China|Madagascar|Malawi|Malaysia|Maldives|Mali|Malta|Marshall Islands|Mauritania|'
+    'Mauritius|Mexico|Micronesia|Moldova|Monaco|Mongolia|Montenegro|Morocco|Mozambique|Myanmar'
+    '(Burma)|Namibia|Nauru|Nepal|Netherlands|New Zealand|Nicaragua|Niger|Nigeria|North Korea|North'
+    'Macedonia|Norway|Oman|Pakistan|Palau|Palestinian Territories|Panama|Papua New'
+    'Guinea|Paraguay|Peru|Philippines|Poland|Portugal|Puerto Rico|Qatar|Romania|Russia|Rwanda|St. Kitts &'
+    'Nevis|St. Lucia|St. Vincent & Grenadines|Samoa|San Marino|São Tomé & Príncipe|Saudi'
+    'Arabia|Senegal|Serbia|Seychelles|Sierra Leone|Singapore|Slovakia|Slovenia|Solomon'
+    'Islands|Somalia|South Africa|South Korea|South Sudan|Spain|Sri Lanka|Sudan|Suriname|Sweden|Switzerla'
+    'nd|Syria|Taiwan|Tajikistan|Tanzania|Thailand|Timor-Leste|Togo|Tonga|Trinidad &'
+    'Tobago|Tunisia|Türkiye|Turkmenistan|Tuvalu|Uganda|Ukraine|United Arab Emirates|United Kingdom|United'
+    'States|Uruguay|Uzbekistan|Vanuatu|Vatican City|Venezuela|Vietnam|Yemen|Zambia|Zimbabwe'
+).split("|")
+COUNTRY_ALIASES = {
+    "uk": "United Kingdom", "u.k.": "United Kingdom", "england": "United Kingdom", "great britain": "United Kingdom",
+    "usa": "United States", "u.s.a.": "United States", "united states of america": "United States",
+    "uae": "United Arab Emirates", "korea": "South Korea", "republic of korea": "South Korea",
+    "myanmar": "Myanmar (Burma)", "hong kong": "Hong Kong SAR China", "macau": "Macao SAR China",
+    "viet nam": "Vietnam", "turkiye": "Turkey", "türkiye": "Turkey", "czech republic": "Czechia",
+}
+# Big cities that often stand in for the country on a CV's top line
+CITY_COUNTRY = {
+    "kuala lumpur": "Malaysia", "petaling jaya": "Malaysia", "selangor": "Malaysia", "shah alam": "Malaysia",
+    "penang": "Malaysia", "johor bahru": "Malaysia", "cyberjaya": "Malaysia", "putrajaya": "Malaysia",
+    "ipoh": "Malaysia", "kota kinabalu": "Malaysia", "kuching": "Malaysia", "jakarta": "Indonesia",
+    "bangkok": "Thailand", "manila": "Philippines", "dhaka": "Bangladesh", "mumbai": "India",
+    "bangalore": "India", "bengaluru": "India", "chennai": "India", "new delhi": "India", "london": "United Kingdom",
+}
+_COUNTRY_TERMS = sorted(
+    [(c.lower(), c) for c in COUNTRIES] + list(COUNTRY_ALIASES.items()) + list(CITY_COUNTRY.items()),
+    key=lambda t: -len(t[0]),
+)
+AGE_RANGES = [(18, 24, "18–24"), (25, 34, "25–34"), (35, 44, "35–44"), (45, 54, "45–54"), (55, 200, "55+")]
+NOT_A_NAME = {"curriculum", "vitae", "resume", "résumé", "cv", "profile", "sample", "page"}
+PERSONAL_HINT = re.compile(r"\b(name|address|location|based in|lives? in|nationality|citizenship|country|"
+                           r"date of birth|d\.?o\.?b|born|age)\b", re.I)
+
+
+def find_country(lines):
+    for line in lines:
+        low = " " + re.sub(r"[|,;/()·•]", " ", line.lower()) + " "
+        for term, country in _COUNTRY_TERMS:
+            if re.search(r"(?<![a-z])" + re.escape(term) + r"(?![a-z])", low):
+                return country
+    return None
+
+
+def find_name(lines):
+    for line in lines:
+        m = re.match(r"^\s*(?:full\s+)?name\s*:\s*(.+)$", line, re.I)
+        if m:
+            return clean(m.group(1), 60)
+    for line in lines[:3]:  # a CV's first line is usually the person's name
+        words = line.split()
+        if (2 <= len(words) <= 5 and len(line) <= 60 and not re.search(r"[@\d|:/]", line)
+                and all(re.fullmatch(r"[A-Za-zÀ-ÿ'’.\-]+", w) for w in words)
+                and not NOT_A_NAME & {w.lower().strip(".") for w in words}):
+            return " ".join(w.title() if w.isupper() else w for w in words)  # "AINA RAHMAN" -> "Aina Rahman"
+    return None
+
+
+def find_age_range(lines, today=None):
+    year_now = (today or date.today()).year
+    for line in lines:
+        m = re.search(r"\bage\s*:?\s*(\d{2})\b", line, re.I)
+        age = int(m.group(1)) if m else None
+        if age is None and re.search(r"date of birth|d\.?o\.?b|\bborn\b", line, re.I):
+            y = re.search(r"\b(19[3-9]\d|20[0-2]\d)\b", line)
+            age = year_now - int(y.group(1)) if y else None
+        if age:
+            return next((label for lo, hi, label in AGE_RANGES if lo <= age <= hi), None)
+    return None
+
+
+def read_personal(text):
+    """Name, country and age range for the About-you step, from the CV's top lines and any
+    personal-details lines. Email, phone and street address are never read or kept."""
+    sec = split_sections(text)
+    top = sec.get("top", [])
+    personal = [l for l in text.splitlines() if PERSONAL_HINT.search(l)][:12]
+    out = {}
+    name = find_name(top + personal)
+    country = find_country(top + personal)
+    age = find_age_range(top + personal)
+    if name:
+        out["name"] = name
+    if country:
+        out["country"] = country
+    if age:
+        out["ageRange"] = age
+    return out
+
+
 # ---------------------------------------------------------------- 4. ESCO matching + final profile
 
 @lru_cache(maxsize=1)
@@ -732,9 +839,16 @@ def read_cv(filename, data):
     text = extract_text(filename, data)
     from . import cv_ai
 
+    result = None
     if cv_ai.enabled():
         try:
-            return build_profile(cv_ai.read(text), "ai")
+            result = build_profile(cv_ai.read(text), "ai")
         except Exception:
             pass  # any AI problem: fall back to the rules below
-    return build_profile(read_rules(text), "rules")
+    result = result or build_profile(read_rules(text), "rules")
+    # About-you answers always come from the rules, so the AI never sees a reason to keep them
+    personal = read_personal(text)
+    result["profile"] = {**personal, **result["profile"]}
+    result["filled"] = list(personal) + result["filled"]
+    result["found"]["personal"] = list(personal)
+    return result

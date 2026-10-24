@@ -22,6 +22,13 @@ export const SKILL_LEVELS = ["Heard of it", "Know the basics", "Comfortable", "C
 
 export const STEPS = [
   {
+    id: "cv",
+    title: "Upload your CV",
+    nav: "CV upload",
+    required: false,
+    custom: "cv",
+  },
+  {
     id: "basics",
     title: "About you",
     nav: "Basics",
@@ -42,13 +49,6 @@ export const STEPS = [
         label: "I agree that my university or organisation's staff can see my progress on Bridge by name: my programme, how I'm doing in each module, my best-match role and how much I'm learning. They never see my CV file.",
       },
     ],
-  },
-  {
-    id: "cv",
-    title: "Upload your CV",
-    nav: "CV upload",
-    required: false,
-    custom: "cv",
   },
   {
     id: "education",

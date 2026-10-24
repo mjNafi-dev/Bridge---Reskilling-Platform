@@ -178,7 +178,7 @@ export default function DataSources() {
           <h3>What we keep, and what we don't</h3>
           <ul className="ds-list">
             <li>Your answers stay in this browser. There are no accounts in this demo.</li>
-            <li>A CV is read once on the server for roles, skills and education, then thrown away. Names and contact details are never read.</li>
+            <li>A CV is read once on the server for your name, country, roles, skills and education, then thrown away. Email, phone and address are never read.</li>
             <li>CV reading uses rules{data?.cv_ai ? ", with AI switched on on this server" : ""}. No AI is used for matching or scores.</li>
             <li>A university or organisation sees a student's progress by name only if the student joins it with their code and agrees to it.</li>
           </ul>
